@@ -15,7 +15,7 @@
   .header h1 { font-size: 22px; }
   .header .sub { font-size: 13px; color: #aaa; margin-top: 4px; }
   .loc-select { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; font-size: 14px; cursor: pointer; }
-  .container { max-width: 1280px; margin: 30px auto; padding: 0 20px; }
+  .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
   .upload { background: #fff; border: 2px dashed #ccc; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 30px; cursor: pointer; }
   .upload:hover { border-color: #111; }
   .upload input { display: none; }
@@ -37,30 +37,51 @@
   .drill.on { display: block; }
   .drill h3 { margin-bottom: 18px; }
   .chartbox { max-width: 380px; margin: 0 auto 25px; }
-  .tree-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 25px; }
+  .section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 25px; }
   .tree-controls { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
   .tree-controls label { font-size: 13px; color: #666; margin-right: 8px; }
   .chart-btn { padding: 6px 14px; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 13px; }
   .chart-btn.active { background: #111; color: #fff; border-color: #111; }
   #treeChart { width: 100%; height: 520px; }
+
+  /* MOQ section */
+  .moq-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; }
+  .moq-controls { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+  .moq-controls label { font-size: 14px; font-weight: 600; }
+  .moq-controls input[type="range"] { flex: 1; min-width: 200px; cursor: pointer; }
+  .moq-value { font-size: 16px; font-weight: 700; background: #111; color: #fff; padding: 6px 14px; border-radius: 8px; min-width: 130px; text-align: center; }
+  .moq-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .metric { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; }
+  .metric .lbl { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: .5px; margin-bottom: 6px; }
+  .metric .val { font-size: 20px; font-weight: 700; }
+  .metric.highlight { background: #111; color: #fff; border-color: #111; }
+  .metric.highlight .lbl { color: #aaa; }
+  #moqChart { max-height: 320px; }
+  details { margin-top: 15px; }
+  details summary { cursor: pointer; font-size: 13px; color: #555; padding: 8px 0; }
+  details table { margin-top: 10px; }
+  details tr td { padding: 6px 10px; font-size: 13px; }
+
+  /* Table */
   table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
-  th { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: .5px; }
-  td.num { text-align: right; }
-  td.pct { text-align: right; color: #666; font-size: 12px; width: 80px; }
-  tr.L2 { background: #f0f4f8; font-weight: 700; }
-  tr.L3 { background: #fafbfc; }
-  tr.L4 { background: #fcfcfc; color: #444; }
-  tr.L5 { background: #fdfdfd; color: #666; font-size: 12px; }
-  .indent-L2 { padding-left: 20px !important; }
-  .indent-L3 { padding-left: 40px !important; }
-  .indent-L4 { padding-left: 60px !important; }
-  .indent-L5 { padding-left: 80px !important; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: top; }
+  th { font-size: 10px; text-transform: uppercase; color: #666; letter-spacing: .5px; background: #f9fafb; position: sticky; top: 0; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { background: #eef2f7; color: #111; }
+  td.num, th.num { text-align: right; }
+  td.pct, th.pct { text-align: right; width: 80px; color: #555; }
+  tbody tr:hover { background: #f9fafb; }
+  td.lvl { font-size: 12px; color: #333; }
+  td.lvl.L1 { color: #888; } td.lvl.L2 { font-weight: 600; color: #222; }
+  td.lvl.L3 { color: #333; } td.lvl.L4 { color: #555; font-size: 11.5px; }
+  td.lvl.L5 { color: #777; font-size: 11px; }
+
   .btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
   button.action { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
   .primary { background: #111; color: #fff; }
   .secondary { background: #e5e5e5; color: #222; }
   .footer { text-align: center; color: #999; font-size: 12px; padding: 30px; }
+  .tbl-wrap { overflow-x: auto; }
 </style>
 </head>
 <body>
@@ -95,8 +116,44 @@
 
     <div class="chartbox"><canvas id="chart"></canvas></div>
 
-    <div class="tree-section">
-      <h3 style="margin-bottom:15px;">Cost Driver Tree (5 Layers)</h3>
+    <!-- MOQ section -->
+    <div class="section">
+      <h3 style="margin-bottom:15px;">MOQ — Volume Sensitivity</h3>
+      <div class="moq-box">
+        <div class="moq-controls">
+          <label>Order Quantity:</label>
+          <input type="range" id="moqSlider" oninput="onMOQChange()">
+          <div class="moq-value" id="moqValue">—</div>
+        </div>
+        <div class="moq-metrics">
+          <div class="metric">
+            <div class="lbl">Variable Cost / Unit (FOB)</div>
+            <div class="val" id="mVariable">—</div>
+          </div>
+          <div class="metric">
+            <div class="lbl">Fixed Cost Pool</div>
+            <div class="val" id="mPool">—</div>
+          </div>
+          <div class="metric">
+            <div class="lbl">Fixed Cost / Unit (amortised)</div>
+            <div class="val" id="mFixedPerUnit">—</div>
+          </div>
+          <div class="metric highlight">
+            <div class="lbl">Total Unit Cost</div>
+            <div class="val" id="mTotal">—</div>
+          </div>
+        </div>
+        <canvas id="moqChart"></canvas>
+        <details>
+          <summary>Fixed cost items breakdown</summary>
+          <table id="fixedItems"></table>
+        </details>
+      </div>
+    </div>
+
+    <!-- Tree visualisation -->
+    <div class="section">
+      <h3 style="margin-bottom:15px;">Cost Driver Tree</h3>
       <div class="tree-controls">
         <label>Chart type:</label>
         <button class="chart-btn active" data-type="icicle" onclick="setChartType('icicle')">Icicle</button>
@@ -106,9 +163,12 @@
       <div id="treeChart"></div>
     </div>
 
-    <div class="tree-section">
-      <h3 style="margin-bottom:15px;">Full Cost Tree Table</h3>
-      <table id="table"></table>
+    <!-- Hierarchical table -->
+    <div class="section">
+      <h3 style="margin-bottom:15px;">Cost Tree Table — click column headers to sort</h3>
+      <div class="tbl-wrap">
+        <table id="table"></table>
+      </div>
     </div>
 
     <div class="btns">
@@ -119,15 +179,18 @@
 </div>
 
 <div class="footer">
-  Estimates based on industry benchmarks (UNIDO footwear costing, ILO footwear study, apparel cost structures, 2026 freight & tariff data). Not actual PUMA supplier data.
+  Estimates based on industry benchmarks. Not actual PUMA supplier data.
 </div>
 
 <script>
-let data = null, selected = null, chart = null, treeChartDrawn = null, model = null;
+let data = null, selected = null, chart = null, moqChart = null, model = null;
 let currentLocation = null, currentChartType = 'icicle';
+let currentMOQ = null;
+let sortState = { column: 'cost', dir: 'desc' };
 
 const fmt = n => '€' + n.toFixed(2);
 const pct = n => n.toFixed(1) + '%';
+const pct2 = n => n.toFixed(2) + '%';
 
 async function load() {
   const r = await fetch('cost_data.json');
@@ -150,18 +213,21 @@ function onLocationChange() {
   if (selected) renderDrilldown();
 }
 
-// ---------- Aggregate cost tree ----------
 function totalOf(node) {
   if (node.cost !== undefined) return node.cost;
   return (node.children || []).reduce((s, c) => s + totalOf(c), 0);
 }
 
 function applyLocationToTree(node, multiplier) {
-  // Recursively scale labour-related nodes and re-aggregate
   const clone = JSON.parse(JSON.stringify(node));
   function scale(n, isLabour) {
     let flag = isLabour;
-    if (n.name && (n.name.toLowerCase().includes('labour') || n.name.toLowerCase().includes('operator') || n.name.toLowerCase().includes('supervisor') || n.name.toLowerCase().includes('qc labour') || n.name.toLowerCase().includes('packing labour') || n.name.toLowerCase().includes('admin'))) flag = true;
+    if (n.name && (n.name.toLowerCase().includes('labour') ||
+                   n.name.toLowerCase().includes('operator') ||
+                   n.name.toLowerCase().includes('supervisor') ||
+                   n.name.toLowerCase().includes('qc labour') ||
+                   n.name.toLowerCase().includes('packing labour') ||
+                   n.name.toLowerCase().includes('admin'))) flag = true;
     if (n.children) n.children.forEach(c => scale(c, flag));
     if (n.cost !== undefined && flag) n.cost = n.cost * multiplier;
   }
@@ -170,7 +236,8 @@ function applyLocationToTree(node, multiplier) {
 }
 
 function calc(p) {
-  const tree = currentLocation ? applyLocationToTree(p.costTree, currentLocation.laborMultiplier) : p.costTree;
+  const baseTree = p.costTree;
+  const tree = currentLocation ? applyLocationToTree(baseTree, currentLocation.laborMultiplier) : baseTree;
   const fob = totalOf(tree);
   const marginNode = tree.children.find(c => c.name === 'Factory Margin');
   const margin = marginNode ? totalOf(marginNode) : 0;
@@ -180,12 +247,10 @@ function calc(p) {
   const mat = matNode ? totalOf(matNode) : 0;
   const lab = labNode ? totalOf(labNode) : 0;
   const ovh = ovhNode ? totalOf(ovhNode) : 0;
-
   const freight = currentLocation ? currentLocation.freightAdd : 0;
   const dutyRate = currentLocation ? currentLocation.dutyRate : 0;
   const duty = fob * (dutyRate / 100);
   const landed = fob + freight + duty;
-
   return { tree, fob, mat, lab, ovh, margin, freight, duty, dutyRate, landed };
 }
 
@@ -197,6 +262,13 @@ function renderCards() {
     d.className = 'card';
     d.onclick = () => select(p.id);
     const locNote = currentLocation ? ` (${currentLocation.name})` : '';
+    let moqLine = '';
+    if (p.moq) {
+      const fixedPerUnit = p.moq.fixedCostPool / p.moq.current;
+      const totalUnit = c.fob + fixedPerUnit;
+      moqLine = `<div class="row"><span class="lbl">Fixed @ MOQ ${p.moq.current.toLocaleString()}</span><span class="val">${fmt(fixedPerUnit)}</span></div>
+                 <div class="row big"><span>Total Unit Cost</span><span>${fmt(totalUnit)}</span></div>`;
+    }
     d.innerHTML = `
       <h2>${p.name}</h2>
       <div class="cat">${p.category}${locNote}</div>
@@ -204,13 +276,10 @@ function renderCards() {
       <div class="row"><span class="lbl">Labour (CMT)</span><span class="val">${fmt(c.lab)}</span></div>
       <div class="row"><span class="lbl">Overheads</span><span class="val">${fmt(c.ovh)}</span></div>
       <div class="row"><span class="lbl">Factory margin</span><span class="val">${fmt(c.margin)}</span></div>
-      <div class="row big"><span>Total FOB</span><span>${fmt(c.fob)}</span></div>
-      ${currentLocation ? `
-        <div class="row"><span class="lbl">Freight</span><span class="val">${fmt(c.freight)}</span></div>
-        <div class="row"><span class="lbl">Duty (${c.dutyRate}%)</span><span class="val">${fmt(c.duty)}</span></div>
-        <div class="row big"><span>Landed Cost</span><span>${fmt(c.landed)}</span></div>` : ''}
+      <div class="row big"><span>Variable FOB</span><span>${fmt(c.fob)}</span></div>
+      ${moqLine}
       <div class="row"><span class="lbl">Retail</span><span class="val">${fmt(p.retailPrice)}</span></div>
-      <div class="row"><span class="lbl">Gross margin</span><span class="val">${(((p.retailPrice - c.fob) / p.retailPrice) * 100).toFixed(1)}%</span></div>`;
+    `;
     g.appendChild(d);
   });
 }
@@ -224,7 +293,7 @@ function select(id) {
 function renderDrilldown() {
   if (!selected) return;
   const c = calc(selected);
-  document.getElementById('drillTitle').textContent = selected.name + ' — Cost Driver Tree';
+  document.getElementById('drillTitle').textContent = selected.name + ' — Cost Breakdown';
 
   const banner = document.getElementById('locBanner');
   if (currentLocation) {
@@ -242,11 +311,74 @@ function renderDrilldown() {
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
 
-  // Tree chart
-  drawTreeChart(c.tree);
+  // MOQ
+  if (selected.moq) {
+    const moq = selected.moq;
+    currentMOQ = moq.current;
+    const slider = document.getElementById('moqSlider');
+    slider.min = moq.min; slider.max = moq.max; slider.step = moq.step;
+    slider.value = moq.current;
+    updateMOQDisplay();
+  }
 
-  // Table
-  renderTreeTable(c.tree, c.fob);
+  drawTreeChart(c.tree);
+  renderHierarchicalTable(c.tree, c.fob);
+}
+
+function onMOQChange() {
+  currentMOQ = parseInt(document.getElementById('moqSlider').value);
+  updateMOQDisplay();
+}
+
+function updateMOQDisplay() {
+  if (!selected.moq) return;
+  const moq = selected.moq;
+  const variableCost = calc(selected).fob;
+  const fixedPool = moq.fixedCostPool;
+  const fixedPerUnit = fixedPool / currentMOQ;
+  const totalUnitCost = variableCost + fixedPerUnit;
+
+  document.getElementById('moqValue').textContent = currentMOQ.toLocaleString() + ' ' + moq.unit;
+  document.getElementById('mVariable').textContent = fmt(variableCost);
+  document.getElementById('mPool').textContent = '€' + fixedPool.toLocaleString();
+  document.getElementById('mFixedPerUnit').textContent = fmt(fixedPerUnit);
+  document.getElementById('mTotal').textContent = fmt(totalUnitCost);
+
+  // Fixed items table
+  let fh = `<thead><tr><th>Fixed Cost Item</th><th class="num">Cost</th></tr></thead><tbody>`;
+  moq.fixedItems.forEach(it => { fh += `<tr><td>${it.name}</td><td class="num">${'€' + it.cost.toLocaleString()}</td></tr>`; });
+  fh += `<tr style="font-weight:700; border-top:2px solid #111;"><td>Total Fixed Pool</td><td class="num">€${fixedPool.toLocaleString()}</td></tr>`;
+  fh += `</tbody>`;
+  document.getElementById('fixedItems').innerHTML = fh;
+
+  // MOQ curve
+  const quantities = [], fixedCurve = [], totalCurve = [];
+  const steps = 60;
+  for (let i = 0; i <= steps; i++) {
+    const q = moq.min + (moq.max - moq.min) * i / steps;
+    quantities.push(Math.round(q));
+    fixedCurve.push(fixedPool / q);
+    totalCurve.push(variableCost + fixedPool / q);
+  }
+  if (moqChart) moqChart.destroy();
+  moqChart = new Chart(document.getElementById('moqChart'), {
+    type: 'line',
+    data: {
+      labels: quantities,
+      datasets: [
+        { label: 'Fixed cost / unit', data: fixedCurve, borderColor: '#f57c00', backgroundColor: 'rgba(245,124,0,0.08)', borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true },
+        { label: 'Total unit cost', data: totalCurve, borderColor: '#111', borderWidth: 2, pointRadius: 0, tension: 0.3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { position: 'bottom' } },
+      scales: {
+        x: { title: { display: true, text: 'Order Quantity' }, ticks: { maxTicksLimit: 10 } },
+        y: { title: { display: true, text: '€ per unit' } }
+      }
+    }
+  });
 }
 
 function drawTreeChart(root) {
@@ -254,26 +386,17 @@ function drawTreeChart(root) {
   const palette = ['#1a1a1a', '#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'];
   function walk(node, parentId, depth) {
     const id = parentId ? parentId + '/' + node.name : node.name;
-    ids.push(id);
-    labels.push(node.name);
-    parents.push(parentId || '');
+    ids.push(id); labels.push(node.name); parents.push(parentId || '');
     values.push(totalOf(node));
     colors.push(palette[Math.min(depth, palette.length - 1)]);
     if (node.children) node.children.forEach(ch => walk(ch, id, depth + 1));
   }
   walk(root, '', 0);
-
-  const layout = {
-    margin: { l: 0, r: 0, t: 10, b: 10 },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    font: { size: 11 }
-  };
-
+  const layout = { margin: { l: 0, r: 0, t: 10, b: 10 }, paper_bgcolor: 'rgba(0,0,0,0)', font: { size: 11 } };
   let trace;
   if (currentChartType === 'icicle') {
     trace = { type: 'icicle', ids, labels, parents, values, branchvalues: 'total',
-      textinfo: 'label+percent parent', marker: { colors },
-      tiling: { orientation: 'v' } };
+      textinfo: 'label+percent parent', marker: { colors }, tiling: { orientation: 'v' } };
   } else if (currentChartType === 'treemap') {
     trace = { type: 'treemap', ids, labels, parents, values, branchvalues: 'total',
       textinfo: 'label+percent parent', marker: { colors } };
@@ -281,7 +404,6 @@ function drawTreeChart(root) {
     trace = { type: 'sunburst', ids, labels, parents, values, branchvalues: 'total',
       textinfo: 'label+percent parent', marker: { colors } };
   }
-
   Plotly.newPlot('treeChart', [trace], layout, { responsive: true, displayModeBar: false });
 }
 
@@ -291,35 +413,88 @@ function setChartType(type) {
   if (selected) drawTreeChart(calc(selected).tree);
 }
 
-function renderTreeTable(root, fob) {
-  const t = document.getElementById('table');
-  let h = `<thead><tr>
-    <th>Cost Component</th>
-    <th class="num">Cost</th>
-    <th class="pct">% of Parent</th>
-    <th class="pct">% of FOB</th>
-  </tr></thead><tbody>`;
-
-  function walk(node, depth, parentCost) {
-    const cost = totalOf(node);
-    const pctParent = parentCost ? (cost / parentCost) * 100 : 100;
-    const pctFob = (cost / fob) * 100;
-    const cls = 'L' + Math.min(depth + 1, 5);
-    const indent = depth === 0 ? '' : 'indent-L' + Math.min(depth + 1, 5);
-    h += `<tr class="${cls}">
-      <td class="${indent}">${node.name}</td>
-      <td class="num">${fmt(cost)}</td>
-      <td class="pct">${pct(node.cost !== undefined && parentCost ? pctParent : (node.cost === undefined ? pctParent : 100))}</td>
-      <td class="pct">${pct(pctFob)}</td>
-    </tr>`;
-    if (node.children) node.children.forEach(c => walk(c, depth + 1, cost));
+// Flatten leaf paths
+function flattenLeaves(node, parentTotal, path, fob) {
+  const rows = [];
+  const nodeTotal = totalOf(node);
+  const newPath = [...path, node.name];
+  if (node.children && node.children.length > 0) {
+    for (const child of node.children) {
+      rows.push(...flattenLeaves(child, nodeTotal, newPath, fob));
+    }
+  } else {
+    rows.push({
+      path: newPath,
+      cost: nodeTotal,
+      parentCost: parentTotal,
+      pctOfParent: parentTotal ? (nodeTotal / parentTotal) * 100 : 100,
+      pctOfFob: fob ? (nodeTotal / fob) * 100 : 0
+    });
   }
-  walk(root, 0, null);
-  h += `</tbody>`;
-  t.innerHTML = h;
+  return rows;
 }
 
-function label(k) { return k.replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase()); }
+function renderHierarchicalTable(tree, fob) {
+  const rows = flattenLeaves(tree, null, [], fob);
+
+  // Sort
+  if (sortState.column) {
+    rows.sort((a, b) => {
+      const d = sortState.dir === 'asc' ? 1 : -1;
+      const col = sortState.column;
+      if (col.startsWith('L')) {
+        const idx = parseInt(col.substring(1)) - 1;
+        const av = (a.path[idx] || '').toLowerCase();
+        const bv = (b.path[idx] || '').toLowerCase();
+        return av.localeCompare(bv) * d;
+      }
+      if (col === 'cost') return (a.cost - b.cost) * d;
+      if (col === 'parent') return (a.pctOfParent - b.pctOfParent) * d;
+      if (col === 'fob') return (a.pctOfFob - b.pctOfFob) * d;
+      return 0;
+    });
+  }
+
+  const arrow = (col) => sortState.column === col ? (sortState.dir === 'asc' ? ' ↑' : ' ↓') : ' ⇅';
+
+  let h = `<thead><tr>
+    <th class="sortable" onclick="sortBy('L1')">L1${arrow('L1')}</th>
+    <th class="sortable" onclick="sortBy('L2')">L2${arrow('L2')}</th>
+    <th class="sortable" onclick="sortBy('L3')">L3${arrow('L3')}</th>
+    <th class="sortable" onclick="sortBy('L4')">L4${arrow('L4')}</th>
+    <th class="sortable" onclick="sortBy('L5')">L5${arrow('L5')}</th>
+    <th class="sortable num" onclick="sortBy('cost')">Cost (€)${arrow('cost')}</th>
+    <th class="sortable pct" onclick="sortBy('parent')">% Parent${arrow('parent')}</th>
+    <th class="sortable pct" onclick="sortBy('fob')">% FOB${arrow('fob')}</th>
+  </tr></thead><tbody>`;
+
+  for (const r of rows) {
+    h += `<tr>`;
+    for (let i = 0; i < 5; i++) {
+      const v = r.path[i] || '';
+      h += `<td class="lvl L${i + 1}">${v}</td>`;
+    }
+    h += `<td class="num">${fmt(r.cost)}</td>`;
+    h += `<td class="pct">${pct(r.pctOfParent)}</td>`;
+    h += `<td class="pct">${pct2(r.pctOfFob)}</td>`;
+    h += `</tr>`;
+  }
+  h += `</tbody>`;
+  document.getElementById('table').innerHTML = h;
+}
+
+function sortBy(column) {
+  if (sortState.column === column) {
+    sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortState.column = column;
+    sortState.dir = (column === 'L1' || column === 'L2' || column === 'L3' || column === 'L4' || column === 'L5') ? 'asc' : 'desc';
+  }
+  if (selected) {
+    const c = calc(selected);
+    renderHierarchicalTable(c.tree, c.fob);
+  }
+}
 
 document.getElementById('img').addEventListener('change', async e => {
   const f = e.target.files[0]; if (!f) return;
