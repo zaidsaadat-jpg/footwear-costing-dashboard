@@ -1,0 +1,62 @@
+{
+  "last_updated": "2026-10-01",
+  "currency": "EUR",
+  "notes": "Cost figures are industry benchmark estimates, not actual PUMA supplier data. Sources: UNIDO footwear costing framework, apparel cost structure studies.",
+  "products": [
+    {
+      "id": "velocity-nitro-4",
+      "name": "PUMA Velocity NITRO 4",
+      "category": "Running Shoe",
+      "retailPrice": 140.00,
+      "retailPriceSource": "PUMA US MSRP",
+      "bom": {
+        "upper_material": { "description": "Engineered mesh upper", "cost": 4.50, "source": "Industry benchmark" },
+        "midsole_foam": { "description": "NITROFOAM midsole", "cost": 3.80, "source": "Industry benchmark" },
+        "outsole_rubber": { "description": "PUMAGRIP rubber outsole", "cost": 2.20, "source": "Industry benchmark" },
+        "insole": { "description": "Removable sockliner", "cost": 0.80, "source": "Industry benchmark" },
+        "laces_and_trims": { "description": "Laces, eyelets, branding", "cost": 0.60, "source": "Industry benchmark" },
+        "packaging": { "description": "Polybag, shoebox, hangtag", "cost": 0.90, "source": "Apparel benchmark" }
+      },
+      "labor": { "cutting": 0.40, "stitching": 1.20, "assembly": 1.50, "finishing": 0.50 },
+      "overheads": { "factory_overhead": 1.80, "quality_control": 0.40, "management": 0.60 },
+      "factoryMarginPercent": 9,
+      "marginSource": "UNIDO: 7-10% typical for footwear"
+    },
+    {
+      "id": "future-9-match",
+      "name": "PUMA Future 9 Match FG/AG",
+      "category": "Football Boot",
+      "retailPrice": 75.00,
+      "retailPriceSource": "PUMA EU MSRP",
+      "bom": {
+        "upper_material": { "description": "Soft mesh with 3D grip zones", "cost": 3.20, "source": "Industry benchmark" },
+        "midsole_foam": { "description": "EVA midsole", "cost": 1.50, "source": "Industry benchmark" },
+        "outsole_rubber": { "description": "Rubber outsole with studs", "cost": 2.80, "source": "Industry benchmark" },
+        "insole": { "description": "NanoGrip sockliner", "cost": 0.70, "source": "Industry benchmark" },
+        "laces_and_trims": { "description": "Laces, branding", "cost": 0.50, "source": "Industry benchmark" },
+        "packaging": { "description": "Polybag, shoebox", "cost": 0.70, "source": "Apparel benchmark" }
+      },
+      "labor": { "cutting": 0.35, "stitching": 1.00, "assembly": 1.30, "finishing": 0.40 },
+      "overheads": { "factory_overhead": 1.50, "quality_control": 0.35, "management": 0.50 },
+      "factoryMarginPercent": 9,
+      "marginSource": "UNIDO: 7-10% typical for footwear"
+    },
+    {
+      "id": "training-tee",
+      "name": "PUMA Training Tee",
+      "category": "Sports Shirt",
+      "retailPrice": 35.00,
+      "retailPriceSource": "PUMA EU MSRP",
+      "bom": {
+        "fabric_main": { "description": "100% recycled polyester", "cost": 2.80, "source": "Apparel benchmark" },
+        "fabric_rib": { "description": "Elastic blend for collar and cuffs", "cost": 0.40, "source": "Apparel benchmark" },
+        "trims": { "description": "Thread, labels, heat transfers", "cost": 0.35, "source": "Apparel benchmark 5-7% of cost" },
+        "packaging": { "description": "Polybag, hangtag", "cost": 0.40, "source": "Apparel benchmark 2-3% of cost" }
+      },
+      "labor": { "cutting": 0.25, "sewing": 1.20, "finishing": 0.30 },
+      "overheads": { "factory_overhead": 0.80, "quality_control": 0.20, "management": 0.30 },
+      "factoryMarginPercent": 8,
+      "marginSource": "Apparel benchmark: 8-12%"
+    }
+  ]
+}
