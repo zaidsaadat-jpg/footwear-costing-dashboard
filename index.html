@@ -10,16 +10,17 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #222; }
-  .header { background: #111; color: #fff; padding: 20px 40px; }
+  .header { background: #111; color: #fff; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
   .header h1 { font-size: 22px; }
   .header .sub { font-size: 13px; color: #aaa; margin-top: 4px; }
+  .loc-select { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; font-size: 14px; cursor: pointer; }
   .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-  .upload { background: #fff; border: 2px dashed #ccc; border-radius: 12px; padding: 30px; text-align: center; margin-bottom: 30px; cursor: pointer; }
+  .upload { background: #fff; border: 2px dashed #ccc; border-radius: 12px; padding: 28px; text-align: center; margin-bottom: 30px; cursor: pointer; }
   .upload:hover { border-color: #111; }
   .upload input { display: none; }
-  .upload .icon { font-size: 40px; }
+  .upload .icon { font-size: 36px; }
   .upload p { color: #666; font-size: 14px; margin-top: 8px; }
-  .preview { max-width: 180px; max-height: 180px; margin: 15px auto 0; border-radius: 8px; display: none; }
+  .preview { max-width: 160px; max-height: 160px; margin: 15px auto 0; border-radius: 8px; display: none; }
   .preview.on { display: block; }
   .status { font-size: 13px; margin-top: 12px; min-height: 18px; color: #666; }
   .status.loading { color: #d97706; }
@@ -37,25 +38,40 @@
   .drill { background: #fff; border-radius: 12px; padding: 24px; margin-top: 30px; box-shadow: 0 2px 8px rgba(0,0,0,.08); display: none; }
   .drill.on { display: block; }
   .drill h3 { margin-bottom: 18px; }
-  .chartbox { max-width: 420px; margin: 0 auto 25px; }
+  .chartbox { max-width: 400px; margin: 0 auto 25px; }
   table { width: 100%; border-collapse: collapse; }
   th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
   th { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: .5px; }
   tr.group { background: #fafafa; font-weight: 700; }
+  tr.sub { background: #fdfdfd; font-size: 13px; color: #555; }
+  tr.sub td:first-child { padding-left: 28px; }
+  tr.driver { background: #f8fafc; font-size: 12px; color: #666; }
+  tr.driver td:first-child { padding-left: 46px; }
+  tr.driver td:last-child { font-style: italic; }
   tr.total { font-weight: 700; font-size: 16px; border-top: 2px solid #111; }
   td.num { text-align: right; }
   .btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
   button { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
   .primary { background: #111; color: #fff; }
   .secondary { background: #e5e5e5; color: #222; }
+  .expand-btn { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; color: #666; }
+  .expand-btn:hover { background: #f0f0f0; }
   .footer { text-align: center; color: #999; font-size: 12px; padding: 30px; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>PUMA Should-Cost Dashboard</h1>
-  <div class="sub" id="updated">Loading…</div>
+  <div>
+    <h1>PUMA Should-Cost Dashboard</h1>
+    <div class="sub" id="updated">Loading…</div>
+  </div>
+  <div>
+    <label style="font-size:12px; color:#aaa; margin-right:8px;">Manufacturing Location:</label>
+    <select class="loc-select" id="locationSelect" onchange="onLocationChange()">
+      <option value="">— Select location —</option>
+    </select>
+  </div>
 </div>
 
 <div class="container">
@@ -73,18 +89,19 @@
 
   <div class="drill" id="drill">
     <h3 id="drillTitle"></h3>
+    <div id="locBanner" style="background:#e8f5e9; padding:10px 15px; border-radius:8px; margin-bottom:20px; font-size:14px; display:none;"></div>
     <div class="chartbox"><canvas id="chart"></canvas></div>
     <table id="table"></table>
     <div class="btns">
-      <button class="primary" onclick="alert('To update costs, edit cost_data.json in your GitHub repository.\n\nA future version will fetch live material prices automatically.')">How to Refresh Costs</button>
-      <button class="secondary" onclick="alert('Edit cost_data.json directly on GitHub.\n\nChange any material, labour or overhead value, commit the change, and refresh this page.')">Manual Cost Input</button>
+      <button class="primary" onclick="alert('To update costs, edit cost_data.json in your GitHub repository.')">How to Refresh Costs</button>
+      <button class="secondary" onclick="alert('Edit cost_data.json directly on GitHub.')">Manual Cost Input</button>
     </div>
   </div>
 
 </div>
 
 <div class="footer">
-  Estimates based on industry benchmarks (UNIDO footwear costing, apparel cost structure studies).<br>
+  Estimates based on industry benchmarks (UNIDO footwear costing, ILO footwear study, apparel cost structure studies, 2026 freight and tariff data).<br>
   Not actual PUMA supplier data.
 </div>
 
@@ -93,6 +110,8 @@ let data = null;
 let selected = null;
 let chart = null;
 let model = null;
+let currentLocation = null;
+let expandedRows = {};
 
 const fmt = n => '€' + n.toFixed(2);
 
@@ -101,36 +120,67 @@ async function load() {
   data = await r.json();
   document.getElementById('updated').textContent =
     'Last updated: ' + (data.last_updated || 'unknown') + ' · Currency: ' + (data.currency || 'EUR');
+
+  const sel = document.getElementById('locationSelect');
+  data.locations.forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc.id;
+    opt.textContent = loc.name;
+    sel.appendChild(opt);
+  });
+
   renderCards();
 }
 
-function calc(p) {
+function onLocationChange() {
+  const id = document.getElementById('locationSelect').value;
+  currentLocation = data.locations.find(l => l.id === id) || null;
+  renderCards();
+  if (selected) renderDrilldown();
+}
+
+function calc(p, loc) {
   let mat = 0, lab = 0, ovh = 0;
   for (const k in p.bom) mat += p.bom[k].cost;
   for (const k in p.labor) lab += p.labor[k];
   for (const k in p.overheads) ovh += p.overheads[k];
-  const prime = mat + lab;
+
+  let laborMultiplier = loc ? loc.laborMultiplier : 1;
+  let freightAdd = loc ? loc.freightAdd : 0;
+  let dutyRate = loc ? loc.dutyRate : 0;
+
+  const adjustedLabor = lab * laborMultiplier;
+  const prime = mat + adjustedLabor;
   const sub = prime + ovh;
   const margin = sub * (p.factoryMarginPercent / 100);
-  return { mat, lab, ovh, prime, sub, margin, fob: sub + margin };
+  const fob = sub + margin;
+  const freight = loc ? freightAdd : 0;
+  const duty = fob * (dutyRate / 100);
+  const landed = fob + freight + duty;
+
+  return { mat, lab: adjustedLabor, labBase: lab, ovh, prime, sub, margin, fob, freight, duty, dutyRate, landed, laborMultiplier };
 }
 
 function renderCards() {
   const g = document.getElementById('cards');
   g.innerHTML = '';
   data.products.forEach(p => {
-    const c = calc(p);
+    const c = calc(p, currentLocation);
     const d = document.createElement('div');
     d.className = 'card';
     d.onclick = () => select(p.id);
+    let locNote = currentLocation ? ` (${currentLocation.name})` : '';
     d.innerHTML = `
       <h2>${p.name}</h2>
-      <div class="cat">${p.category}</div>
+      <div class="cat">${p.category}${locNote}</div>
       <div class="row"><span class="lbl">Materials</span><span class="val">${fmt(c.mat)}</span></div>
       <div class="row"><span class="lbl">Labour (CMT)</span><span class="val">${fmt(c.lab)}</span></div>
       <div class="row"><span class="lbl">Overheads</span><span class="val">${fmt(c.ovh)}</span></div>
       <div class="row"><span class="lbl">Factory margin (${p.factoryMarginPercent}%)</span><span class="val">${fmt(c.margin)}</span></div>
       <div class="row big"><span>Total Factory Cost (FOB)</span><span>${fmt(c.fob)}</span></div>
+      ${currentLocation ? `<div class="row"><span class="lbl">Freight</span><span class="val">${fmt(c.freight)}</span></div>
+      <div class="row"><span class="lbl">Duty (${c.dutyRate}%)</span><span class="val">${fmt(c.duty)}</span></div>
+      <div class="row big"><span>Landed Cost</span><span>${fmt(c.landed)}</span></div>` : ''}
       <div class="row"><span class="lbl">Retail price</span><span class="val">${fmt(p.retailPrice)}</span></div>
       <div class="row"><span class="lbl">Gross margin</span><span class="val">${(((p.retailPrice - c.fob) / p.retailPrice) * 100).toFixed(1)}%</span></div>
     `;
@@ -141,25 +191,52 @@ function renderCards() {
 function select(id) {
   selected = data.products.find(p => p.id === id);
   document.getElementById('drill').classList.add('on');
-  document.getElementById('drillTitle').textContent = selected.name + ' — Cost Breakdown';
-  const c = calc(selected);
-  const t = document.getElementById('table');
-  let h = `<thead><tr><th>Component</th><th>Description</th><th class="num">Cost</th></tr></thead><tbody>`;
+  renderDrilldown();
+}
 
-  h += `<tr class="group"><td colspan="3">Bill of Materials</td></tr>`;
+function renderDrilldown() {
+  if (!selected) return;
+  const c = calc(selected, currentLocation);
+  document.getElementById('drillTitle').textContent = selected.name + ' — 3-Layer Cost Breakdown';
+
+  const banner = document.getElementById('locBanner');
+  if (currentLocation) {
+    banner.style.display = 'block';
+    banner.innerHTML = `<strong>📍 Location:</strong> ${currentLocation.name} · Labour ×${currentLocation.laborMultiplier} · Freight +€${currentLocation.freightAdd} · Duty ${currentLocation.dutyRate}%`;
+  } else {
+    banner.style.display = 'none';
+  }
+
+  const t = document.getElementById('table');
+  let h = `<thead><tr><th>Component</th><th>Description / Drivers</th><th class="num">Cost</th></tr></thead><tbody>`;
+
+  h += `<tr class="group"><td colspan="3">1️⃣ Bill of Materials — Layer 1</td></tr>`;
   for (const k in selected.bom) {
     const b = selected.bom[k];
-    h += `<tr><td>${label(k)}</td><td>${b.description}<br><span style="font-size:11px;color:#999;">${b.source||''}</span></td><td class="num">${fmt(b.cost)}</td></tr>`;
+    h += `<tr><td><strong>${label(k)}</strong></td><td>${b.description}<br><span style="font-size:11px;color:#999;">${b.source||''}</span></td><td class="num">${fmt(b.cost)}</td></tr>`;
+    if (b.subcomponents) {
+      for (let si = 0; si < b.subcomponents.length; si++) {
+        const sc = b.subcomponents[si];
+        h += `<tr class="sub"><td>↳ ${sc.name}</td><td>Sub-component</td><td class="num">${fmt(sc.cost)}</td></tr>`;
+        if (sc.drivers) {
+          for (const dr of sc.drivers) {
+            h += `<tr class="driver"><td>→ ${dr.driver}</td><td>${dr.share}% — ${dr.note}</td><td class="num"></td></tr>`;
+          }
+        }
+      }
+    }
   }
   h += `<tr><td colspan="2" class="num"><strong>Materials subtotal</strong></td><td class="num">${fmt(c.mat)}</td></tr>`;
 
-  h += `<tr class="group"><td colspan="3">Labour — Cut, Make, Trim</td></tr>`;
+  h += `<tr class="group"><td colspan="3">2️⃣ Labour — Cut, Make, Trim${currentLocation ? ' (adjusted for ' + currentLocation.name + ')' : ''}</td></tr>`;
   for (const k in selected.labor) {
-    h += `<tr><td>${label(k)}</td><td>Direct labour</td><td class="num">${fmt(selected.labor[k])}</td></tr>`;
+    const base = selected.labor[k];
+    const adjusted = base * (currentLocation ? currentLocation.laborMultiplier : 1);
+    h += `<tr><td>${label(k)}</td><td>Direct labour${currentLocation ? ` (base: ${fmt(base)} × ${currentLocation.laborMultiplier})` : ''}</td><td class="num">${fmt(adjusted)}</td></tr>`;
   }
   h += `<tr><td colspan="2" class="num"><strong>Labour subtotal</strong></td><td class="num">${fmt(c.lab)}</td></tr>`;
 
-  h += `<tr class="group"><td colspan="3">Factory Overheads</td></tr>`;
+  h += `<tr class="group"><td colspan="3">3️⃣ Factory Overheads</td></tr>`;
   for (const k in selected.overheads) {
     h += `<tr><td>${label(k)}</td><td>Indirect cost</td><td class="num">${fmt(selected.overheads[k])}</td></tr>`;
   }
@@ -168,6 +245,13 @@ function select(id) {
   h += `<tr><td colspan="2" class="num"><strong>Prime cost (materials + labour)</strong></td><td class="num">${fmt(c.prime)}</td></tr>`;
   h += `<tr><td colspan="2" class="num"><strong>Factory margin (${selected.factoryMarginPercent}%)</strong></td><td class="num">${fmt(c.margin)}</td></tr>`;
   h += `<tr class="total"><td colspan="2" class="num">Total Factory Cost (FOB)</td><td class="num">${fmt(c.fob)}</td></tr>`;
+
+  if (currentLocation) {
+    h += `<tr><td colspan="2" class="num">Freight to destination</td><td class="num">${fmt(c.freight)}</td></tr>`;
+    h += `<tr><td colspan="2" class="num">Import duty (${c.dutyRate}%)</td><td class="num">${fmt(c.duty)}</td></tr>`;
+    h += `<tr class="total"><td colspan="2" class="num">Total Landed Cost</td><td class="num">${fmt(c.landed)}</td></tr>`;
+  }
+
   h += `</tbody>`;
   t.innerHTML = h;
 
