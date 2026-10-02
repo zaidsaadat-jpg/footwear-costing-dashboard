@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PUMA Should-Cost Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest/dist/mobilenet.min.js"></script>
 <style>
@@ -14,48 +15,51 @@
   .header h1 { font-size: 22px; }
   .header .sub { font-size: 13px; color: #aaa; margin-top: 4px; }
   .loc-select { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; font-size: 14px; cursor: pointer; }
-  .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-  .upload { background: #fff; border: 2px dashed #ccc; border-radius: 12px; padding: 28px; text-align: center; margin-bottom: 30px; cursor: pointer; }
+  .container { max-width: 1280px; margin: 30px auto; padding: 0 20px; }
+  .upload { background: #fff; border: 2px dashed #ccc; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 30px; cursor: pointer; }
   .upload:hover { border-color: #111; }
   .upload input { display: none; }
-  .upload .icon { font-size: 36px; }
+  .upload .icon { font-size: 34px; }
   .upload p { color: #666; font-size: 14px; margin-top: 8px; }
-  .preview { max-width: 160px; max-height: 160px; margin: 15px auto 0; border-radius: 8px; display: none; }
+  .preview { max-width: 150px; max-height: 150px; margin: 12px auto 0; border-radius: 8px; display: none; }
   .preview.on { display: block; }
-  .status { font-size: 13px; margin-top: 12px; min-height: 18px; color: #666; }
-  .status.loading { color: #d97706; }
-  .status.ok { color: #059669; }
-  .status.err { color: #dc2626; }
+  .status { font-size: 13px; margin-top: 10px; min-height: 18px; color: #666; }
+  .status.loading { color: #d97706; } .status.ok { color: #059669; } .status.err { color: #dc2626; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
   .card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.08); cursor: pointer; border: 2px solid transparent; }
   .card:hover { border-color: #111; }
   .card h2 { font-size: 17px; margin-bottom: 4px; }
   .card .cat { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; }
   .row { display: flex; justify-content: space-between; padding: 7px 0; border-top: 1px solid #eee; font-size: 14px; }
-  .row .lbl { color: #666; }
-  .row .val { font-weight: 600; }
+  .row .lbl { color: #666; } .row .val { font-weight: 600; }
   .row.big { border-top: 2px solid #111; margin-top: 8px; padding-top: 12px; font-size: 16px; }
   .drill { background: #fff; border-radius: 12px; padding: 24px; margin-top: 30px; box-shadow: 0 2px 8px rgba(0,0,0,.08); display: none; }
   .drill.on { display: block; }
   .drill h3 { margin-bottom: 18px; }
-  .chartbox { max-width: 400px; margin: 0 auto 25px; }
+  .chartbox { max-width: 380px; margin: 0 auto 25px; }
+  .tree-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 25px; }
+  .tree-controls { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+  .tree-controls label { font-size: 13px; color: #666; margin-right: 8px; }
+  .chart-btn { padding: 6px 14px; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .chart-btn.active { background: #111; color: #fff; border-color: #111; }
+  #treeChart { width: 100%; height: 520px; }
   table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
   th { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: .5px; }
-  tr.group { background: #fafafa; font-weight: 700; }
-  tr.sub { background: #fdfdfd; font-size: 13px; color: #555; }
-  tr.sub td:first-child { padding-left: 28px; }
-  tr.driver { background: #f8fafc; font-size: 12px; color: #666; }
-  tr.driver td:first-child { padding-left: 46px; }
-  tr.driver td:last-child { font-style: italic; }
-  tr.total { font-weight: 700; font-size: 16px; border-top: 2px solid #111; }
   td.num { text-align: right; }
+  td.pct { text-align: right; color: #666; font-size: 12px; width: 80px; }
+  tr.L2 { background: #f0f4f8; font-weight: 700; }
+  tr.L3 { background: #fafbfc; }
+  tr.L4 { background: #fcfcfc; color: #444; }
+  tr.L5 { background: #fdfdfd; color: #666; font-size: 12px; }
+  .indent-L2 { padding-left: 20px !important; }
+  .indent-L3 { padding-left: 40px !important; }
+  .indent-L4 { padding-left: 60px !important; }
+  .indent-L5 { padding-left: 80px !important; }
   .btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-  button { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  button.action { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
   .primary { background: #111; color: #fff; }
   .secondary { background: #e5e5e5; color: #222; }
-  .expand-btn { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; color: #666; }
-  .expand-btn:hover { background: #f0f0f0; }
   .footer { text-align: center; color: #999; font-size: 12px; padding: 30px; }
 </style>
 </head>
@@ -75,11 +79,9 @@
 </div>
 
 <div class="container">
-
   <div class="upload" onclick="document.getElementById('img').click()">
     <div class="icon">📸</div>
     <p><strong>Upload a product image</strong> — the AI will detect the category</p>
-    <p style="font-size:12px;">JPG, PNG or WEBP</p>
     <input type="file" id="img" accept="image/*">
     <img id="preview" class="preview" alt="">
     <div id="status" class="status"></div>
@@ -90,45 +92,54 @@
   <div class="drill" id="drill">
     <h3 id="drillTitle"></h3>
     <div id="locBanner" style="background:#e8f5e9; padding:10px 15px; border-radius:8px; margin-bottom:20px; font-size:14px; display:none;"></div>
+
     <div class="chartbox"><canvas id="chart"></canvas></div>
-    <table id="table"></table>
+
+    <div class="tree-section">
+      <h3 style="margin-bottom:15px;">Cost Driver Tree (5 Layers)</h3>
+      <div class="tree-controls">
+        <label>Chart type:</label>
+        <button class="chart-btn active" data-type="icicle" onclick="setChartType('icicle')">Icicle</button>
+        <button class="chart-btn" data-type="treemap" onclick="setChartType('treemap')">Treemap</button>
+        <button class="chart-btn" data-type="sunburst" onclick="setChartType('sunburst')">Sunburst</button>
+      </div>
+      <div id="treeChart"></div>
+    </div>
+
+    <div class="tree-section">
+      <h3 style="margin-bottom:15px;">Full Cost Tree Table</h3>
+      <table id="table"></table>
+    </div>
+
     <div class="btns">
-      <button class="primary" onclick="alert('To update costs, edit cost_data.json in your GitHub repository.')">How to Refresh Costs</button>
-      <button class="secondary" onclick="alert('Edit cost_data.json directly on GitHub.')">Manual Cost Input</button>
+      <button class="action primary" onclick="alert('To update costs, edit cost_data.json in your GitHub repository.')">How to Refresh Costs</button>
+      <button class="action secondary" onclick="alert('Edit cost_data.json directly on GitHub.')">Manual Cost Input</button>
     </div>
   </div>
-
 </div>
 
 <div class="footer">
-  Estimates based on industry benchmarks (UNIDO footwear costing, ILO footwear study, apparel cost structure studies, 2026 freight and tariff data).<br>
-  Not actual PUMA supplier data.
+  Estimates based on industry benchmarks (UNIDO footwear costing, ILO footwear study, apparel cost structures, 2026 freight & tariff data). Not actual PUMA supplier data.
 </div>
 
 <script>
-let data = null;
-let selected = null;
-let chart = null;
-let model = null;
-let currentLocation = null;
-let expandedRows = {};
+let data = null, selected = null, chart = null, treeChartDrawn = null, model = null;
+let currentLocation = null, currentChartType = 'icicle';
 
 const fmt = n => '€' + n.toFixed(2);
+const pct = n => n.toFixed(1) + '%';
 
 async function load() {
   const r = await fetch('cost_data.json');
   data = await r.json();
   document.getElementById('updated').textContent =
     'Last updated: ' + (data.last_updated || 'unknown') + ' · Currency: ' + (data.currency || 'EUR');
-
   const sel = document.getElementById('locationSelect');
   data.locations.forEach(loc => {
     const opt = document.createElement('option');
-    opt.value = loc.id;
-    opt.textContent = loc.name;
+    opt.value = loc.id; opt.textContent = loc.name;
     sel.appendChild(opt);
   });
-
   renderCards();
 }
 
@@ -139,51 +150,67 @@ function onLocationChange() {
   if (selected) renderDrilldown();
 }
 
-function calc(p, loc) {
-  let mat = 0, lab = 0, ovh = 0;
-  for (const k in p.bom) mat += p.bom[k].cost;
-  for (const k in p.labor) lab += p.labor[k];
-  for (const k in p.overheads) ovh += p.overheads[k];
+// ---------- Aggregate cost tree ----------
+function totalOf(node) {
+  if (node.cost !== undefined) return node.cost;
+  return (node.children || []).reduce((s, c) => s + totalOf(c), 0);
+}
 
-  let laborMultiplier = loc ? loc.laborMultiplier : 1;
-  let freightAdd = loc ? loc.freightAdd : 0;
-  let dutyRate = loc ? loc.dutyRate : 0;
+function applyLocationToTree(node, multiplier) {
+  // Recursively scale labour-related nodes and re-aggregate
+  const clone = JSON.parse(JSON.stringify(node));
+  function scale(n, isLabour) {
+    let flag = isLabour;
+    if (n.name && (n.name.toLowerCase().includes('labour') || n.name.toLowerCase().includes('operator') || n.name.toLowerCase().includes('supervisor') || n.name.toLowerCase().includes('qc labour') || n.name.toLowerCase().includes('packing labour') || n.name.toLowerCase().includes('admin'))) flag = true;
+    if (n.children) n.children.forEach(c => scale(c, flag));
+    if (n.cost !== undefined && flag) n.cost = n.cost * multiplier;
+  }
+  scale(clone, false);
+  return clone;
+}
 
-  const adjustedLabor = lab * laborMultiplier;
-  const prime = mat + adjustedLabor;
-  const sub = prime + ovh;
-  const margin = sub * (p.factoryMarginPercent / 100);
-  const fob = sub + margin;
-  const freight = loc ? freightAdd : 0;
+function calc(p) {
+  const tree = currentLocation ? applyLocationToTree(p.costTree, currentLocation.laborMultiplier) : p.costTree;
+  const fob = totalOf(tree);
+  const marginNode = tree.children.find(c => c.name === 'Factory Margin');
+  const margin = marginNode ? totalOf(marginNode) : 0;
+  const matNode = tree.children.find(c => c.name === 'Materials');
+  const labNode = tree.children.find(c => c.name === 'Labour (CMT)');
+  const ovhNode = tree.children.find(c => c.name === 'Overheads');
+  const mat = matNode ? totalOf(matNode) : 0;
+  const lab = labNode ? totalOf(labNode) : 0;
+  const ovh = ovhNode ? totalOf(ovhNode) : 0;
+
+  const freight = currentLocation ? currentLocation.freightAdd : 0;
+  const dutyRate = currentLocation ? currentLocation.dutyRate : 0;
   const duty = fob * (dutyRate / 100);
   const landed = fob + freight + duty;
 
-  return { mat, lab: adjustedLabor, labBase: lab, ovh, prime, sub, margin, fob, freight, duty, dutyRate, landed, laborMultiplier };
+  return { tree, fob, mat, lab, ovh, margin, freight, duty, dutyRate, landed };
 }
 
 function renderCards() {
-  const g = document.getElementById('cards');
-  g.innerHTML = '';
+  const g = document.getElementById('cards'); g.innerHTML = '';
   data.products.forEach(p => {
-    const c = calc(p, currentLocation);
+    const c = calc(p);
     const d = document.createElement('div');
     d.className = 'card';
     d.onclick = () => select(p.id);
-    let locNote = currentLocation ? ` (${currentLocation.name})` : '';
+    const locNote = currentLocation ? ` (${currentLocation.name})` : '';
     d.innerHTML = `
       <h2>${p.name}</h2>
       <div class="cat">${p.category}${locNote}</div>
       <div class="row"><span class="lbl">Materials</span><span class="val">${fmt(c.mat)}</span></div>
       <div class="row"><span class="lbl">Labour (CMT)</span><span class="val">${fmt(c.lab)}</span></div>
       <div class="row"><span class="lbl">Overheads</span><span class="val">${fmt(c.ovh)}</span></div>
-      <div class="row"><span class="lbl">Factory margin (${p.factoryMarginPercent}%)</span><span class="val">${fmt(c.margin)}</span></div>
-      <div class="row big"><span>Total Factory Cost (FOB)</span><span>${fmt(c.fob)}</span></div>
-      ${currentLocation ? `<div class="row"><span class="lbl">Freight</span><span class="val">${fmt(c.freight)}</span></div>
-      <div class="row"><span class="lbl">Duty (${c.dutyRate}%)</span><span class="val">${fmt(c.duty)}</span></div>
-      <div class="row big"><span>Landed Cost</span><span>${fmt(c.landed)}</span></div>` : ''}
-      <div class="row"><span class="lbl">Retail price</span><span class="val">${fmt(p.retailPrice)}</span></div>
-      <div class="row"><span class="lbl">Gross margin</span><span class="val">${(((p.retailPrice - c.fob) / p.retailPrice) * 100).toFixed(1)}%</span></div>
-    `;
+      <div class="row"><span class="lbl">Factory margin</span><span class="val">${fmt(c.margin)}</span></div>
+      <div class="row big"><span>Total FOB</span><span>${fmt(c.fob)}</span></div>
+      ${currentLocation ? `
+        <div class="row"><span class="lbl">Freight</span><span class="val">${fmt(c.freight)}</span></div>
+        <div class="row"><span class="lbl">Duty (${c.dutyRate}%)</span><span class="val">${fmt(c.duty)}</span></div>
+        <div class="row big"><span>Landed Cost</span><span>${fmt(c.landed)}</span></div>` : ''}
+      <div class="row"><span class="lbl">Retail</span><span class="val">${fmt(p.retailPrice)}</span></div>
+      <div class="row"><span class="lbl">Gross margin</span><span class="val">${(((p.retailPrice - c.fob) / p.retailPrice) * 100).toFixed(1)}%</span></div>`;
     g.appendChild(d);
   });
 }
@@ -196,112 +223,122 @@ function select(id) {
 
 function renderDrilldown() {
   if (!selected) return;
-  const c = calc(selected, currentLocation);
-  document.getElementById('drillTitle').textContent = selected.name + ' — 3-Layer Cost Breakdown';
+  const c = calc(selected);
+  document.getElementById('drillTitle').textContent = selected.name + ' — Cost Driver Tree';
 
   const banner = document.getElementById('locBanner');
   if (currentLocation) {
     banner.style.display = 'block';
     banner.innerHTML = `<strong>📍 Location:</strong> ${currentLocation.name} · Labour ×${currentLocation.laborMultiplier} · Freight +€${currentLocation.freightAdd} · Duty ${currentLocation.dutyRate}%`;
-  } else {
-    banner.style.display = 'none';
-  }
+  } else banner.style.display = 'none';
 
-  const t = document.getElementById('table');
-  let h = `<thead><tr><th>Component</th><th>Description / Drivers</th><th class="num">Cost</th></tr></thead><tbody>`;
-
-  h += `<tr class="group"><td colspan="3">1️⃣ Bill of Materials — Layer 1</td></tr>`;
-  for (const k in selected.bom) {
-    const b = selected.bom[k];
-    h += `<tr><td><strong>${label(k)}</strong></td><td>${b.description}<br><span style="font-size:11px;color:#999;">${b.source||''}</span></td><td class="num">${fmt(b.cost)}</td></tr>`;
-    if (b.subcomponents) {
-      for (let si = 0; si < b.subcomponents.length; si++) {
-        const sc = b.subcomponents[si];
-        h += `<tr class="sub"><td>↳ ${sc.name}</td><td>Sub-component</td><td class="num">${fmt(sc.cost)}</td></tr>`;
-        if (sc.drivers) {
-          for (const dr of sc.drivers) {
-            h += `<tr class="driver"><td>→ ${dr.driver}</td><td>${dr.share}% — ${dr.note}</td><td class="num"></td></tr>`;
-          }
-        }
-      }
-    }
-  }
-  h += `<tr><td colspan="2" class="num"><strong>Materials subtotal</strong></td><td class="num">${fmt(c.mat)}</td></tr>`;
-
-  h += `<tr class="group"><td colspan="3">2️⃣ Labour — Cut, Make, Trim${currentLocation ? ' (adjusted for ' + currentLocation.name + ')' : ''}</td></tr>`;
-  for (const k in selected.labor) {
-    const base = selected.labor[k];
-    const adjusted = base * (currentLocation ? currentLocation.laborMultiplier : 1);
-    h += `<tr><td>${label(k)}</td><td>Direct labour${currentLocation ? ` (base: ${fmt(base)} × ${currentLocation.laborMultiplier})` : ''}</td><td class="num">${fmt(adjusted)}</td></tr>`;
-  }
-  h += `<tr><td colspan="2" class="num"><strong>Labour subtotal</strong></td><td class="num">${fmt(c.lab)}</td></tr>`;
-
-  h += `<tr class="group"><td colspan="3">3️⃣ Factory Overheads</td></tr>`;
-  for (const k in selected.overheads) {
-    h += `<tr><td>${label(k)}</td><td>Indirect cost</td><td class="num">${fmt(selected.overheads[k])}</td></tr>`;
-  }
-  h += `<tr><td colspan="2" class="num"><strong>Overheads subtotal</strong></td><td class="num">${fmt(c.ovh)}</td></tr>`;
-
-  h += `<tr><td colspan="2" class="num"><strong>Prime cost (materials + labour)</strong></td><td class="num">${fmt(c.prime)}</td></tr>`;
-  h += `<tr><td colspan="2" class="num"><strong>Factory margin (${selected.factoryMarginPercent}%)</strong></td><td class="num">${fmt(c.margin)}</td></tr>`;
-  h += `<tr class="total"><td colspan="2" class="num">Total Factory Cost (FOB)</td><td class="num">${fmt(c.fob)}</td></tr>`;
-
-  if (currentLocation) {
-    h += `<tr><td colspan="2" class="num">Freight to destination</td><td class="num">${fmt(c.freight)}</td></tr>`;
-    h += `<tr><td colspan="2" class="num">Import duty (${c.dutyRate}%)</td><td class="num">${fmt(c.duty)}</td></tr>`;
-    h += `<tr class="total"><td colspan="2" class="num">Total Landed Cost</td><td class="num">${fmt(c.landed)}</td></tr>`;
-  }
-
-  h += `</tbody>`;
-  t.innerHTML = h;
-
+  // Doughnut
   if (chart) chart.destroy();
   chart = new Chart(document.getElementById('chart'), {
     type: 'doughnut',
-    data: {
-      labels: ['Materials', 'Labour (CMT)', 'Overheads', 'Factory margin'],
+    data: { labels: ['Materials', 'Labour (CMT)', 'Overheads', 'Factory margin'],
       datasets: [{ data: [c.mat, c.lab, c.ovh, c.margin],
-        backgroundColor: ['#111', '#555', '#999', '#ddd'], borderWidth: 0 }]
-    },
+        backgroundColor: ['#111', '#555', '#999', '#ddd'], borderWidth: 0 }] },
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
+
+  // Tree chart
+  drawTreeChart(c.tree);
+
+  // Table
+  renderTreeTable(c.tree, c.fob);
 }
 
-function label(k) {
-  return k.replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase());
+function drawTreeChart(root) {
+  const ids = [], labels = [], parents = [], values = [], colors = [];
+  const palette = ['#1a1a1a', '#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'];
+  function walk(node, parentId, depth) {
+    const id = parentId ? parentId + '/' + node.name : node.name;
+    ids.push(id);
+    labels.push(node.name);
+    parents.push(parentId || '');
+    values.push(totalOf(node));
+    colors.push(palette[Math.min(depth, palette.length - 1)]);
+    if (node.children) node.children.forEach(ch => walk(ch, id, depth + 1));
+  }
+  walk(root, '', 0);
+
+  const layout = {
+    margin: { l: 0, r: 0, t: 10, b: 10 },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    font: { size: 11 }
+  };
+
+  let trace;
+  if (currentChartType === 'icicle') {
+    trace = { type: 'icicle', ids, labels, parents, values, branchvalues: 'total',
+      textinfo: 'label+percent parent', marker: { colors },
+      tiling: { orientation: 'v' } };
+  } else if (currentChartType === 'treemap') {
+    trace = { type: 'treemap', ids, labels, parents, values, branchvalues: 'total',
+      textinfo: 'label+percent parent', marker: { colors } };
+  } else {
+    trace = { type: 'sunburst', ids, labels, parents, values, branchvalues: 'total',
+      textinfo: 'label+percent parent', marker: { colors } };
+  }
+
+  Plotly.newPlot('treeChart', [trace], layout, { responsive: true, displayModeBar: false });
 }
+
+function setChartType(type) {
+  currentChartType = type;
+  document.querySelectorAll('.chart-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+  if (selected) drawTreeChart(calc(selected).tree);
+}
+
+function renderTreeTable(root, fob) {
+  const t = document.getElementById('table');
+  let h = `<thead><tr>
+    <th>Cost Component</th>
+    <th class="num">Cost</th>
+    <th class="pct">% of Parent</th>
+    <th class="pct">% of FOB</th>
+  </tr></thead><tbody>`;
+
+  function walk(node, depth, parentCost) {
+    const cost = totalOf(node);
+    const pctParent = parentCost ? (cost / parentCost) * 100 : 100;
+    const pctFob = (cost / fob) * 100;
+    const cls = 'L' + Math.min(depth + 1, 5);
+    const indent = depth === 0 ? '' : 'indent-L' + Math.min(depth + 1, 5);
+    h += `<tr class="${cls}">
+      <td class="${indent}">${node.name}</td>
+      <td class="num">${fmt(cost)}</td>
+      <td class="pct">${pct(node.cost !== undefined && parentCost ? pctParent : (node.cost === undefined ? pctParent : 100))}</td>
+      <td class="pct">${pct(pctFob)}</td>
+    </tr>`;
+    if (node.children) node.children.forEach(c => walk(c, depth + 1, cost));
+  }
+  walk(root, 0, null);
+  h += `</tbody>`;
+  t.innerHTML = h;
+}
+
+function label(k) { return k.replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase()); }
 
 document.getElementById('img').addEventListener('change', async e => {
-  const f = e.target.files[0];
-  if (!f) return;
+  const f = e.target.files[0]; if (!f) return;
   const reader = new FileReader();
-  reader.onload = ev => {
-    const p = document.getElementById('preview');
-    p.src = ev.target.result;
-    p.classList.add('on');
-  };
+  reader.onload = ev => { const p = document.getElementById('preview'); p.src = ev.target.result; p.classList.add('on'); };
   reader.readAsDataURL(f);
-
   const s = document.getElementById('status');
-  s.textContent = 'Loading AI model (first time only, may take 20 seconds)…';
-  s.className = 'status loading';
-
+  s.textContent = 'Loading AI model…'; s.className = 'status loading';
   try {
     if (!model) model = await mobilenet.load();
     s.textContent = 'Analysing image…';
     const preds = await model.classify(document.getElementById('preview'));
     const top = preds[0].className.toLowerCase();
-    s.textContent = `Detected: ${preds[0].className} (${(preds[0].probability*100).toFixed(0)}% confidence). Select the specific model below.`;
+    s.textContent = `Detected: ${preds[0].className} (${(preds[0].probability*100).toFixed(0)}%). Select model below.`;
     s.className = 'status ok';
-
-    if (top.includes('shoe') || top.includes('boot') || top.includes('running')) {
-      select('velocity-nitro-4');
-    } else if (top.includes('shirt') || top.includes('jersey') || top.includes('clothing')) {
-      select('training-tee');
-    }
+    if (top.includes('shoe') || top.includes('boot') || top.includes('running')) select('velocity-nitro-4');
+    else if (top.includes('shirt') || top.includes('jersey') || top.includes('clothing')) select('training-tee');
   } catch (err) {
-    s.textContent = 'Could not analyse the image. Please select a product manually.';
-    s.className = 'status err';
+    s.textContent = 'Could not analyse image. Select manually.'; s.className = 'status err';
   }
 });
 
