@@ -1,7 +1,7 @@
 {
   "last_updated": "2026-10-02",
   "currency": "EUR",
-  "notes": "Cost figures are industry benchmark estimates, not actual PUMA supplier data. Sources: UNIDO footwear costing, ILO footwear study, apparel cost structure studies, 2026 freight and tariff data.",
+  "notes": "Industry benchmark estimates. Not actual PUMA supplier data. Sources: UNIDO footwear costing, ILO footwear study, apparel cost structure studies, 2026 freight and tariff data.",
   "locations": [
     { "id": "vietnam", "name": "Vietnam", "laborMultiplier": 0.35, "freightAdd": 1.20, "dutyRate": 12.5 },
     { "id": "china", "name": "China (Coastal)", "laborMultiplier": 0.75, "freightAdd": 0.90, "dutyRate": 37.5 },
@@ -15,367 +15,309 @@
       "name": "PUMA Velocity NITRO 4",
       "category": "Running Shoe",
       "retailPrice": 140.00,
-      "retailPriceSource": "PUMA US MSRP",
-      "bom": {
-        "outsole_rubber": {
-          "description": "PUMAGRIP rubber outsole",
-          "cost": 2.20,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "Rubber compound", "cost": 1.10, "drivers": [
-              { "driver": "Raw rubber price", "share": 50, "note": "Tracks oil and natural rubber futures" },
-              { "driver": "Mould tooling amortisation", "share": 23, "note": "Spreads over order volume" },
-              { "driver": "Energy", "share": 11, "note": "Moulding and curing process" },
-              { "driver": "Labour", "share": 16, "note": "Mould operation and trimming" }
+      "costTree": {
+        "name": "Factory Cost (FOB)",
+        "children": [
+          { "name": "Materials", "children": [
+            { "name": "Outsole Rubber", "children": [
+              { "name": "Rubber Compound", "children": [
+                { "name": "Raw Rubber (oil-linked)", "cost": 0.55 },
+                { "name": "Mould Tooling Amortisation", "cost": 0.25 },
+                { "name": "Energy (moulding)", "cost": 0.12 },
+                { "name": "Labour (mould op.)", "cost": 0.18 }
+              ]},
+              { "name": "Studs / Traction", "children": [
+                { "name": "TPU Material", "cost": 0.33 },
+                { "name": "Injection Moulding", "cost": 0.22 }
+              ]},
+              { "name": "Adhesive", "children": [
+                { "name": "PU Adhesive", "cost": 0.21 },
+                { "name": "Application Labour", "cost": 0.09 }
+              ]},
+              { "name": "Moulding Process", "children": [
+                { "name": "Machine Time", "cost": 0.16 },
+                { "name": "Energy", "cost": 0.09 }
+              ]}
             ]},
-            { "name": "Studs / traction elements", "cost": 0.55, "drivers": [
-              { "driver": "TPU material", "share": 60, "note": "Injection-grade TPU" },
-              { "driver": "Injection moulding", "share": 40, "note": "Tooling and cycle time" }
+            { "name": "Midsole Foam", "children": [
+              { "name": "EVA / Supercritical Foam", "children": [
+                { "name": "EVA Resin", "cost": 1.16 },
+                { "name": "Nitrogen Infusion", "cost": 0.53 },
+                { "name": "Energy", "cost": 0.42 }
+              ]},
+              { "name": "Compression Moulding", "children": [
+                { "name": "Cycle Time", "cost": 0.50 },
+                { "name": "Tooling Amortisation", "cost": 0.30 },
+                { "name": "Energy", "cost": 0.20 }
+              ]},
+              { "name": "Finishing / Assembly", "children": [
+                { "name": "Labour", "cost": 0.42 },
+                { "name": "Adhesive", "cost": 0.28 }
+              ]}
             ]},
-            { "name": "Adhesive", "cost": 0.30, "drivers": [
-              { "driver": "PU adhesive", "share": 70, "note": "Water-based or solvent-based" },
-              { "driver": "Application labour", "share": 30, "note": "Manual or automated" }
+            { "name": "Upper Material", "children": [
+              { "name": "Engineered Mesh", "children": [
+                { "name": "Polyester Yarn", "cost": 0.99 },
+                { "name": "Knitting / Weaving", "cost": 0.77 },
+                { "name": "Dyeing / Finishing", "cost": 0.44 }
+              ]},
+              { "name": "PWRTAPE Reinforcement", "children": [
+                { "name": "TPU Film", "cost": 0.50 },
+                { "name": "Heat Press Application", "cost": 0.40 }
+              ]},
+              { "name": "Lining", "children": [
+                { "name": "Mesh Lining", "cost": 0.42 },
+                { "name": "Cutting", "cost": 0.28 }
+              ]},
+              { "name": "Cutting & Prep", "children": [
+                { "name": "Labour", "cost": 0.49 },
+                { "name": "Machine Time", "cost": 0.21 }
+              ]}
             ]},
-            { "name": "Moulding process", "cost": 0.25, "drivers": [
-              { "driver": "Machine time", "share": 65, "note": "Compression moulding cycle" },
-              { "driver": "Energy", "share": 35, "note": "Heating and pressurisation" }
+            { "name": "Insole", "children": [
+              { "name": "EVA Sockliner", "children": [
+                { "name": "EVA Sheet", "cost": 0.25 },
+                { "name": "Moulding / Cutting", "cost": 0.20 }
+              ]},
+              { "name": "Fabric Top Cover", "children": [
+                { "name": "Knitted Fabric", "cost": 0.12 },
+                { "name": "Lamination", "cost": 0.08 }
+              ]},
+              { "name": "Printing / Branding", "children": [
+                { "name": "Ink / Transfer", "cost": 0.08 },
+                { "name": "Application Labour", "cost": 0.07 }
+              ]}
+            ]},
+            { "name": "Laces & Trims", "children": [
+              { "name": "Laces", "children": [
+                { "name": "Polyester Yarn", "cost": 0.10 },
+                { "name": "Braiding / Tipping", "cost": 0.10 }
+              ]},
+              { "name": "Eyelets / Hardware", "children": [
+                { "name": "Metal / Plastic", "cost": 0.09 },
+                { "name": "Insertion Labour", "cost": 0.06 }
+              ]},
+              { "name": "Branding / Labels", "children": [
+                { "name": "Woven Labels", "cost": 0.10 },
+                { "name": "Heat Transfers", "cost": 0.09 },
+                { "name": "Application Labour", "cost": 0.06 }
+              ]}
+            ]},
+            { "name": "Packaging", "children": [
+              { "name": "Shoebox", "children": [
+                { "name": "Cardboard / Kraft", "cost": 0.25 },
+                { "name": "Printing", "cost": 0.17 },
+                { "name": "Assembly", "cost": 0.13 }
+              ]},
+              { "name": "Polybag", "children": [
+                { "name": "LDPE Film", "cost": 0.11 },
+                { "name": "Printing", "cost": 0.04 }
+              ]},
+              { "name": "Hangtag / Tissue", "children": [
+                { "name": "Paper / Card", "cost": 0.12 },
+                { "name": "String / Attachment", "cost": 0.08 }
+              ]}
             ]}
-          ]
-        },
-        "midsole_foam": {
-          "description": "NITROFOAM midsole",
-          "cost": 3.80,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "EVA / supercritical foam", "cost": 2.10, "drivers": [
-              { "driver": "EVA resin price", "share": 55, "note": "Tracks ethylene and oil prices" },
-              { "driver": "Nitrogen infusion", "share": 25, "note": "Supercritical foaming process" },
-              { "driver": "Energy", "share": 20, "note": "High-pressure equipment" }
+          ]},
+          { "name": "Labour (CMT)", "children": [
+            { "name": "Cutting", "children": [
+              { "name": "Operator Time", "cost": 0.28 },
+              { "name": "Machine Depreciation", "cost": 0.12 }
             ]},
-            { "name": "Compression moulding", "cost": 1.00, "drivers": [
-              { "driver": "Cycle time", "share": 50, "note": "Per-pair mould time" },
-              { "driver": "Tooling amortisation", "share": 30, "note": "Size-run tooling" },
-              { "driver": "Energy", "share": 20, "note": "Press heating" }
+            { "name": "Stitching", "children": [
+              { "name": "Operator Time", "cost": 0.90 },
+              { "name": "Thread", "cost": 0.15 },
+              { "name": "Machine Depreciation", "cost": 0.15 }
             ]},
-            { "name": "Finishing / assembly", "cost": 0.70, "drivers": [
-              { "driver": "Labour", "share": 60, "note": "Bonding and alignment" },
-              { "driver": "Adhesive", "share": 40, "note": "Midsole-to-upper bond" }
+            { "name": "Assembly", "children": [
+              { "name": "Operator Time", "cost": 1.10 },
+              { "name": "Adhesive / Cementing", "cost": 0.28 },
+              { "name": "Press / Finishing Machine", "cost": 0.12 }
+            ]},
+            { "name": "Finishing", "children": [
+              { "name": "Operator Time", "cost": 0.35 },
+              { "name": "Packing Labour", "cost": 0.15 }
             ]}
-          ]
-        },
-        "upper_material": {
-          "description": "Engineered mesh upper",
-          "cost": 4.50,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "Engineered mesh", "cost": 2.20, "drivers": [
-              { "driver": "Polyester yarn", "share": 45, "note": "Recycled or virgin" },
-              { "driver": "Knitting / weaving", "share": 35, "note": "Machine time" },
-              { "driver": "Dyeing / finishing", "share": 20, "note": "Colour consistency" }
+          ]},
+          { "name": "Overheads", "children": [
+            { "name": "Factory Overhead", "children": [
+              { "name": "Rent & Utilities", "cost": 0.90 },
+              { "name": "Equipment Depreciation", "cost": 0.55 },
+              { "name": "Indirect Labour", "cost": 0.35 }
             ]},
-            { "name": "PWRTAPE reinforcement", "cost": 0.90, "drivers": [
-              { "driver": "TPU film", "share": 55, "note": "Material cost" },
-              { "driver": "Heat press", "share": 45, "note": "Application labour" }
+            { "name": "Quality Control", "children": [
+              { "name": "QC Labour", "cost": 0.28 },
+              { "name": "Testing / Equipment", "cost": 0.12 }
             ]},
-            { "name": "Lining", "cost": 0.70, "drivers": [
-              { "driver": "Mesh lining", "share": 60, "note": "Breathable knit" },
-              { "driver": "Cutting", "share": 40, "note": "Labour" }
-            ]},
-            { "name": "Cutting & prep", "cost": 0.70, "drivers": [
-              { "driver": "Labour", "share": 70, "note": "Manual and CNC cutting" },
-              { "driver": "Machine time", "share": 30, "note": "Cutting equipment" }
+            { "name": "Management", "children": [
+              { "name": "Supervisor Salaries", "cost": 0.40 },
+              { "name": "Admin / Compliance", "cost": 0.20 }
             ]}
-          ]
-        },
-        "insole": {
-          "description": "Removable sockliner",
-          "cost": 0.80,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "EVA sockliner", "cost": 0.45, "drivers": [
-              { "driver": "EVA sheet", "share": 55, "note": "Sheet material" },
-              { "driver": "Moulding / cutting", "share": 45, "note": "Die-cut or moulded" }
-            ]},
-            { "name": "Fabric top cover", "cost": 0.20, "drivers": [
-              { "driver": "Knitted fabric", "share": 60, "note": "Moisture-wicking" },
-              { "driver": "Lamination", "share": 40, "note": "Adhesive bonding" }
-            ]},
-            { "name": "Printing / branding", "cost": 0.15, "drivers": [
-              { "driver": "Ink / transfer", "share": 50, "note": "Logo application" },
-              { "driver": "Labour", "share": 50, "note": "Application" }
-            ]}
-          ]
-        },
-        "laces_and_trims": {
-          "description": "Laces, eyelets, branding",
-          "cost": 0.60,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "Laces", "cost": 0.20, "drivers": [
-              { "driver": "Polyester yarn", "share": 50, "note": "Braided or flat" },
-              { "driver": "Braiding / tipping", "share": 50, "note": "Manufacturing" }
-            ]},
-            { "name": "Eyelets / hardware", "cost": 0.15, "drivers": [
-              { "driver": "Metal / plastic", "share": 60, "note": "Material cost" },
-              { "driver": "Insertion", "share": 40, "note": "Labour" }
-            ]},
-            { "name": "Branding / labels", "cost": 0.25, "drivers": [
-              { "driver": "Woven labels", "share": 40, "note": "PUMA branding" },
-              { "driver": "Heat transfers", "share": 35, "note": "Logo application" },
-              { "driver": "Application labour", "share": 25, "note": "Manual placement" }
-            ]}
-          ]
-        },
-        "packaging": {
-          "description": "Polybag, shoebox, hangtag",
-          "cost": 0.90,
-          "source": "Apparel benchmark",
-          "subcomponents": [
-            { "name": "Shoebox", "cost": 0.55, "drivers": [
-              { "driver": "Cardboard / kraft", "share": 45, "note": "Recycled content" },
-              { "driver": "Printing", "share": 30, "note": "Brand design" },
-              { "driver": "Assembly", "share": 25, "note": "Folding and gluing" }
-            ]},
-            { "name": "Polybag", "cost": 0.15, "drivers": [
-              { "driver": "LDPE film", "share": 70, "note": "Recycled or virgin" },
-              { "driver": "Printing", "share": 30, "note": "Warning labels" }
-            ]},
-            { "name": "Hangtag / tissue", "cost": 0.20, "drivers": [
-              { "driver": "Paper / card", "share": 60, "note": "FSC-certified" },
-              { "driver": "String / attachment", "share": 40, "note": "Labour" }
-            ]}
-          ]
-        }
-      },
-      "labor": {
-        "cutting": 0.40,
-        "stitching": 1.20,
-        "assembly": 1.50,
-        "finishing": 0.50
-      },
-      "overheads": {
-        "factory_overhead": 1.80,
-        "quality_control": 0.40,
-        "management": 0.60
-      },
-      "factoryMarginPercent": 9,
-      "marginSource": "UNIDO: 5-10% typical for footwear"
+          ]},
+          { "name": "Factory Margin", "children": [
+            { "name": "Profit Margin", "cost": 1.73 }
+          ]}
+        ]
+      }
     },
     {
       "id": "future-9-match",
       "name": "PUMA Future 9 Match FG/AG",
       "category": "Football Boot",
       "retailPrice": 75.00,
-      "retailPriceSource": "PUMA EU MSRP",
-      "bom": {
-        "upper_material": {
-          "description": "Soft mesh with 3D grip zones",
-          "cost": 3.20,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "Mesh upper", "cost": 1.60, "drivers": [
-              { "driver": "Polyester mesh", "share": 50, "note": "Lightweight knit" },
-              { "driver": "3D grip printing", "share": 30, "note": "Textured zones" },
-              { "driver": "Cutting", "share": 20, "note": "Labour" }
+      "costTree": {
+        "name": "Factory Cost (FOB)",
+        "children": [
+          { "name": "Materials", "children": [
+            { "name": "Upper Material", "children": [
+              { "name": "Mesh Upper", "children": [
+                { "name": "Polyester Mesh", "cost": 0.80 },
+                { "name": "3D Grip Printing", "cost": 0.48 },
+                { "name": "Cutting Labour", "cost": 0.32 }
+              ]},
+              { "name": "Heel Counter", "children": [
+                { "name": "TPU / Synthetic", "cost": 0.50 },
+                { "name": "Moulding", "cost": 0.40 }
+              ]},
+              { "name": "Lining", "children": [
+                { "name": "Textile Lining", "cost": 0.42 },
+                { "name": "Stitching Labour", "cost": 0.28 }
+              ]}
             ]},
-            { "name": "Heel counter", "cost": 0.90, "drivers": [
-              { "driver": "TPU / synthetic", "share": 55, "note": "Structural support" },
-              { "driver": "Moulding", "share": 45, "note": "Injection process" }
+            { "name": "Midsole Foam", "children": [
+              { "name": "EVA Foam", "children": [
+                { "name": "EVA Resin", "cost": 0.54 },
+                { "name": "Moulding", "cost": 0.36 }
+              ]},
+              { "name": "Cushioning Insert", "children": [
+                { "name": "EVA / PU Material", "cost": 0.33 },
+                { "name": "Assembly Labour", "cost": 0.27 }
+              ]}
             ]},
-            { "name": "Lining", "cost": 0.70, "drivers": [
-              { "driver": "Textile lining", "share": 60, "note": "Comfort layer" },
-              { "driver": "Stitching", "share": 40, "note": "Labour" }
+            { "name": "Outsole Rubber", "children": [
+              { "name": "Outsole Plate", "children": [
+                { "name": "Rubber / TPU", "cost": 0.70 },
+                { "name": "Stud Formation", "cost": 0.42 },
+                { "name": "Finishing", "cost": 0.28 }
+              ]},
+              { "name": "Studs", "children": [
+                { "name": "TPU / Nylon", "cost": 0.48 },
+                { "name": "Injection Moulding", "cost": 0.32 }
+              ]},
+              { "name": "Adhesive & Bonding", "children": [
+                { "name": "PU Adhesive", "cost": 0.39 },
+                { "name": "Manual Bonding Labour", "cost": 0.21 }
+              ]}
+            ]},
+            { "name": "Insole", "children": [
+              { "name": "Sockliner Base", "children": [
+                { "name": "EVA Material", "cost": 0.22 },
+                { "name": "Die-Cutting", "cost": 0.18 }
+              ]},
+              { "name": "Top Cover", "children": [
+                { "name": "Grip Fabric", "cost": 0.18 },
+                { "name": "Lamination", "cost": 0.12 }
+              ]}
+            ]},
+            { "name": "Laces & Trims", "children": [
+              { "name": "Laces", "children": [
+                { "name": "Polyester Yarn", "cost": 0.11 },
+                { "name": "Braiding", "cost": 0.09 }
+              ]},
+              { "name": "Branding", "children": [
+                { "name": "Heat Transfer", "cost": 0.15 },
+                { "name": "Woven Label", "cost": 0.09 },
+                { "name": "Application", "cost": 0.06 }
+              ]}
+            ]},
+            { "name": "Packaging", "children": [
+              { "name": "Shoebox", "children": [
+                { "name": "Cardboard", "cost": 0.22 },
+                { "name": "Printing", "cost": 0.14 },
+                { "name": "Assembly", "cost": 0.09 }
+              ]},
+              { "name": "Polybag", "children": [
+                { "name": "LDPE Film", "cost": 0.17 },
+                { "name": "Printing", "cost": 0.08 }
+              ]}
             ]}
-          ]
-        },
-        "midsole_foam": {
-          "description": "EVA midsole",
-          "cost": 1.50,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "EVA foam", "cost": 0.90, "drivers": [
-              { "driver": "EVA resin", "share": 60, "note": "Standard grade" },
-              { "driver": "Moulding", "share": 40, "note": "Compression cycle" }
-            ]},
-            { "name": "Cushioning insert", "cost": 0.60, "drivers": [
-              { "driver": "EVA / PU", "share": 55, "note": "Heel cushion" },
-              { "driver": "Assembly", "share": 45, "note": "Labour" }
-            ]}
-          ]
-        },
-        "outsole_rubber": {
-          "description": "Rubber outsole with studs",
-          "cost": 2.80,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "Outsole plate", "cost": 1.40, "drivers": [
-              { "driver": "Rubber / TPU", "share": 50, "note": "Material" },
-              { "driver": "Stud formation", "share": 30, "note": "Moulding" },
-              { "driver": "Finishing", "share": 20, "note": "Trimming" }
-            ]},
-            { "name": "Studs", "cost": 0.80, "drivers": [
-              { "driver": "TPU / nylon", "share": 60, "note": "Injection grade" },
-              { "driver": "Injection moulding", "share": 40, "note": "Tooling and cycle" }
-            ]},
-            { "name": "Adhesive & bonding", "cost": 0.60, "drivers": [
-              { "driver": "PU adhesive", "share": 65, "note": "Material" },
-              { "driver": "Labour", "share": 35, "note": "Manual bonding" }
-            ]}
-          ]
-        },
-        "insole": {
-          "description": "NanoGrip sockliner",
-          "cost": 0.70,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "Sockliner base", "cost": 0.40, "drivers": [
-              { "driver": "EVA", "share": 55, "note": "Material" },
-              { "driver": "Die-cutting", "share": 45, "note": "Labour" }
-            ]},
-            { "name": "Top cover", "cost": 0.30, "drivers": [
-              { "driver": "Fabric", "share": 60, "note": "Grip textile" },
-              { "driver": "Lamination", "share": 40, "note": "Adhesive" }
-            ]}
-          ]
-        },
-        "laces_and_trims": {
-          "description": "Laces, branding",
-          "cost": 0.50,
-          "source": "Industry benchmark",
-          "subcomponents": [
-            { "name": "Laces", "cost": 0.20, "drivers": [
-              { "driver": "Polyester", "share": 55, "note": "Material" },
-              { "driver": "Braiding", "share": 45, "note": "Manufacturing" }
-            ]},
-            { "name": "Branding", "cost": 0.30, "drivers": [
-              { "driver": "Heat transfer", "share": 50, "note": "Logo" },
-              { "driver": "Woven label", "share": 30, "note": "Brand tag" },
-              { "driver": "Application", "share": 20, "note": "Labour" }
-            ]}
-          ]
-        },
-        "packaging": {
-          "description": "Polybag, shoebox",
-          "cost": 0.70,
-          "source": "Apparel benchmark",
-          "subcomponents": [
-            { "name": "Shoebox", "cost": 0.45, "drivers": [
-              { "driver": "Cardboard", "share": 50, "note": "Material" },
-              { "driver": "Printing", "share": 30, "note": "Branding" },
-              { "driver": "Assembly", "share": 20, "note": "Labour" }
-            ]},
-            { "name": "Polybag", "cost": 0.25, "drivers": [
-              { "driver": "LDPE film", "share": 70, "note": "Material" },
-              { "driver": "Printing", "share": 30, "note": "Labels" }
-            ]}
-          ]
-        }
-      },
-      "labor": {
-        "cutting": 0.35,
-        "stitching": 1.00,
-        "assembly": 1.30,
-        "finishing": 0.40
-      },
-      "overheads": {
-        "factory_overhead": 1.50,
-        "quality_control": 0.35,
-        "management": 0.50
-      },
-      "factoryMarginPercent": 9,
-      "marginSource": "UNIDO: 5-10% typical for footwear"
+          ]},
+          { "name": "Labour (CMT)", "children": [
+            { "name": "Cutting", "children": [{ "name": "Operator Time", "cost": 0.25 }, { "name": "Machine Time", "cost": 0.10 }] },
+            { "name": "Stitching", "children": [{ "name": "Operator Time", "cost": 0.75 }, { "name": "Thread & Consumables", "cost": 0.15 }, { "name": "Machine Depreciation", "cost": 0.10 }] },
+            { "name": "Assembly", "children": [{ "name": "Operator Time", "cost": 0.98 }, { "name": "Bonding Materials", "cost": 0.22 }, { "name": "Press Machinery", "cost": 0.10 }] },
+            { "name": "Finishing", "children": [{ "name": "Operator Time", "cost": 0.28 }, { "name": "Packing Labour", "cost": 0.12 }] }
+          ]},
+          { "name": "Overheads", "children": [
+            { "name": "Factory Overhead", "children": [{ "name": "Rent & Utilities", "cost": 0.75 }, { "name": "Depreciation", "cost": 0.45 }, { "name": "Indirect Labour", "cost": 0.30 }] },
+            { "name": "Quality Control", "children": [{ "name": "QC Labour", "cost": 0.23 }, { "name": "Testing Equipment", "cost": 0.12 }] },
+            { "name": "Management", "children": [{ "name": "Supervisor Salaries", "cost": 0.32 }, { "name": "Admin / Compliance", "cost": 0.18 }] }
+          ]},
+          { "name": "Factory Margin", "children": [{ "name": "Profit Margin", "cost": 1.21 }] }
+        ]
+      }
     },
     {
       "id": "training-tee",
       "name": "PUMA Training Tee",
       "category": "Sports Shirt",
       "retailPrice": 35.00,
-      "retailPriceSource": "PUMA EU MSRP",
-      "bom": {
-        "fabric_main": {
-          "description": "100% recycled polyester",
-          "cost": 2.80,
-          "source": "Apparel benchmark",
-          "subcomponents": [
-            { "name": "Body fabric", "cost": 1.90, "drivers": [
-              { "driver": "Recycled polyester yarn", "share": 55, "note": "rPET price tracks oil" },
-              { "driver": "Knitting", "share": 25, "note": "Circular knit machine" },
-              { "driver": "Dyeing", "share": 20, "note": "Colour and finish" }
+      "costTree": {
+        "name": "Factory Cost (FOB)",
+        "children": [
+          { "name": "Materials", "children": [
+            { "name": "Body Fabric", "children": [
+              { "name": "Recycled Polyester Yarn", "children": [
+                { "name": "rPET Pellets", "cost": 0.65 },
+                { "name": "Yarn Spinning", "cost": 0.30 }
+              ]},
+              { "name": "Knitting", "children": [
+                { "name": "Machine Time", "cost": 0.32 },
+                { "name": "Energy", "cost": 0.15 }
+              ]},
+              { "name": "Dyeing & Finishing", "children": [
+                { "name": "Dye Chemicals", "cost": 0.22 },
+                { "name": "Water & Energy", "cost": 0.16 }
+              ]}
             ]},
-            { "name": "Sleeve fabric", "cost": 0.50, "drivers": [
-              { "driver": "Polyester yarn", "share": 60, "note": "Same yarn as body" },
-              { "driver": "Cutting", "share": 40, "note": "Labour" }
+            { "name": "Sleeve Fabric", "children": [
+              { "name": "Polyester Yarn", "cost": 0.30 },
+              { "name": "Cutting Labour", "cost": 0.20 }
             ]},
-            { "name": "Consumption / wastage", "cost": 0.40, "drivers": [
-              { "driver": "Fabric utilisation", "share": 70, "note": "5-8% wastage for basic tee" },
-              { "driver": "Width / marker", "share": 30, "note": "Efficiency of lay plan" }
+            { "name": "Fabric Wastage", "children": [
+              { "name": "Marker Efficiency Loss", "cost": 0.28 },
+              { "name": "Roll-End Waste", "cost": 0.12 }
+            ]},
+            { "name": "Rib (Collar & Cuffs)", "children": [
+              { "name": "Elastane Blend", "cost": 0.13 },
+              { "name": "Knitting", "cost": 0.08 },
+              { "name": "Dyeing", "cost": 0.05 },
+              { "name": "Attachment Labour", "cost": 0.11 }
+            ]},
+            { "name": "Trims", "children": [
+              { "name": "Sewing Thread", "cost": 0.06 },
+              { "name": "Labels & Tags", "cost": 0.07 },
+              { "name": "Heat Transfers / Print", "cost": 0.15 }
+            ]},
+            { "name": "Packaging", "children": [
+              { "name": "Polybag", "cost": 0.10 },
+              { "name": "Hangtag", "cost": 0.15 },
+              { "name": "Attachment Labour", "cost": 0.05 }
             ]}
-          ]
-        },
-        "fabric_rib": {
-          "description": "Elastic blend for collar and cuffs",
-          "cost": 0.40,
-          "source": "Apparel benchmark",
-          "subcomponents": [
-            { "name": "Rib knit", "cost": 0.25, "drivers": [
-              { "driver": "Elastane blend", "share": 50, "note": "Stretch recovery" },
-              { "driver": "Knitting", "share": 30, "note": "Rib structure" },
-              { "driver": "Dyeing", "share": 20, "note": "Colour match" }
-            ]},
-            { "name": "Attachment", "cost": 0.15, "drivers": [
-              { "driver": "Sewing labour", "share": 70, "note": "Collar and cuff seams" },
-              { "driver": "Thread", "share": 30, "note": "Material" }
-            ]}
-          ]
-        },
-        "trims": {
-          "description": "Thread, labels, heat transfers",
-          "cost": 0.35,
-          "source": "Apparel benchmark 5-7% of cost",
-          "subcomponents": [
-            { "name": "Sewing thread", "cost": 0.08, "drivers": [
-              { "driver": "Polyester thread", "share": 70, "note": "Material" },
-              { "driver": "Consumption", "share": 30, "note": "Per-garment use" }
-            ]},
-            { "name": "Labels & tags", "cost": 0.12, "drivers": [
-              { "driver": "Woven / printed", "share": 60, "note": "Brand and care labels" },
-              { "driver": "Application", "share": 40, "note": "Labour" }
-            ]},
-            { "name": "Heat transfers / print", "cost": 0.15, "drivers": [
-              { "driver": "Transfer material", "share": 50, "note": "PUMA branding" },
-              { "driver": "Press time", "share": 50, "note": "Heat application" }
-            ]}
-          ]
-        },
-        "packaging": {
-          "description": "Polybag, hangtag",
-          "cost": 0.40,
-          "source": "Apparel benchmark 2-3% of cost",
-          "subcomponents": [
-            { "name": "Polybag", "cost": 0.15, "drivers": [
-              { "driver": "LDPE film", "share": 70, "note": "Recycled content" },
-              { "driver": "Printing", "share": 30, "note": "Warning labels" }
-            ]},
-            { "name": "Hangtag", "cost": 0.25, "drivers": [
-              { "driver": "Paper / card", "share": 55, "note": "FSC-certified" },
-              { "driver": "String / attachment", "share": 25, "note": "Material" },
-              { "driver": "Application", "share": 20, "note": "Labour" }
-            ]}
-          ]
-        }
-      },
-      "labor": {
-        "cutting": 0.25,
-        "sewing": 1.20,
-        "finishing": 0.30
-      },
-      "overheads": {
-        "factory_overhead": 0.80,
-        "quality_control": 0.20,
-        "management": 0.30
-      },
-      "factoryMarginPercent": 8,
-      "marginSource": "Apparel benchmark: 5-15%"
+          ]},
+          { "name": "Labour (CMT)", "children": [
+            { "name": "Cutting", "children": [{ "name": "Operator Time", "cost": 0.18 }, { "name": "Machine Time", "cost": 0.07 }] },
+            { "name": "Sewing", "children": [{ "name": "Operator Time (main seams)", "cost": 0.85 }, { "name": "Operator Time (collar/cuff)", "cost": 0.22 }, { "name": "Thread & Consumables", "cost": 0.13 }] },
+            { "name": "Finishing", "children": [{ "name": "Trimming & Pressing", "cost": 0.18 }, { "name": "Packing Labour", "cost": 0.12 }] }
+          ]},
+          { "name": "Overheads", "children": [
+            { "name": "Factory Overhead", "children": [{ "name": "Rent & Utilities", "cost": 0.40 }, { "name": "Depreciation", "cost": 0.22 }, { "name": "Indirect Labour", "cost": 0.18 }] },
+            { "name": "Quality Control", "children": [{ "name": "QC Labour", "cost": 0.13 }, { "name": "Testing", "cost": 0.07 }] },
+            { "name": "Management", "children": [{ "name": "Supervisor", "cost": 0.18 }, { "name": "Admin", "cost": 0.12 }] }
+          ]},
+          { "name": "Factory Margin", "children": [{ "name": "Profit Margin", "cost": 0.52 }] }
+        ]
+      }
     }
   ]
 }
