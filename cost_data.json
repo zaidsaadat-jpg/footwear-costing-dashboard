@@ -1,7 +1,7 @@
 {
   "last_updated": "2026-10-02",
   "currency": "EUR",
-  "notes": "Industry benchmark estimates. Not actual PUMA supplier data. Sources: UNIDO footwear costing, ILO footwear study, apparel cost structure studies, 2026 freight and tariff data.",
+  "notes": "Industry benchmark estimates. Not actual PUMA supplier data.",
   "locations": [
     { "id": "vietnam", "name": "Vietnam", "laborMultiplier": 0.35, "freightAdd": 1.20, "dutyRate": 12.5 },
     { "id": "china", "name": "China (Coastal)", "laborMultiplier": 0.75, "freightAdd": 0.90, "dutyRate": 37.5 },
@@ -15,6 +15,23 @@
       "name": "PUMA Velocity NITRO 4",
       "category": "Running Shoe",
       "retailPrice": 140.00,
+      "moq": {
+        "current": 5000,
+        "min": 1000,
+        "max": 50000,
+        "step": 500,
+        "unit": "pairs",
+        "fixedCostPool": 46000,
+        "fixedItems": [
+          { "name": "Injection moulds (outsole, multi-size)", "cost": 18000 },
+          { "name": "Compression moulds (midsole)", "cost": 10000 },
+          { "name": "Cutting dies (upper, lining)", "cost": 3500 },
+          { "name": "Last making (shoe lasts, size run)", "cost": 4000 },
+          { "name": "Development & sampling (lab dips, wear tests)", "cost": 6000 },
+          { "name": "Testing & certification (SATRA, durability)", "cost": 2500 },
+          { "name": "Pattern / marker development", "cost": 2000 }
+        ]
+      },
       "costTree": {
         "name": "Factory Cost (FOB)",
         "children": [
@@ -165,6 +182,22 @@
       "name": "PUMA Future 9 Match FG/AG",
       "category": "Football Boot",
       "retailPrice": 75.00,
+      "moq": {
+        "current": 5000,
+        "min": 1000,
+        "max": 40000,
+        "step": 500,
+        "unit": "pairs",
+        "fixedCostPool": 32000,
+        "fixedItems": [
+          { "name": "Injection moulds (outsole plate, studs)", "cost": 14000 },
+          { "name": "Tooling for heel counter", "cost": 5000 },
+          { "name": "Cutting dies (mesh panels)", "cost": 2500 },
+          { "name": "Last making (football last)", "cost": 4000 },
+          { "name": "Development & sampling", "cost": 4500 },
+          { "name": "Testing (stud pull, abrasion)", "cost": 2000 }
+        ]
+      },
       "costTree": {
         "name": "Factory Cost (FOB)",
         "children": [
@@ -262,6 +295,21 @@
       "name": "PUMA Training Tee",
       "category": "Sports Shirt",
       "retailPrice": 35.00,
+      "moq": {
+        "current": 3000,
+        "min": 500,
+        "max": 20000,
+        "step": 250,
+        "unit": "units",
+        "fixedCostPool": 3900,
+        "fixedItems": [
+          { "name": "Knit programming (jacquard pattern)", "cost": 1200 },
+          { "name": "Print screens / heat transfers", "cost": 800 },
+          { "name": "Cutting dies / marker development", "cost": 600 },
+          { "name": "Development & sampling", "cost": 900 },
+          { "name": "Testing (colour fastness, shrinkage)", "cost": 400 }
+        ]
+      },
       "costTree": {
         "name": "Factory Cost (FOB)",
         "children": [
