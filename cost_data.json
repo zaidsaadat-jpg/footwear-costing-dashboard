@@ -1,15 +1,15 @@
 {
-  "version": "4.0",
+  "version": "5.0",
   "last_updated": "2026-10-04",
   "currency": "EUR",
-  "notes": "Formula-driven supplier-tier should-cost model. All costs derive from assumptions. Not actual PUMA supplier data.",
+  "notes": "Formula-driven supplier-tier should-cost model with 18-month forecast projections. All costs derive from assumptions. Not actual PUMA supplier data.",
 
   "assumptions": {
     "sources": {
-      "labour_rates": "Misciano Textile Atlas 2026 (hourly cost by country); ILO footwear study",
-      "cmt_rates": "@kobolabs/garment-costing-formulas (CMT minute rates by country, 2026)",
+      "labour_rates": "Misciano Textile Atlas 2026; ILO footwear study",
+      "cmt_rates": "Garment costing formulas by country, 2026",
       "machine_rates": "UNIDO footwear costing framework; industry benchmark",
-      "material_prices": "100ppi.com commodity index (EVA, PET); ANRPC (natural rubber); OPIS/Argus (rPET)",
+      "material_prices": "100ppi.com commodity index; ANRPC (rubber); OPIS/Argus (rPET)",
       "overhead": "ILO footwear study; industry benchmark",
       "tiers": "FDRA Shoe Supplier Tiers; Sourcify footwear factory tiers"
     },
@@ -748,5 +748,122 @@
         ]
       }
     }
-  ]
+  ],
+
+  "forecasts": {
+    "baseMonth": "2026-10",
+    "horizon": 18,
+    "quarterLabels": ["Q4 2026", "Q1 2027", "Q2 2027", "Q3 2027", "Q4 2027", "Q1 2028"],
+    "drivers": [
+      {
+        "id": "natural_rubber",
+        "name": "Natural Rubber",
+        "affects": { "type": "material", "key": "rawRubber_perKg" },
+        "source": "World Bank Commodity Markets Outlook, April 2026",
+        "citation": "Natural rubber prices climbed 5.2% in April 2026, extending a 2% increase in Q1. Prices projected to rise by more than 7% in 2026, with additional gains expected in 2027.",
+        "url": "https://blogs.worldbank.org/en/opendata/steady-gains-in-agricultural-raw-material-prices",
+        "quarterlyChange": [1.8, 1.8, 1.7, 1.7, 1.6, 1.6]
+      },
+      {
+        "id": "eva_resin",
+        "name": "EVA Resin",
+        "affects": { "type": "material", "key": "evaResin_perKg" },
+        "source": "MoneyDJ / Formosa Plastics, May 2026",
+        "citation": "China EVA self-sufficiency rising rapidly. More than 1 million tonnes of new capacity before 2027, intensifying competition.",
+        "url": "https://www.moneydj.com",
+        "quarterlyChange": [-0.5, -0.5, -0.8, -0.8, -0.5, -0.5]
+      },
+      {
+        "id": "polyester_yarn",
+        "name": "Polyester Yarn (POY/FDY)",
+        "affects": { "type": "material", "key": "polyesterYarn_perKg" },
+        "source": "Expert Market Research, 2026",
+        "citation": "Polyester filament yarn market projected at negative CAGR of -1.8% to -3.6% over 2026-2031.",
+        "url": "https://www.expertmarketresearch.com",
+        "quarterlyChange": [-0.6, -0.6, -0.7, -0.7, -0.6, -0.6]
+      },
+      {
+        "id": "rpet_pellet",
+        "name": "Recycled PET (rPET)",
+        "affects": { "type": "material", "key": "rPETPellet_perKg" },
+        "source": "ICIS / Hertzman Global Intelligence, 2026",
+        "citation": "Competition for recycled bottles could create feedstock shortages and push rPET prices higher by 2027-2028.",
+        "url": "https://www.icis.com",
+        "quarterlyChange": [0.8, 1.0, 1.2, 1.4, 1.5, 1.5]
+      },
+      {
+        "id": "freight_global",
+        "name": "Container Freight (Global)",
+        "affects": { "type": "freight", "key": "all" },
+        "source": "Sea-Intelligence / World Ports Organization, September 2026",
+        "citation": "Container market heading toward cyclical overcapacity peaking in 2027. Spot rates to fall 8-10% over next six months.",
+        "url": "https://www.worldports.org",
+        "quarterlyChange": [-4.0, -3.0, -2.0, -1.0, 0.5, 1.0]
+      },
+      {
+        "id": "labour_vietnam",
+        "name": "Vietnam Labour Rate",
+        "affects": { "type": "labour", "key": "vietnam" },
+        "source": "Vietnam National Wage Council, September 2026",
+        "citation": "National Wage Council unanimously recommended a 7.8% average minimum wage increase from 1 January 2027.",
+        "url": "https://www.vietnam.vn",
+        "quarterlyChange": [0.5, 0.5, 8.0, 0.5, 0.5, 0.5]
+      },
+      {
+        "id": "labour_bangladesh",
+        "name": "Bangladesh Labour Rate",
+        "affects": { "type": "labour", "key": "bangladesh" },
+        "source": "Bangladesh Ministry of Labour / Fibre2Fashion, September 2026",
+        "citation": "Garment workers demanding Tk 30,000 minimum wage. Wage review due December 2026.",
+        "url": "https://www.fibre2fashion.com",
+        "quarterlyChange": [2.0, 2.0, 5.0, 1.0, 1.0, 1.0]
+      },
+      {
+        "id": "labour_china",
+        "name": "China Coastal Labour Rate",
+        "affects": { "type": "labour", "key": "china" },
+        "source": "China manufacturing wage analysis, 2026",
+        "citation": "China's manufacturing wages reached $6.50-7.00 per hour in coastal regions. Labour costs rising ~10% annually.",
+        "url": "https://www.linkedin.com",
+        "quarterlyChange": [1.2, 1.2, 1.2, 1.2, 1.2, 1.2]
+      },
+      {
+        "id": "labour_indonesia",
+        "name": "Indonesia Labour Rate",
+        "affects": { "type": "labour", "key": "indonesia" },
+        "source": "Bisnis Indonesia / Trading Economics, September 2026",
+        "citation": "Indonesia set a 6.5% minimum wage increase for 2026. KSPI proposing 7.5-9% for 2027.",
+        "url": "https://ekonomi.bisnis.com",
+        "quarterlyChange": [1.6, 1.6, 2.0, 2.0, 2.0, 2.0]
+      },
+      {
+        "id": "labour_cambodia",
+        "name": "Cambodia Garment Wage",
+        "affects": { "type": "labour", "key": "cambodia" },
+        "source": "Cambodia National Council for Minimum Wage, September 2026",
+        "citation": "2027 minimum wage set at US$212/month, up from US$210 in 2026.",
+        "url": "https://www.cpp.org.kh",
+        "quarterlyChange": [0.25, 0.25, 0.25, 0.25, 0.25, 0.25]
+      },
+      {
+        "id": "labour_portugal",
+        "name": "Portugal Labour Rate",
+        "affects": { "type": "labour", "key": "portugal" },
+        "source": "EU benchmark / Eurostat, 2026",
+        "citation": "EU minimum wage directive. Portugal minimum wage rising ~8% annually toward €1,020/month by 2026.",
+        "url": "https://ec.europa.eu/eurostat",
+        "quarterlyChange": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+      },
+      {
+        "id": "tariff_vietnam_301",
+        "name": "US Section 301 — Vietnam",
+        "affects": { "type": "tariff", "key": "vietnam" },
+        "source": "US Trade Representative, July 2026",
+        "citation": "Starting 24 July 2026, the US applies additional 10-12.5% tariffs on goods from 60 economies under Section 301. Vietnam footwear subject to 12.5% additional tariff.",
+        "url": "https://ustr.gov",
+        "quarterlyChange": [0, 12.5, 0, 0, 0, 0],
+        "isStepChange": true
+      }
+    ]
+  }
 }
