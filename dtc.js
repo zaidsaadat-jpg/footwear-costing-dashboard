@@ -1,5 +1,5 @@
 /* ============================================================
-   DESIGN-TO-COST / VALUE ENGINEERING TAB  (v2 — CAD Viewer)
+   DESIGN-TO-COST / VALUE ENGINEERING TAB  (v3 — Fixed 3D)
    ============================================================ */
 
 const DTC_STORAGE = 'puma_dtc_scenario_v1';
@@ -78,13 +78,15 @@ let valueMatrixChart = null;
 let cad = {
   scene: null, camera: null, renderer: null, controls: null,
   group: null, edgeLines: null, texture: null,
-  archetype: 'shoe',     // 'shoe' | 'boot' | 'shirt'
-  viewMode: 'solid',     // 'solid' | 'technical' | 'wireframe'
+  archetype: 'shoe',
+  viewMode: 'solid',
   projection: 'perspective',
   materialPreset: 'matte',
-  width: 260, height: 100, depth: 90,   // mm
+  width: 260, height: 100, depth: 90,
   baseColor: '#2d6a4f',
-  initialized: false
+  initialized: false,
+  animating: false,
+  lastW: 0, lastH: 0
 };
 
 // ---------- STATE ----------
@@ -98,27 +100,19 @@ function initDtcState() {
     }
   });
 }
-
-function saveDtcState() {
-  localStorage.setItem(DTC_STORAGE, JSON.stringify(dtcState));
-}
+function saveDtcState() { localStorage.setItem(DTC_STORAGE, JSON.stringify(dtcState)); }
 
 // ---------- COST COMPUTATION ----------
 function computeDtcCost(product) {
   const baseCalc = calc(product);
-
   const designLever = DTC_LEVERS.find(l => l.id === 'designComplexity');
   const designOpt = designLever.options.find(o => o.id === dtcState.designComplexity);
-
   const materialLever = DTC_LEVERS.find(l => l.id === 'materialSubstitution');
   const materialOpt = materialLever.options.find(o => o.id === dtcState.materialSubstitution);
-
   const automationLever = DTC_LEVERS.find(l => l.id === 'automation');
   const automationOpt = automationLever.options.find(o => o.id === dtcState.automation);
-
   const volumeLever = DTC_LEVERS.find(l => l.id === 'volume');
   const volumeOpt = volumeLever.options.find(o => o.id === dtcState.volume);
-
   const marginLever = DTC_LEVERS.find(l => l.id === 'marginTarget');
   const marginOpt = marginLever.options.find(o => o.id === dtcState.marginTarget);
 
@@ -167,7 +161,6 @@ function renderLevers() {
     panel.appendChild(wrap);
   });
 }
-
 function selectLeverOption(leverId, optionId) {
   dtcState[leverId] = optionId;
   saveDtcState();
@@ -177,19 +170,14 @@ function selectLeverOption(leverId, optionId) {
   renderScenarioCompare();
   renderValueMatrix();
 }
-
 function resetLevers() {
   localStorage.removeItem(DTC_STORAGE);
   dtcState = {};
   initDtcState();
   saveDtcState();
-  renderLevers();
-  updateDtcImpact();
-  renderActionBoard();
-  renderScenarioCompare();
-  renderValueMatrix();
+  renderLevers(); updateDtcImpact(); renderActionBoard();
+  renderScenarioCompare(); renderValueMatrix();
 }
-
 function applyLeanScenario() {
   dtcState.designComplexity = 'simple';
   dtcState.materialSubstitution = 'recycled';
@@ -200,7 +188,6 @@ function applyLeanScenario() {
   renderLevers(); updateDtcImpact(); renderActionBoard();
   renderScenarioCompare(); renderValueMatrix();
 }
-
 function applyPremiumScenario() {
   dtcState.designComplexity = 'complex';
   dtcState.materialSubstitution = 'bio';
@@ -217,16 +204,13 @@ function updateDtcImpact() {
   if (!dtcProduct) return;
   const base = calc(dtcProduct);
   const curr = computeDtcCost(dtcProduct);
-
   document.getElementById('dtcBaseFob').textContent = fmt(base.fob);
   document.getElementById('dtcCurrentFob').textContent = fmt(curr.fob);
-
   const delta = curr.fob - base.fob;
   const deltaPct = (delta / base.fob) * 100;
   const deltaEl = document.getElementById('dtcDelta');
   deltaEl.textContent = (delta > 0 ? '+' : '') + fmt(delta) + ' (' + (delta > 0 ? '+' : '') + deltaPct.toFixed(1) + '%)';
   deltaEl.classList.toggle('positive', delta < 0);
-
   document.getElementById('dtcLanded').textContent = fmt(curr.totalUnitCost);
   document.getElementById('dtcValueScore').textContent = curr.valueScore + ' / 100';
 }
@@ -243,8 +227,7 @@ function renderValueMatrix() {
     const points = lever.options.map(opt => ({
       x: ((opt.costMultiplier || 1) - 1) * 100,
       y: ((opt.valueMultiplier || 1) - 1) * 100,
-      label: opt.label,
-      lever: lever.name,
+      label: opt.label, lever: lever.name,
       r: dtcState[lever.id] === opt.id ? 12 : 6
     }));
     datasets.push({
@@ -305,7 +288,6 @@ function renderScenarioCompare() {
   wrap.innerHTML = '';
   const base = calc(dtcProduct);
   const curr = computeDtcCost(dtcProduct);
-
   const baselineCol = document.createElement('div');
   baselineCol.className = 'scenario-col current';
   baselineCol.innerHTML = `
@@ -315,7 +297,6 @@ function renderScenarioCompare() {
     <div class="scenario-line"><span class="lbl">Overheads</span><span class="val">${fmt(base.ovh)}</span></div>
     <div class="scenario-line"><span class="lbl">Factory margin</span><span class="val">${fmt(base.margin)}</span></div>
     <div class="scenario-line highlight"><span class="lbl"><strong>FOB</strong></span><span class="val">${fmt(base.fob)}</span></div>`;
-
   const optCol = document.createElement('div');
   optCol.className = 'scenario-col optimized';
   optCol.innerHTML = `
@@ -327,7 +308,6 @@ function renderScenarioCompare() {
     <div class="scenario-line highlight"><span class="lbl"><strong>FOB</strong></span><span class="val">${fmt(curr.fob)}</span></div>
     <div class="scenario-line"><span class="lbl">Fixed / unit @ MOQ ${Math.round(curr.newMoq).toLocaleString()}</span><span class="val">${fmt(curr.fixedPerUnit)}</span></div>
     <div class="scenario-line highlight"><span class="lbl"><strong>Total Unit Cost</strong></span><span class="val">${fmt(curr.totalUnitCost)}</span></div>`;
-
   wrap.appendChild(baselineCol);
   wrap.appendChild(optCol);
 }
@@ -338,80 +318,66 @@ function renderScenarioCompare() {
 
 function getMaterialPreset(name) {
   switch (name) {
-    case 'matte':      return { roughness: 0.75, metalness: 0.05, clearcoat: 0 };
-    case 'gloss':      return { roughness: 0.25, metalness: 0.15, clearcoat: 0.6 };
-    case 'metal':      return { roughness: 0.35, metalness: 0.85, clearcoat: 0 };
-    case 'leather':    return { roughness: 0.85, metalness: 0.02, clearcoat: 0.1 };
-    case 'fabric':     return { roughness: 0.95, metalness: 0.00, clearcoat: 0 };
-    case 'recycled':   return { roughness: 0.70, metalness: 0.05, clearcoat: 0.15 };
-    default:           return { roughness: 0.6, metalness: 0.05, clearcoat: 0 };
+    case 'matte':      return { roughness: 0.75, metalness: 0.05 };
+    case 'gloss':      return { roughness: 0.25, metalness: 0.15 };
+    case 'metal':      return { roughness: 0.35, metalness: 0.85 };
+    case 'leather':    return { roughness: 0.85, metalness: 0.02 };
+    case 'fabric':     return { roughness: 0.95, metalness: 0.00 };
+    default:           return { roughness: 0.6, metalness: 0.05 };
   }
 }
 
 // ---------- PROCEDURAL MODELS ----------
-
 function buildShoeModel() {
   const group = new THREE.Group();
-
-  // Sole (bottom slab)
   const soleGeo = new THREE.BoxGeometry(3.0, 0.35, 1.05, 40, 4, 12);
   shapeLateralCurve(soleGeo, 0.10);
   const sole = new THREE.Mesh(soleGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }));
   sole.position.set(0, -0.45, 0);
   group.add(sole);
 
-  // Midsole (curved foam layer)
   const midGeo = new THREE.BoxGeometry(3.0, 0.35, 1.05, 40, 4, 12);
   shapeLateralCurve(midGeo, 0.14);
   const mid = new THREE.Mesh(midGeo, new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.6 }));
   mid.position.set(0, -0.15, 0);
   group.add(mid);
 
-  // Upper (the body of the shoe) — constructed from a wedge-like shape
   const upperGeo = new THREE.BoxGeometry(2.7, 0.85, 1.0, 40, 10, 14);
-  shapeUpperProfile(upperGeo);
-  const upperMat = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.7, metalness: 0.05 });
-  const upper = new THREE.Mesh(upperGeo, upperMat);
+  shapeUpperProfile(upperGeo, 0.4);
+  const upper = new THREE.Mesh(upperGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.7 }));
   upper.position.set(-0.05, 0.35, 0);
   upper.userData.isMainSurface = true;
   group.add(upper);
 
-  // Heel counter (back cup)
   const heelGeo = new THREE.CylinderGeometry(0.48, 0.42, 0.85, 24, 4, true);
-  const heel = new THREE.Mesh(heelGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5 }));
+  const heel = new THREE.Mesh(heelGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5, side: THREE.DoubleSide }));
   heel.position.set(1.15, 0.35, 0);
   heel.rotation.z = -0.15;
   group.add(heel);
 
-  // Toe cap
   const toeGeo = new THREE.SphereGeometry(0.42, 20, 12, 0, Math.PI, 0, Math.PI/2);
   const toe = new THREE.Mesh(toeGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.65 }));
   toe.position.set(-1.4, 0.25, 0);
   toe.rotation.z = Math.PI / 2;
   group.add(toe);
 
-  // Laces (3 thin cylinders)
   for (let i = 0; i < 3; i++) {
     const laceGeo = new THREE.BoxGeometry(0.06, 0.02, 0.55);
     const lace = new THREE.Mesh(laceGeo, new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.9 }));
     lace.position.set(0.3 + i * 0.28, 0.85, 0);
     group.add(lace);
   }
-
   return group;
 }
 
 function buildBootModel() {
   const group = new THREE.Group();
-
-  // Sole
   const soleGeo = new THREE.BoxGeometry(3.0, 0.28, 1.05, 40, 4, 12);
   shapeLateralCurve(soleGeo, 0.08);
   const sole = new THREE.Mesh(soleGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }));
   sole.position.set(0, -0.42, 0);
   group.add(sole);
 
-  // Studs (six small cylinders under sole)
   for (let x = -1.1; x <= 1.1; x += 0.55) {
     for (let z = -0.32; z <= 0.32; z += 0.32) {
       const studGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.14, 8);
@@ -421,7 +387,6 @@ function buildBootModel() {
     }
   }
 
-  // Upper — sock-like silhouette
   const upperGeo = new THREE.BoxGeometry(2.7, 0.9, 1.0, 40, 12, 14);
   shapeUpperProfile(upperGeo, 0.55);
   const upper = new THREE.Mesh(upperGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.65 }));
@@ -429,92 +394,75 @@ function buildBootModel() {
   upper.userData.isMainSurface = true;
   group.add(upper);
 
-  // Heel collar (tall)
   const collarGeo = new THREE.CylinderGeometry(0.44, 0.36, 1.0, 24, 4, true);
-  const collar = new THREE.Mesh(collarGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6 }));
+  const collar = new THREE.Mesh(collarGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6, side: THREE.DoubleSide }));
   collar.position.set(1.15, 0.5, 0);
   collar.rotation.z = -0.12;
   group.add(collar);
 
-  // Grip texture strips (3 raised bands)
   for (let i = 0; i < 3; i++) {
     const bandGeo = new THREE.BoxGeometry(0.55, 0.04, 0.95);
     const band = new THREE.Mesh(bandGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.4 }));
     band.position.set(-1.0 + i * 0.7, 0.7 - i * 0.05, 0);
     group.add(band);
   }
-
   return group;
 }
 
 function buildShirtModel() {
   const group = new THREE.Group();
-
-  // Main body — rounded rectangle with slight taper
   const bodyGeo = new THREE.BoxGeometry(2.0, 2.6, 0.5, 30, 40, 10);
   shapeShirtBody(bodyGeo);
   const body = new THREE.Mesh(bodyGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.9 }));
   body.userData.isMainSurface = true;
   group.add(body);
 
-  // Collar (V-neck rib)
   const collarGeo = new THREE.TorusGeometry(0.42, 0.08, 8, 24, Math.PI);
   const collar = new THREE.Mesh(collarGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.85 }));
   collar.position.set(0, 1.2, 0.24);
   collar.rotation.z = Math.PI;
   group.add(collar);
 
-  // Left sleeve
   const sleeveGeoL = new THREE.BoxGeometry(0.9, 0.9, 0.5, 12, 12, 8);
   const sleeveL = new THREE.Mesh(sleeveGeoL, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.9 }));
   sleeveL.position.set(-1.35, 0.7, 0);
   sleeveL.rotation.z = 0.15;
   group.add(sleeveL);
 
-  // Right sleeve
   const sleeveGeoR = new THREE.BoxGeometry(0.9, 0.9, 0.5, 12, 12, 8);
   const sleeveR = new THREE.Mesh(sleeveGeoR, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.9 }));
   sleeveR.position.set(1.35, 0.7, 0);
   sleeveR.rotation.z = -0.15;
   group.add(sleeveR);
 
-  // Hem detail line
   const hemGeo = new THREE.BoxGeometry(2.02, 0.06, 0.52);
   const hem = new THREE.Mesh(hemGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.85 }));
   hem.position.set(0, -1.25, 0);
   group.add(hem);
-
   return group;
 }
 
-// Geometric shaping helpers
 function shapeLateralCurve(geo, strength) {
   const pos = geo.attributes.position;
   const w = 3.0;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
-    const z = pos.getZ(i);
-    // Curve the ends down and forward
     const t = x / (w / 2);
     const lift = Math.cos(t * Math.PI / 2) * strength;
     pos.setY(i, pos.getY(i) + lift);
-    // Slight forefoot rocker
     if (x > 0.9) pos.setY(i, pos.getY(i) - (x - 0.9) * 0.15);
   }
   geo.computeVertexNormals();
 }
-
 function shapeUpperProfile(geo, arch = 0.4) {
   const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-    // Taper front of shoe (toe narrower and lower)
     if (x < -0.6) {
       const t = (x + 1.35) / 0.75;
       pos.setY(i, y * (1 - t * 0.55));
       pos.setZ(i, z * (1 - t * 0.35));
     }
-    // Arch on the top surface
     const topness = Math.max(0, y - 0.2) / 0.6;
     if (topness > 0 && Math.abs(z) < 0.4) {
       pos.setY(i, y + Math.sin(x * 1.2) * arch * topness * 0.15);
@@ -522,87 +470,88 @@ function shapeUpperProfile(geo, arch = 0.4) {
   }
   geo.computeVertexNormals();
 }
-
 function shapeShirtBody(geo) {
   const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-    // Shoulders wider, waist narrower
     const shoulderFactor = 1 + Math.max(0, y) * 0.12;
     const waistFactor = y < -0.5 ? 1 + (y + 0.5) * 0.06 : 1;
     pos.setX(i, x * shoulderFactor * waistFactor);
-    // Slight front-body curvature
-    if (Math.abs(z) > 0.2) {
-      pos.setZ(i, z + Math.sign(z) * Math.cos(x * 1.3) * 0.05);
-    }
+    if (Math.abs(z) > 0.2) pos.setZ(i, z + Math.sign(z) * Math.cos(x * 1.3) * 0.05);
   }
   geo.computeVertexNormals();
 }
 
 // ---------- SCENE ----------
+// FIX: Delay and resize-safe init
 function initCadViewer() {
   const container = document.getElementById('viewer3d');
   if (!container) return;
+
   if (!window.THREE) {
-    container.innerHTML = '<p style="padding:20px;color:#888;">Three.js failed to load. Please refresh.</p>';
+    container.innerHTML = '<p style="padding:20px;color:#c62828;font-size:13px;">Three.js failed to load. Please check your internet connection and hard-refresh.</p>';
+    return;
+  }
+
+  // FIX: If container has 0 size, wait for it
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  if (w < 10 || h < 10) {
+    console.warn('CAD: container has zero size, retrying in 200ms');
+    setTimeout(initCadViewer, 200);
     return;
   }
 
   if (cad.initialized) {
-    const w = container.clientWidth, h = container.clientHeight;
     cad.renderer.setSize(w, h);
     cad.camera.aspect = w / h;
     cad.camera.updateProjectionMatrix();
+    cad.lastW = w; cad.lastH = h;
     return;
   }
-
-  const w = container.clientWidth, h = container.clientHeight;
 
   cad.scene = new THREE.Scene();
   cad.scene.background = new THREE.Color(0xf1f5f9);
 
-  // Camera (perspective default)
   cad.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
   cad.camera.position.set(3.5, 2.4, 4.2);
+  cad.camera.lookAt(0, 0.2, 0);
 
-  // Renderer
-  cad.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  cad.renderer = new THREE.WebGLRenderer({ antialias: true });
   cad.renderer.setSize(w, h);
   cad.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  cad.renderer.shadowMap.enabled = true;
-  cad.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  if (cad.renderer.shadowMap) {
+    cad.renderer.shadowMap.enabled = true;
+    cad.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  }
+  container.innerHTML = '';  // clear any placeholder
   container.appendChild(cad.renderer.domElement);
 
-  // Lighting — studio setup
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x888899, 0.55);
-  cad.scene.add(hemi);
-
+  // Lights
+  cad.scene.add(new THREE.HemisphereLight(0xffffff, 0x888899, 0.55));
   const key = new THREE.DirectionalLight(0xffffff, 0.95);
   key.position.set(4, 6, 5);
-  key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
+  if (key.castShadow) key.castShadow = true;
   cad.scene.add(key);
-
   const rim = new THREE.DirectionalLight(0xc7d2fe, 0.5);
   rim.position.set(-5, 2, -4);
   cad.scene.add(rim);
-
   const fill = new THREE.DirectionalLight(0xffffff, 0.35);
   fill.position.set(2, -2, 3);
   cad.scene.add(fill);
 
-  // Ground plane (faint grid)
-  const grid = new THREE.GridHelper(10, 20, 0xcbd5e1, 0xe2e8f0);
-  grid.position.y = -1.6;
-  cad.scene.add(grid);
+  // Grid floor
+  if (THREE.GridHelper) {
+    const grid = new THREE.GridHelper(10, 20, 0xcbd5e1, 0xe2e8f0);
+    grid.position.y = -1.6;
+    cad.scene.add(grid);
+  }
 
-  // Product group
   cad.group = new THREE.Group();
   cad.scene.add(cad.group);
 
   rebuildCadModel();
 
-  // Controls
   if (typeof THREE.OrbitControls === 'function') {
     cad.controls = new THREE.OrbitControls(cad.camera, cad.renderer.domElement);
     cad.controls.enableDamping = true;
@@ -611,25 +560,30 @@ function initCadViewer() {
     cad.controls.minDistance = 2.5;
     cad.controls.maxDistance = 12;
     cad.controls.target.set(0, 0.2, 0);
+    cad.controls.update();
+  } else {
+    console.warn('OrbitControls not available — using fallback auto-rotate');
   }
 
   cad.initialized = true;
-  animateCad();
+  cad.lastW = w;
+  cad.lastH = h;
+
+  if (!cad.animating) {
+    cad.animating = true;
+    animateCad();
+  }
 }
 
 function rebuildCadModel() {
   if (!cad.group) return;
-
-  // Clear
   while (cad.group.children.length) cad.group.remove(cad.group.children[0]);
 
-  // Build archetype
   let model;
   if (cad.archetype === 'boot')       model = buildBootModel();
   else if (cad.archetype === 'shirt') model = buildShirtModel();
   else                                model = buildShoeModel();
 
-  // Apply material preset and texture
   const preset = getMaterialPreset(cad.materialPreset);
   model.traverse(child => {
     if (child.isMesh) {
@@ -645,33 +599,27 @@ function rebuildCadModel() {
 
       child.material.roughness = preset.roughness;
       child.material.metalness = preset.metalness;
-      if ('clearcoat' in child.material) child.material.clearcoat = preset.clearcoat;
+      if (cad.viewMode === 'wireframe') child.material.wireframe = true;
       child.material.needsUpdate = true;
     }
   });
 
   cad.group.add(model);
-
-  // Technical edges (added on demand)
   updateEdgeOverlay(model);
-
-  // Update dimension label
-  updateDimensionLabel();
 }
 
 function updateEdgeOverlay(model) {
-  // Remove old edges
   if (cad.edgeLines) {
     cad.group.remove(cad.edgeLines);
     cad.edgeLines = null;
   }
-  if (cad.viewMode !== 'technical') return;
+  if (cad.viewMode !== 'technical' || !THREE.EdgesGeometry) return;
 
   const edgesGroup = new THREE.Group();
   model.traverse(child => {
     if (child.isMesh) {
       const edges = new THREE.EdgesGeometry(child.geometry, 25);
-      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x1a237e, linewidth: 1 }));
+      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x1a237e }));
       line.position.copy(child.position);
       line.rotation.copy(child.rotation);
       line.scale.copy(child.scale);
@@ -682,18 +630,30 @@ function updateEdgeOverlay(model) {
   cad.group.add(cad.edgeLines);
 }
 
-function updateDimensionLabel() {
-  const el = document.getElementById('dimLabel');
-  if (!el) return;
-  el.textContent = `L × W × H: ${cad.width} × ${cad.depth} × ${cad.height} mm`;
-}
-
 function animateCad() {
   requestAnimationFrame(animateCad);
-  if (cad.controls) cad.controls.update();
-  if (cad.renderer && cad.scene && cad.camera) {
-    cad.renderer.render(cad.scene, cad.camera);
+  if (!cad.renderer) return;
+
+  // FIX: Auto-resize if container changed
+  const container = document.getElementById('viewer3d');
+  if (container) {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    if (w !== cad.lastW || h !== cad.lastH) {
+      if (w > 10 && h > 10) {
+        cad.renderer.setSize(w, h);
+        cad.camera.aspect = w / h;
+        cad.camera.updateProjectionMatrix();
+        cad.lastW = w;
+        cad.lastH = h;
+      }
+    }
   }
+
+  if (cad.controls) cad.controls.update();
+  else if (cad.group) cad.group.rotation.y += 0.003;
+
+  cad.renderer.render(cad.scene, cad.camera);
 }
 
 // ---------- VIEW CONTROLS ----------
@@ -702,54 +662,47 @@ function setArchetype(type) {
   rebuildCadModel();
   setActiveChip('archetypeChips', type);
 }
-
 function setViewMode(mode) {
   cad.viewMode = mode;
-  if (mode === 'wireframe') {
-    cad.group.traverse(c => { if (c.isMesh) { c.material.wireframe = true; c.material.needsUpdate = true; } });
-  } else {
-    cad.group.traverse(c => { if (c.isMesh) { c.material.wireframe = false; c.material.needsUpdate = true; } });
-  }
-  // Rebuild edges for technical mode
-  const model = cad.group.children.find(c => !c.isLineSegments && c.type === 'Group');
+  cad.group.traverse(c => {
+    if (c.isMesh) {
+      c.material.wireframe = (mode === 'wireframe');
+      c.material.needsUpdate = true;
+    }
+  });
+  const model = cad.group.children.find(c => c.type === 'Group' && c !== cad.edgeLines);
   if (model) updateEdgeOverlay(model);
   setActiveChip('viewChips', mode);
 }
-
 function setProjection(proj) {
   const container = document.getElementById('viewer3d');
   if (!container) return;
   const w = container.clientWidth, h = container.clientHeight;
+  if (w < 10 || h < 10) return;
   const aspect = w / h;
-  const target = cad.controls ? cad.controls.target : new THREE.Vector3(0, 0.2, 0);
+  const target = cad.controls ? cad.controls.target.clone() : new THREE.Vector3(0, 0.2, 0);
   const oldPos = cad.camera.position.clone();
 
   if (proj === 'orthographic') {
     const size = 3.5;
-    cad.camera = new THREE.OrthographicCamera(
-      -size * aspect, size * aspect, size, -size, 0.1, 1000
-    );
-    cad.camera.position.copy(oldPos);
-    cad.camera.lookAt(target);
+    cad.camera = new THREE.OrthographicCamera(-size * aspect, size * aspect, size, -size, 0.1, 1000);
   } else {
     cad.camera = new THREE.PerspectiveCamera(40, aspect, 0.1, 1000);
-    cad.camera.position.copy(oldPos);
-    cad.camera.lookAt(target);
   }
+  cad.camera.position.copy(oldPos);
+  cad.camera.lookAt(target);
 
-  // Rebuild controls with new camera
   if (typeof THREE.OrbitControls === 'function') {
     if (cad.controls) cad.controls.dispose();
     cad.controls = new THREE.OrbitControls(cad.camera, cad.renderer.domElement);
     cad.controls.enableDamping = true;
     cad.controls.dampingFactor = 0.08;
     cad.controls.target.copy(target);
+    cad.controls.update();
   }
-
   cad.projection = proj;
   setActiveChip('projectionChips', proj);
 }
-
 function setViewPreset(view) {
   if (!cad.camera) return;
   const t = new THREE.Vector3(0, 0.2, 0);
@@ -761,16 +714,14 @@ function setViewPreset(view) {
   cad.camera.lookAt(t);
   if (cad.controls) { cad.controls.target.copy(t); cad.controls.update(); }
 }
-
 function setMaterialPreset(preset) {
   cad.materialPreset = preset;
   rebuildCadModel();
   setActiveChip('materialChips', preset);
 }
-
 function setBaseColor(hex) {
   cad.baseColor = hex;
-  if (cad.texture) return; // texture overrides
+  if (cad.texture) return;
   cad.group.traverse(c => {
     if (c.isMesh && c.userData.isMainSurface) {
       c.material.color.set(hex);
@@ -778,7 +729,6 @@ function setBaseColor(hex) {
     }
   });
 }
-
 function setActiveChip(containerId, activeId) {
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -799,27 +749,34 @@ document.addEventListener('DOMContentLoaded', () => {
       const img = new Image();
       img.onload = () => {
         try {
-          if (cad.texture) cad.texture.dispose();
-          cad.texture = new THREE.Texture(img);
-          cad.texture.needsUpdate = true;
-          if (THREE.SRGBColorSpace) cad.texture.colorSpace = THREE.SRGBColorSpace;
-          cad.texture.wrapS = THREE.ClampToEdgeWrapping;
-          cad.texture.wrapT = THREE.ClampToEdgeWrapping;
-          rebuildCadModel();
-
-          // Show a hint if archetype might not match
-          const hint = document.getElementById('viewerHint');
-          if (hint) {
-            hint.textContent = '✅ Photo applied. If the wrap looks off, try a different archetype below.';
-            hint.style.color = '#4a148c';
+          if (!cad.initialized) {
+            console.warn('3D viewer not ready — waiting');
+            setTimeout(() => applyTexture(img), 300);
+          } else {
+            applyTexture(img);
           }
-        } catch (err) { console.error('Texture apply failed:', err); }
+        } catch (err) { console.error('Texture error:', err); }
       };
       img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
   });
 });
+
+function applyTexture(img) {
+  if (cad.texture) cad.texture.dispose();
+  cad.texture = new THREE.Texture(img);
+  cad.texture.needsUpdate = true;
+  if (THREE.SRGBColorSpace) cad.texture.colorSpace = THREE.SRGBColorSpace;
+  cad.texture.wrapS = THREE.ClampToEdgeWrapping;
+  cad.texture.wrapT = THREE.ClampToEdgeWrapping;
+  rebuildCadModel();
+  const hint = document.getElementById('viewerHint');
+  if (hint) {
+    hint.textContent = '✅ Photo applied. Rotate to view. Change archetype if the shape is wrong.';
+    hint.style.color = '#4a148c';
+  }
+}
 
 // ---------- MAIN RENDER ----------
 function renderDtcTab() {
@@ -833,9 +790,10 @@ function renderDtcTab() {
   renderActionBoard();
   renderScenarioCompare();
 
+  // FIX: use longer delay + retry to handle tab transition
   setTimeout(() => {
     try { initCadViewer(); } catch (err) { console.error('CAD init failed:', err); }
-  }, 150);
+  }, 250);
 }
 
 // Auto-run when the tab becomes active
