@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMA Should-Cost Dashboard v7.3</title>
+<title>PUMA Should-Cost Dashboard v7.4</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
@@ -179,7 +179,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 <div class="header">
   <div class="header-top">
     <div>
-      <h1>PUMA Should-Cost Dashboard v7.3</h1>
+      <h1>PUMA Should-Cost Dashboard v7.4</h1>
       <div class="sub" id="updated">Loading…</div>
     </div>
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
@@ -338,22 +338,73 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 
     <div class="dtc-layout">
       <div class="dtc-viewer-card">
-        <h4>Product Visualization</h4>
+        <h4>CAD-Style Product Viewer</h4>
+
         <div class="dtc-upload-zone" onclick="document.getElementById('dtcImage').click()">
           <div class="icon">📸</div>
-          <p><strong>Upload product image</strong> for 3D preview</p>
-          <p style="font-size:11px;">The image wraps onto a rotatable 3D form</p>
+          <p><strong>Upload product image</strong> to texture the model</p>
+          <p style="font-size:11px;">For best results, use a flat product photo</p>
           <input type="file" id="dtcImage" accept="image/*" style="display:none">
         </div>
+
         <div id="viewer3d" class="viewer3d"></div>
-        <p class="viewer-hint">🖱️ Drag to rotate · Scroll to zoom</p>
-        <div class="color-picker">
-          <label>Base color:</label>
-          <input type="color" id="meshColor" value="#2d6a4f" onchange="updateMeshColor()">
-          <label style="margin-left: 15px;">
-            <input type="checkbox" id="wireframeToggle" onchange="toggleWireframe()"> Wireframe
-          </label>
+        <p class="viewer-hint" id="viewerHint">🖱️ Drag to rotate · Scroll to zoom · Right-click drag to pan</p>
+
+        <div class="cad-controls">
+          <div class="cad-control-group">
+            <span class="cad-label">Archetype:</span>
+            <div class="cad-chips" id="archetypeChips">
+              <button class="cad-chip active" data-id="shoe" onclick="setArchetype('shoe')">👟 Running Shoe</button>
+              <button class="cad-chip" data-id="boot" onclick="setArchetype('boot')">🥾 Football Boot</button>
+              <button class="cad-chip" data-id="shirt" onclick="setArchetype('shirt')">👕 Sports Shirt</button>
+            </div>
+          </div>
+
+          <div class="cad-control-group">
+            <span class="cad-label">View:</span>
+            <div class="cad-chips" id="viewChips">
+              <button class="cad-chip active" data-id="solid" onclick="setViewMode('solid')">Solid</button>
+              <button class="cad-chip" data-id="technical" onclick="setViewMode('technical')">Technical</button>
+              <button class="cad-chip" data-id="wireframe" onclick="setViewMode('wireframe')">Wireframe</button>
+            </div>
+          </div>
+
+          <div class="cad-control-group">
+            <span class="cad-label">Projection:</span>
+            <div class="cad-chips" id="projectionChips">
+              <button class="cad-chip active" data-id="perspective" onclick="setProjection('perspective')">Perspective</button>
+              <button class="cad-chip" data-id="orthographic" onclick="setProjection('orthographic')">Orthographic</button>
+            </div>
+          </div>
+
+          <div class="cad-control-group">
+            <span class="cad-label">Material:</span>
+            <div class="cad-chips" id="materialChips">
+              <button class="cad-chip active" data-id="matte" onclick="setMaterialPreset('matte')">Matte</button>
+              <button class="cad-chip" data-id="gloss" onclick="setMaterialPreset('gloss')">Gloss</button>
+              <button class="cad-chip" data-id="leather" onclick="setMaterialPreset('leather')">Leather</button>
+              <button class="cad-chip" data-id="fabric" onclick="setMaterialPreset('fabric')">Fabric</button>
+              <button class="cad-chip" data-id="metal" onclick="setMaterialPreset('metal')">Metal</button>
+            </div>
+          </div>
+
+          <div class="cad-control-group">
+            <span class="cad-label">Views:</span>
+            <div class="cad-chips">
+              <button class="cad-chip" onclick="setViewPreset('front')">Front</button>
+              <button class="cad-chip" onclick="setViewPreset('side')">Side</button>
+              <button class="cad-chip" onclick="setViewPreset('top')">Top</button>
+              <button class="cad-chip" onclick="setViewPreset('iso')">Isometric</button>
+            </div>
+          </div>
+
+          <div class="cad-control-group">
+            <span class="cad-label">Color:</span>
+            <input type="color" id="meshColor" value="#2d6a4f" onchange="setBaseColor(this.value)">
+          </div>
         </div>
+
+        <p class="dim-label" id="dimLabel">L × W × H: 260 × 100 × 90 mm</p>
       </div>
 
       <div class="dtc-levers-card">
@@ -436,25 +487,15 @@ window._fcCharts = [];
 const fmt = n => '€' + (isFinite(n) ? n.toFixed(2) : '0.00');
 const pct = n => (isFinite(n) ? n.toFixed(1) : '0.0') + '%';
 
-// ============================================================
-// SAFE RENDER WRAPPER
-// ============================================================
 function safeRender(name, fn) {
   try { fn(); } catch (err) { console.error('[Render error in ' + name + ']:', err); }
 }
 
-// ============================================================
-// LOAD
-// ============================================================
 async function load() {
   try {
     const r = await fetch('cost_data.json');
     data = await r.json();
     console.log('Data loaded. Keys:', Object.keys(data));
-    console.log('Products:', data.products ? data.products.length : 0);
-    console.log('Forecasts:', data.forecasts ? data.forecasts.drivers.length + ' drivers' : 'missing');
-    console.log('Competitors:', data.competitors ? 'present' : 'missing');
-    console.log('EndToEnd:', data.endToEnd ? 'present' : 'missing');
   } catch (err) {
     console.error('Failed to load cost_data.json:', err);
     document.getElementById('updated').textContent = 'Error loading cost_data.json';
@@ -462,7 +503,6 @@ async function load() {
   }
 
   originalAssumptions = JSON.parse(JSON.stringify(data.assumptions));
-
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) { try { data.assumptions = JSON.parse(saved); } catch(e){} }
   const savedFc = localStorage.getItem(FC_STORAGE);
@@ -487,9 +527,6 @@ async function load() {
   safeRender('e2e', renderE2ETab);
 }
 
-// ============================================================
-// TABS
-// ============================================================
 function showTab(name, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -898,11 +935,7 @@ function buildProjection(product) {
     });
     locCopy.laborRatePerHr = baseLoc.laborRatePerHr * labourMultiplier;
     const c = calc(product, locCopy, matCopy);
-    projections.push({
-      label: quarterLabels[q],
-      fob: c.fob, materials: c.mat, labour: c.lab,
-      overheads: c.ovh, margin: c.margin
-    });
+    projections.push({ label: quarterLabels[q], fob: c.fob, materials: c.mat, labour: c.lab, overheads: c.ovh, margin: c.margin });
   }
   const finalFob = projections[projections.length - 1].fob;
   const delta = baseCost ? ((finalFob - baseCost) / baseCost) * 100 : 0;
@@ -910,23 +943,15 @@ function buildProjection(product) {
 }
 
 function renderForecastTab() {
-  if (!data.forecasts) { console.log('No forecasts data'); return; }
-
+  if (!data.forecasts) return;
   const sub = document.getElementById('forecastSubtitle');
-  if (sub) sub.textContent = `Projected cost evolution for each product from ${data.forecasts.quarterLabels[0]} to ${data.forecasts.quarterLabels[data.forecasts.quarterLabels.length-1]}. Driver-level forecasts cited from industry sources.`;
-
-  if (window._fcCharts && window._fcCharts.length) {
-    window._fcCharts.forEach(c => { try { c.destroy(); } catch(e){} });
-  }
+  if (sub) sub.textContent = `Projected cost evolution for each product from ${data.forecasts.quarterLabels[0]} to ${data.forecasts.quarterLabels[data.forecasts.quarterLabels.length-1]}.`;
+  if (window._fcCharts && window._fcCharts.length) window._fcCharts.forEach(c => { try { c.destroy(); } catch(e){} });
   window._fcCharts = [];
-
-  const grid = document.getElementById('forecastGrid');
-  if (!grid) { console.error('forecastGrid missing'); return; }
+  const grid = document.getElementById('forecastGrid'); if (!grid) return;
   grid.innerHTML = '';
-
-  data.products.forEach((p, idx) => {
-    const proj = buildProjection(p);
-    if (!proj) return;
+  data.products.forEach(p => {
+    const proj = buildProjection(p); if (!proj) return;
     const card = document.createElement('div');
     card.className = 'forecast-card';
     const deltaPct = proj.delta;
@@ -940,38 +965,30 @@ function renderForecastTab() {
         <div class="stat"><div class="lbl">Projected Q1 2028</div><div class="val">${fmt(proj.finalFob)}</div></div>
         <div class="stat"><div class="lbl">18-Month Δ</div><div class="val ${deltaClass}">${deltaSign}${deltaPct.toFixed(1)}%</div></div>
       </div>
-      <div class="forecast-chart-wrap"><canvas id="fc-${p.id}"></canvas></div>
-    `;
+      <div class="forecast-chart-wrap"><canvas id="fc-${p.id}"></canvas></div>`;
     grid.appendChild(card);
   });
-
   requestAnimationFrame(() => {
     data.products.forEach(p => {
-      const proj = buildProjection(p);
-      if (!proj) return;
-      const ctx = document.getElementById('fc-' + p.id);
-      if (!ctx) return;
+      const proj = buildProjection(p); if (!proj) return;
+      const ctx = document.getElementById('fc-' + p.id); if (!ctx) return;
       try {
         const c = new Chart(ctx, {
           type: 'line',
-          data: {
-            labels: proj.projections.map(x => x.label),
-            datasets: [
-              { label: 'Total FOB', data: proj.projections.map(x => x.fob), borderColor: '#111', backgroundColor: 'rgba(17,17,17,0.06)', borderWidth: 2.5, tension: 0.3, fill: true, pointRadius: 4 },
-              { label: 'Materials', data: proj.projections.map(x => x.materials), borderColor: '#2d6a4f', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
-              { label: 'Labour', data: proj.projections.map(x => x.labour), borderColor: '#f57c00', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
-              { label: 'Overheads', data: proj.projections.map(x => x.overheads), borderColor: '#999', borderWidth: 1.5, tension: 0.3, pointRadius: 2 }
-            ]
-          },
+          data: { labels: proj.projections.map(x => x.label), datasets: [
+            { label: 'Total FOB', data: proj.projections.map(x => x.fob), borderColor: '#111', backgroundColor: 'rgba(17,17,17,0.06)', borderWidth: 2.5, tension: 0.3, fill: true, pointRadius: 4 },
+            { label: 'Materials', data: proj.projections.map(x => x.materials), borderColor: '#2d6a4f', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
+            { label: 'Labour', data: proj.projections.map(x => x.labour), borderColor: '#f57c00', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
+            { label: 'Overheads', data: proj.projections.map(x => x.overheads), borderColor: '#999', borderWidth: 1.5, tension: 0.3, pointRadius: 2 }
+          ]},
           options: { responsive: true, maintainAspectRatio: false,
             plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
             scales: { y: { title: { display: true, text: '€ per unit' } } } }
         });
         window._fcCharts.push(c);
-      } catch (err) { console.error('Chart error for', p.id, err); }
+      } catch (err) { console.error('Chart error:', err); }
     });
   });
-
   renderScenarioBox();
   renderDriverTable();
 }
@@ -1029,7 +1046,7 @@ function renderDriverTable() {
 // COMPETITIVE
 // ============================================================
 function renderCompetitiveTab() {
-  if (!data.competitors) { console.log('No competitors data'); return; }
+  if (!data.competitors) return;
   const comp = data.competitors;
   safeRender('benchmarkCards', () => renderBenchmarkCards(comp.benchmarks));
   safeRender('sourcingChart', () => renderSourcingChart(comp.benchmarks));
@@ -1037,7 +1054,6 @@ function renderCompetitiveTab() {
   safeRender('costCompare', () => renderCostCompareChart(comp.productComparisons[0]));
   safeRender('priorities', () => renderPriorities(comp.improvementPriorities));
 }
-
 function renderBenchmarkCards(benchmarks) {
   const grid = document.getElementById('benchmarkGrid'); if (!grid) return;
   grid.innerHTML = '';
@@ -1056,10 +1072,8 @@ function renderBenchmarkCards(benchmarks) {
     grid.appendChild(card);
   });
 }
-
 function renderSourcingChart(benchmarks) {
-  const ctx = document.getElementById('sourcingChart');
-  if (!ctx) return;
+  const ctx = document.getElementById('sourcingChart'); if (!ctx) return;
   if (compCharts.sourcing) { try { compCharts.sourcing.destroy(); } catch(e){} }
   const countries = ['Vietnam', 'China', 'Indonesia', 'Cambodia', 'Bangladesh', 'India'];
   const colors = { puma: '#111', adidas: '#2d6a4f', nike: '#f57c00' };
@@ -1077,7 +1091,6 @@ function renderSourcingChart(benchmarks) {
       scales: { y: { title: { display: true, text: '% of production volume' }, beginAtZero: true } } }
   });
 }
-
 function renderProductComparisons(comparisons) {
   const container = document.getElementById('productComparisons'); if (!container) return;
   container.innerHTML = '';
@@ -1125,10 +1138,8 @@ function renderProductComparisons(comparisons) {
     container.appendChild(section);
   });
 }
-
 function renderCostCompareChart(cmp) {
-  const ctx = document.getElementById('costCompareChart');
-  if (!ctx || !cmp) return;
+  const ctx = document.getElementById('costCompareChart'); if (!ctx || !cmp) return;
   if (compCharts.costCompare) { try { compCharts.costCompare.destroy(); } catch(e){} }
   compCharts.costCompare = new Chart(ctx, {
     type: 'bar',
@@ -1144,7 +1155,6 @@ function renderCostCompareChart(cmp) {
       scales: { y: { title: { display: true, text: '€ per unit' }, beginAtZero: true } } }
   });
 }
-
 function renderPriorities(priorities) {
   const list = document.getElementById('priorityList'); if (!list) return;
   list.innerHTML = '';
