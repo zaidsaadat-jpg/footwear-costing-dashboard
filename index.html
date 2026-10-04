@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMA Should-Cost Dashboard</title>
+<title>PUMA Should-Cost Dashboard v4</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
@@ -16,7 +16,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .tabs { display: flex; gap: 4px; margin-top: 15px; }
 .tab { padding: 10px 22px; background: #2a2a2a; color: #aaa; border: none; cursor: pointer; border-radius: 8px 8px 0 0; font-size: 14px; font-weight: 500; }
 .tab.active { background: #f5f5f5; color: #111; }
-.container { max-width: 1500px; margin: 0 auto; padding: 25px 20px; }
+.container { max-width: 1600px; margin: 0 auto; padding: 25px 20px; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
@@ -36,7 +36,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .chart-btn { padding: 6px 14px; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 13px; }
 .chart-btn.active { background: #111; color: #fff; border-color: #111; }
 #treeChart { width: 100%; height: 520px; }
-
 .moq-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; }
 .moq-controls { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
 .moq-controls label { font-size: 14px; font-weight: 600; }
@@ -49,7 +48,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .metric.highlight { background: #111; color: #fff; border-color: #111; }
 .metric.highlight .lbl { color: #aaa; }
 #moqChart { max-height: 320px; }
-
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 7px 9px; text-align: left; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: top; }
 th { font-size: 10px; text-transform: uppercase; color: #666; letter-spacing: .5px; background: #f9fafb; position: sticky; top: 0; z-index: 2; }
@@ -58,39 +56,35 @@ th.sortable:hover { background: #eef2f7; color: #111; }
 td.num, th.num { text-align: right; }
 td.pct, th.pct { text-align: right; width: 78px; color: #555; }
 tbody tr:hover { background: #f9fafb; }
-td.lvl.L1 { color: #888; } td.lvl.L2 { font-weight: 600; color: #222; }
-td.lvl.L3 { color: #333; } td.lvl.L4 { color: #555; font-size: 11.5px; }
-td.lvl.L5 { color: #777; font-size: 11px; }
-.tbl-wrap { overflow-x: auto; max-height: 600px; overflow-y: auto; }
-
+.tbl-wrap { overflow-x: auto; max-height: 650px; overflow-y: auto; }
+.node-name { cursor: pointer; color: #2e7d32; font-weight: 500; }
+.node-name:hover { text-decoration: underline; }
+.node-name.leaf { cursor: default; color: #333; font-weight: normal; }
+.node-name.leaf:hover { text-decoration: none; }
+.expand-icon { display: inline-block; width: 14px; color: #888; font-size: 10px; }
+.src-tip { display: inline-block; width: 14px; height: 14px; line-height: 14px; text-align: center; background: #e3f2fd; color: #1565c0; border-radius: 50%; font-size: 9px; margin-left: 4px; cursor: help; font-weight: bold; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.filter-chip { padding: 5px 12px; border: 1px solid #ddd; background: #fff; border-radius: 20px; font-size: 12px; cursor: pointer; }
+.filter-chip.active { background: #111; color: #fff; border-color: #111; }
 .assumption-group { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .assumption-group h3 { margin-bottom: 15px; font-size: 16px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
 .assumption-row { display: grid; grid-template-columns: 1.5fr 1fr 2fr; gap: 12px; padding: 8px 0; align-items: center; border-bottom: 1px solid #f5f5f5; }
 .assumption-row:last-child { border-bottom: none; }
-.assumption-row .key { font-size: 13px; color: #333; }
 .assumption-row input { padding: 6px 10px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; width: 100%; }
-.assumption-row input:focus { outline: none; border-color: #111; }
 .assumption-row .note { font-size: 11px; color: #999; font-style: italic; }
 .assumption-row .id { font-family: monospace; font-size: 11px; color: #888; }
 .loc-tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
 .loc-tab { padding: 6px 14px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 13px; }
 .loc-tab.active { background: #111; color: #fff; border-color: #111; }
-
 .btn-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 .btn-row button { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
 .btn-primary { background: #111; color: #fff; }
 .btn-warn { background: #f57c00; color: #fff; }
 .btn-secondary { background: #e5e5e5; color: #222; }
-
-.sensitivity { background: #fff; border-radius: 12px; padding: 22px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-.sensitivity h3 { margin-bottom: 15px; }
-.sens-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-.sens-controls label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; }
-.sens-controls select, .sens-controls input { width: 100%; padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 14px; }
-#sensChart { max-height: 380px; }
 .footer { text-align: center; color: #999; font-size: 12px; padding: 30px; }
 .dirty-warning { background: #fff3cd; color: #856404; padding: 8px 14px; border-radius: 6px; font-size: 12px; margin-top: 10px; display: none; }
 .dirty-warning.on { display: inline-block; }
+.tier-select { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -98,24 +92,32 @@ td.lvl.L5 { color: #777; font-size: 11px; }
 <div class="header">
   <div class="header-top">
     <div>
-      <h1>PUMA Should-Cost Dashboard</h1>
+      <h1>PUMA Should-Cost Dashboard v4</h1>
       <div class="sub" id="updated">Loading…</div>
-      <div class="dirty-warning" id="dirtyWarning">⚠️ Assumptions have been modified from defaults</div>
+      <div class="dirty-warning" id="dirtyWarning">⚠️ Assumptions modified from defaults</div>
     </div>
-    <div>
-      <label style="font-size:12px; color:#aaa; margin-right:8px;">Location:</label>
-      <select class="loc-select" id="locationSelect" onchange="onLocationChange()"></select>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <div>
+        <label style="font-size:11px; color:#aaa; display:block;">Location</label>
+        <select class="tier-select" id="locationSelect" onchange="onLocationChange()"></select>
+      </div>
+      <div>
+        <label style="font-size:11px; color:#aaa; display:block;">Supplier Tier</label>
+        <select class="tier-select" id="tierSelect" onchange="onTierChange()">
+          <option value="tier1">Tier 1 — Global</option>
+          <option value="tier2" selected>Tier 2 — Mid-Size</option>
+          <option value="tier3">Tier 3 — Small</option>
+        </select>
+      </div>
     </div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="showTab('dashboard', this)">📊 Dashboard</button>
-    <button class="tab" onclick="showTab('assumptions', this)">⚙️ Assumptions & Sensitivity</button>
+    <button class="tab" onclick="showTab('assumptions', this)">⚙️ Assumptions & Sources</button>
   </div>
 </div>
 
 <div class="container">
-
-  <!-- DASHBOARD TAB -->
   <div class="tab-panel active" id="tab-dashboard">
     <div class="grid" id="cards"></div>
     <div class="drill" id="drill">
@@ -132,9 +134,9 @@ td.lvl.L5 { color: #777; font-size: 11px; }
             <div class="moq-value" id="moqValue">—</div>
           </div>
           <div class="moq-metrics">
-            <div class="metric"><div class="lbl">Variable Cost / Unit (FOB)</div><div class="val" id="mVariable">—</div></div>
-            <div class="metric"><div class="lbl">Fixed Cost Pool</div><div class="val" id="mPool">—</div></div>
-            <div class="metric"><div class="lbl">Fixed Cost / Unit</div><div class="val" id="mFixedPerUnit">—</div></div>
+            <div class="metric"><div class="lbl">Variable FOB</div><div class="val" id="mVariable">—</div></div>
+            <div class="metric"><div class="lbl">Fixed Pool</div><div class="val" id="mPool">—</div></div>
+            <div class="metric"><div class="lbl">Fixed / Unit</div><div class="val" id="mFixedPerUnit">—</div></div>
             <div class="metric highlight"><div class="lbl">Total Unit Cost</div><div class="val" id="mTotal">—</div></div>
           </div>
           <canvas id="moqChart"></canvas>
@@ -142,7 +144,7 @@ td.lvl.L5 { color: #777; font-size: 11px; }
       </div>
 
       <div class="section">
-        <h3 style="margin-bottom:15px;">Cost Driver Tree</h3>
+        <h3 style="margin-bottom:15px;">Cost Driver Tree — % of Total Cost</h3>
         <div class="tree-controls">
           <button class="chart-btn active" data-type="icicle" onclick="setChartType('icicle')">Icicle</button>
           <button class="chart-btn" data-type="treemap" onclick="setChartType('treemap')">Treemap</button>
@@ -152,108 +154,81 @@ td.lvl.L5 { color: #777; font-size: 11px; }
       </div>
 
       <div class="section">
-        <h3 style="margin-bottom:15px;">Cost Tree Table — click headers to sort</h3>
+        <h3 style="margin-bottom:15px;">Cost Tree Table — click any node to expand</h3>
+        <div class="filter-bar">
+          <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">All</button>
+          <button class="filter-chip" data-filter="labour" onclick="setFilter('labour')">Labour only</button>
+          <button class="filter-chip" data-filter="machine" onclick="setFilter('machine')">Machine only</button>
+          <button class="filter-chip" data-filter="material" onclick="setFilter('material')">Material only</button>
+          <button class="filter-chip" data-filter="fixed" onclick="setFilter('fixed')">Fixed only</button>
+        </div>
         <div class="tbl-wrap"><table id="table"></table></div>
       </div>
     </div>
   </div>
 
-  <!-- ASSUMPTIONS TAB -->
   <div class="tab-panel" id="tab-assumptions">
     <div class="btn-row">
-      <button class="btn-primary" onclick="saveAssumptions()">💾 Save Changes</button>
-      <button class="btn-warn" onclick="resetAssumptions()">↺ Reset to Defaults</button>
+      <button class="btn-primary" onclick="saveAssumptions()">💾 Save</button>
+      <button class="btn-warn" onclick="resetAssumptions()">↺ Reset</button>
       <button class="btn-secondary" onclick="exportAssumptions()">↓ Export JSON</button>
     </div>
 
     <div class="assumption-group">
-      <h3>🌍 Location Rates (per hour, USD → EUR equivalent)</h3>
+      <h3>🌍 Location Rates <span class="src-tip" title="Source: Misciano Textile Atlas 2026; ILO footwear study">i</span></h3>
       <div class="loc-tabs" id="locTabs"></div>
       <div id="locEditor"></div>
     </div>
 
     <div class="assumption-group">
-      <h3>💵 Material Prices</h3>
+      <h3>💵 Material Prices <span class="src-tip" title="Sources: 100ppi.com, ANRPC, OPIS, Argus">i</span></h3>
       <div id="materialEditor"></div>
     </div>
 
     <div class="assumption-group">
-      <h3>📈 Sensitivity Analysis — change a rate and see impact</h3>
-      <div class="sensitivity">
-        <div class="sens-controls">
-          <div>
-            <label>Product</label>
-            <select id="sensProduct" onchange="runSensitivity()"></select>
-          </div>
-          <div>
-            <label>Variable to sweep</label>
-            <select id="sensVariable" onchange="runSensitivity()">
-              <option value="laborRatePerHr">Labour rate / hr</option>
-              <option value="machineRatePerHr">Machine rate / hr</option>
-              <option value="freightPerUnit">Freight per unit</option>
-              <option value="dutyRatePercent">Duty rate %</option>
-              <option value="moq">MOQ (order quantity)</option>
-            </select>
-          </div>
-        </div>
-        <canvas id="sensChart"></canvas>
-      </div>
+      <h3>🏭 Machine Assumptions <span class="src-tip" title="Source: ATO depreciation rates; industry benchmark">i</span></h3>
+      <div id="machineEditor"></div>
     </div>
   </div>
-
 </div>
 
 <div class="footer">Estimates based on industry benchmarks. Not actual PUMA supplier data.</div>
 
 <script>
-const STORAGE_KEY = 'puma_should_cost_assumptions_v3';
-let data = null;
-let originalAssumptions = null;
-let selected = null;
-let chart = null, moqChart = null, sensChart = null, treeChartDrawn = null;
-let currentLocation = null;
-let currentChartType = 'icicle';
-let currentMOQ = null;
+const STORAGE_KEY = 'puma_should_cost_v4';
+let data = null, originalAssumptions = null;
+let selected = null, chart = null, moqChart = null, treeChartDrawn = null;
+let currentLocation = null, currentTier = 'tier2';
+let currentChartType = 'icicle', currentMOQ = null;
 let sortState = { column: 'cost', dir: 'desc' };
 let editingLocId = null;
+let currentFilter = 'all';
+let expandedNodes = {};
 
 const fmt = n => '€' + (isFinite(n) ? n.toFixed(2) : '0.00');
 const pct = n => (isFinite(n) ? n.toFixed(1) : '0.0') + '%';
 
-// ---------- LOAD ----------
 async function load() {
   const r = await fetch('cost_data.json');
   data = await r.json();
   originalAssumptions = JSON.parse(JSON.stringify(data.assumptions));
-
-  // Restore saved assumptions from localStorage
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    try {
-      data.assumptions = JSON.parse(saved);
-      document.getElementById('dirtyWarning').classList.add('on');
-    } catch(e) {}
-  }
+  if (saved) { try { data.assumptions = JSON.parse(saved); document.getElementById('dirtyWarning').classList.add('on'); } catch(e){} }
 
   const sel = document.getElementById('locationSelect');
   sel.innerHTML = '';
   data.assumptions.locations.forEach(loc => {
-    const opt = document.createElement('option');
-    opt.value = loc.id; opt.textContent = loc.name;
-    sel.appendChild(opt);
+    const o = document.createElement('option'); o.value = loc.id; o.textContent = loc.name; sel.appendChild(o);
   });
   sel.value = data.assumptions.defaultLocationId;
   currentLocation = data.assumptions.locations.find(l => l.id === sel.value);
+  currentTier = document.getElementById('tierSelect').value;
 
-  document.getElementById('updated').textContent =
-    'Last updated: ' + (data.last_updated || '—') + ' · Currency: ' + (data.currency || 'EUR') + ' · Version ' + (data.version || '');
-
+  document.getElementById('updated').textContent = 'Last updated: ' + (data.last_updated || '—') + ' · v' + (data.version || '');
   renderCards();
   renderAssumptionEditors();
-  populateSensitivityProducts();
 }
 
-// ---------- NAVIGATION ----------
 function showTab(name, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -262,31 +237,53 @@ function showTab(name, btn) {
 }
 
 // ---------- COST EVALUATION ----------
+function getTierMultipliers() {
+  const tier = data.assumptions.supplierTiers[currentTier];
+  return tier || { laborMultiplier: 1, machineMultiplier: 1, overheadMultiplier: 1, moqMultiplier: 1, marginPercent: 9 };
+}
+
+function machineRatePerHr(machineKey) {
+  const m = data.assumptions.machineAssumptions[machineKey];
+  if (!m) return currentLocation.machineRatePerHr;
+  const depreciation = m.capitalCost / (m.lifeYears * m.operatingHoursPerYear);
+  const maintenance = depreciation * (m.maintenancePercentOfDep / 100);
+  return (depreciation + maintenance + m.powerCostPerHr) * getTierMultipliers().machineMultiplier;
+}
+
 function evaluateNode(node, loc, matPrices) {
   if (node.children && node.children.length > 0 && !node.type) {
     return node.children.reduce((s, c) => s + evaluateNode(c, loc, matPrices), 0);
   }
+  const t = getTierMultipliers();
   switch (node.type) {
     case 'time_labour':
-      return (node.inputs.minutesPerUnit / 60) * loc.laborRatePerHr;
-    case 'time_machine':
-      return (node.inputs.minutesPerUnit / 60) * loc.machineRatePerHr;
+      return (node.inputs.minutesPerUnit / 60) * loc.laborRatePerHr * t.laborMultiplier;
+    case 'labour_rate':
+      return 0;
+    case 'machine_rate':
+      return 0;
+    case 'time_machine': {
+      const rate = machineRatePerHr(node.inputs.machineKey);
+      return (node.inputs.minutesPerUnit / 60) * rate;
+    }
+    case 'overhead':
+      return (node.inputs.minutesPerUnit / 60) * loc.overheadRatePerHr * t.overheadMultiplier;
     case 'material': {
-      const price = matPrices[node.inputs.priceKey] || 0;
+      const entry = matPrices[node.inputs.priceKey];
+      const price = entry ? entry.price : (typeof entry === 'number' ? entry : 0);
       return node.inputs.quantity * price;
     }
     case 'fixed_amortised':
       return node.inputs.mouldCost / node.inputs.lifecycleUnits;
     case 'percent_of_subtotal':
-      return 0; // handled at parent level
+      return 0;
     default:
       return node.cost || 0;
   }
 }
 
 function evaluateTree(node, loc, matPrices) {
-  // Recursive: build a copy with computed cost on each node
-  const newNode = { ...node };
+  const newNode = { ...node, _expanded: expandedNodes[node.name] !== false };
   if (node.children && node.children.length > 0 && !node.type) {
     newNode.children = node.children.map(c => evaluateTree(c, loc, matPrices));
     const subtotal = newNode.children
@@ -295,7 +292,7 @@ function evaluateTree(node, loc, matPrices) {
     newNode.children = newNode.children.map(c => {
       if (c.type === 'percent_of_subtotal') {
         const p = c.inputs.percent;
-        return { ...c, cost: subtotal * (p / 100), computedFrom: subtotal };
+        return { ...c, cost: subtotal * (p / 100) };
       }
       return c;
     });
@@ -315,27 +312,19 @@ function calc(p) {
   if (!currentLocation) currentLocation = data.assumptions.locations[0];
   const tree = evaluateTree(p.costTree, currentLocation, data.assumptions.materialPrices);
   const fob = tree.cost;
-
-  const findTop = (name) => tree.children.find(c => c.name === name);
-  const matNode = findTop('Materials');
-  const labNode = findTop('Labour (CMT)');
-  const ovhNode = findTop('Overheads');
-  const marginNode = findTop('Factory Margin');
-
-  const mat = matNode ? matNode.cost : 0;
-  const lab = labNode ? labNode.cost : 0;
-  const ovh = ovhNode ? ovhNode.cost : 0;
-  const margin = marginNode ? marginNode.cost : 0;
-
+  const findTop = n => tree.children.find(c => c.name === n);
+  const matNode = findTop('Materials'), labNode = findTop('Labour (CMT)');
+  const ovhNode = findTop('Overheads'), marginNode = findTop('Factory Margin');
+  const mat = matNode ? matNode.cost : 0, lab = labNode ? labNode.cost : 0;
+  const ovh = ovhNode ? ovhNode.cost : 0, margin = marginNode ? marginNode.cost : 0;
   const freight = currentLocation.freightPerUnit;
   const dutyRate = currentLocation.dutyRatePercent;
   const duty = fob * (dutyRate / 100);
   const landed = fob + freight + duty;
-
   return { tree, fob, mat, lab, ovh, margin, freight, duty, dutyRate, landed };
 }
 
-// ---------- DASHBOARD RENDER ----------
+// ---------- CARDS ----------
 function renderCards() {
   const g = document.getElementById('cards'); g.innerHTML = '';
   data.products.forEach(p => {
@@ -343,15 +332,17 @@ function renderCards() {
     const d = document.createElement('div');
     d.className = 'card';
     d.onclick = () => selectProduct(p.id);
+    const tier = data.assumptions.supplierTiers[currentTier];
     let moqLine = '';
     if (p.moq) {
-      const fixedPerUnit = p.moq.fixedCostPool / p.moq.current;
-      moqLine = `<div class="row"><span class="lbl">Fixed cost @ MOQ ${p.moq.current.toLocaleString()}</span><span class="val">${fmt(fixedPerUnit)}</span></div>
+      const moqAdj = p.moq.current * tier.moqMultiplier;
+      const fixedPerUnit = p.moq.fixedCostPool / moqAdj;
+      moqLine = `<div class="row"><span class="lbl">Fixed @ MOQ ${Math.round(moqAdj).toLocaleString()}</span><span class="val">${fmt(fixedPerUnit)}</span></div>
                  <div class="row big"><span>Total Unit Cost</span><span>${fmt(c.fob + fixedPerUnit)}</span></div>`;
     }
     d.innerHTML = `
       <h2>${p.name}</h2>
-      <div class="cat">${p.category} · ${currentLocation.name}</div>
+      <div class="cat">${p.category} · ${currentLocation.name} · ${tier.name}</div>
       <div class="row"><span class="lbl">Materials</span><span class="val">${fmt(c.mat)}</span></div>
       <div class="row"><span class="lbl">Labour (CMT)</span><span class="val">${fmt(c.lab)}</span></div>
       <div class="row"><span class="lbl">Overheads</span><span class="val">${fmt(c.ovh)}</span></div>
@@ -366,6 +357,7 @@ function renderCards() {
 function selectProduct(id) {
   selected = data.products.find(p => p.id === id);
   document.getElementById('drill').classList.add('on');
+  expandedNodes = {};
   renderDrilldown();
 }
 
@@ -374,17 +366,15 @@ function renderDrilldown() {
   const c = calc(selected);
   document.getElementById('drillTitle').textContent = selected.name + ' — Cost Breakdown';
 
-  const banner = document.getElementById('locBanner');
-  banner.innerHTML = `<strong>📍 ${currentLocation.name}</strong> · Labour €${currentLocation.laborRatePerHr}/hr · Machine €${currentLocation.machineRatePerHr}/hr · Freight €${currentLocation.freightPerUnit} · Duty ${currentLocation.dutyRatePercent}%`;
+  const tier = data.assumptions.supplierTiers[currentTier];
+  document.getElementById('locBanner').innerHTML =
+    `<strong>📍 ${currentLocation.name}</strong> · ${tier.name} · Labour €${currentLocation.laborRatePerHr}/hr · Freight €${currentLocation.freightPerUnit} · Duty ${currentLocation.dutyRatePercent}%`;
 
   if (chart) chart.destroy();
   chart = new Chart(document.getElementById('chart'), {
     type: 'doughnut',
-    data: {
-      labels: ['Materials', 'Labour', 'Overheads', 'Margin'],
-      datasets: [{ data: [c.mat, c.lab, c.ovh, c.margin],
-        backgroundColor: ['#111','#555','#999','#ddd'], borderWidth: 0 }]
-    },
+    data: { labels: ['Materials', 'Labour', 'Overheads', 'Margin'],
+      datasets: [{ data: [c.mat, c.lab, c.ovh, c.margin], backgroundColor: ['#111','#555','#999','#ddd'], borderWidth: 0 }] },
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
 
@@ -400,23 +390,36 @@ function renderDrilldown() {
   renderTreeTable(c.tree, c.fob);
 }
 
+// ---------- TREE CHART (% OF TOTAL) ----------
 function drawTreeChart(root) {
-  const ids = [], labels = [], parents = [], values = [], colors = [];
+  const ids = [], labels = [], parents = [], values = [], colors = [], textinfo = [];
   const palette = ['#1a1a1a','#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2'];
+  const rootTotal = totalOf(root);
   function walk(n, pid, depth) {
     const id = pid ? pid + '/' + n.name : n.name;
+    const val = totalOf(n);
     ids.push(id); labels.push(n.name); parents.push(pid || '');
-    values.push(totalOf(n));
+    values.push(val);
     colors.push(palette[Math.min(depth, palette.length-1)]);
-    if (n.children) n.children.forEach(c => walk(c, id, depth + 1));
+    const pctOfTotal = rootTotal ? (val / rootTotal) * 100 : 0;
+    textinfo.push(pctOfTotal.toFixed(1) + '%');
+    if (n.children && n._expanded !== false) n.children.forEach(c => walk(c, id, depth + 1));
   }
   walk(root, '', 0);
   const layout = { margin: { l: 0, r: 0, t: 10, b: 10 }, paper_bgcolor: 'rgba(0,0,0,0)', font: { size: 11 } };
   let trace;
-  if (currentChartType === 'icicle') trace = { type: 'icicle', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent parent', marker: { colors }, tiling: { orientation: 'v' } };
-  else if (currentChartType === 'treemap') trace = { type: 'treemap', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent parent', marker: { colors } };
-  else trace = { type: 'sunburst', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent parent', marker: { colors } };
+  if (currentChartType === 'icicle') trace = { type: 'icicle', ids, labels, parents, values, branchvalues: 'total', text: textinfo, textinfo: 'text', hoverinfo: 'label+value+percent', marker: { colors }, tiling: { orientation: 'v' } };
+  else if (currentChartType === 'treemap') trace = { type: 'treemap', ids, labels, parents, values, branchvalues: 'total', text: textinfo, textinfo: 'text', hoverinfo: 'label+value+percent', marker: { colors } };
+  else trace = { type: 'sunburst', ids, labels, parents, values, branchvalues: 'total', text: textinfo, textinfo: 'text', hoverinfo: 'label+value+percent', marker: { colors } };
   Plotly.newPlot('treeChart', [trace], layout, { responsive: true, displayModeBar: false });
+  Plotly.removeAllListeners('treeChart');
+  Plotly.on('treeChart', 'plotly_click', (evt) => {
+    if (evt.points && evt.points[0]) {
+      const clickedLabel = evt.points[0].label;
+      expandedNodes[clickedLabel] = expandedNodes[clickedLabel] === false ? true : false;
+      if (selected) drawTreeChart(calc(selected).tree);
+    }
+  });
 }
 
 function setChartType(type) {
@@ -425,87 +428,128 @@ function setChartType(type) {
   if (selected) drawTreeChart(calc(selected).tree);
 }
 
-function flattenLeaves(node, parentTotal, path, fob) {
+// ---------- TABLE (EXPANDABLE, FILTERABLE) ----------
+function getFilterType(node) {
+  if (!node.type) return null;
+  if (node.type === 'time_labour' || node.type === 'labour_rate') return 'labour';
+  if (node.type === 'time_machine' || node.type === 'machine_rate') return 'machine';
+  if (node.type === 'material') return 'material';
+  if (node.type === 'fixed_amortised' || node.type === 'percent_of_subtotal') return 'fixed';
+  if (node.type === 'overhead') return 'overhead';
+  return null;
+}
+
+function flattenVisible(node, parentTotal, parentPath, fob, depth) {
   const rows = [];
   const cost = totalOf(node);
-  const newPath = [...path, node.name];
-  if (node.children && node.children.length > 0) {
-    node.children.forEach(c => rows.push(...flattenLeaves(c, cost, newPath, fob)));
-  } else {
-    rows.push({
-      path: newPath, cost,
-      parentCost: parentTotal,
-      pctOfParent: parentTotal ? (cost / parentTotal) * 100 : 100,
-      pctOfFob: fob ? (cost / fob) * 100 : 0,
-      type: node.type,
-      inputs: node.inputs
-    });
+  const newPath = [...parentPath, node.name];
+  const ftype = getFilterType(node);
+  const filterOk = currentFilter === 'all' || ftype === currentFilter || (node.children && node.children.length > 0);
+
+  const hasChildren = node.children && node.children.length > 0;
+  const isExpanded = expandedNodes[node.name] !== false;
+
+  rows.push({
+    path: newPath, cost, parentCost: parentTotal,
+    pctOfParent: parentTotal ? (cost / parentTotal) * 100 : 100,
+    pctOfFob: fob ? (cost / fob) * 100 : 0,
+    type: node.type, inputs: node.inputs, depth,
+    hasChildren, isExpanded
+  });
+
+  if (hasChildren && isExpanded) {
+    node.children.forEach(c => rows.push(...flattenVisible(c, cost, newPath, fob, depth + 1)));
   }
   return rows;
 }
 
 function renderTreeTable(tree, fob) {
-  const rows = flattenLeaves(tree, null, [], fob);
+  let rows = flattenVisible(tree, null, [], fob, 0);
+
+  // Filter leaf-level rows
+  if (currentFilter !== 'all') {
+    rows = rows.filter(r => !r.type || getFilterType({ type: r.type }) === currentFilter);
+  }
+
   if (sortState.column) {
     rows.sort((a,b) => {
       const d = sortState.dir === 'asc' ? 1 : -1;
-      const col = sortState.column;
-      if (col.startsWith('L')) {
-        const i = parseInt(col.substring(1)) - 1;
-        return ((a.path[i]||'').toLowerCase()).localeCompare((b.path[i]||'').toLowerCase()) * d;
-      }
-      if (col === 'cost') return (a.cost - b.cost) * d;
-      if (col === 'parent') return (a.pctOfParent - b.pctOfParent) * d;
-      if (col === 'fob') return (a.pctOfFob - b.pctOfFob) * d;
+      if (sortState.column === 'cost') return (a.cost - b.cost) * d;
+      if (sortState.column === 'parent') return (a.pctOfParent - b.pctOfParent) * d;
+      if (sortState.column === 'fob') return (a.pctOfFob - b.pctOfFob) * d;
+      if (sortState.column === 'name') return a.path[a.path.length-1].localeCompare(b.path[b.path.length-1]) * d;
       return 0;
     });
   }
+
   const arrow = c => sortState.column === c ? (sortState.dir === 'asc' ? ' ↑' : ' ↓') : ' ⇅';
+
   let h = `<thead><tr>
-    <th class="sortable" onclick="sortBy('L1')">L1${arrow('L1')}</th>
-    <th class="sortable" onclick="sortBy('L2')">L2${arrow('L2')}</th>
-    <th class="sortable" onclick="sortBy('L3')">L3${arrow('L3')}</th>
-    <th class="sortable" onclick="sortBy('L4')">L4${arrow('L4')}</th>
-    <th class="sortable" onclick="sortBy('L5')">L5${arrow('L5')}</th>
+    <th class="sortable" style="width:45%;" onclick="sortBy('name')">Cost Component${arrow('name')}</th>
     <th class="sortable num" onclick="sortBy('cost')">Cost${arrow('cost')}</th>
     <th class="sortable pct" onclick="sortBy('parent')">% Parent${arrow('parent')}</th>
-    <th class="sortable pct" onclick="sortBy('fob')">% FOB${arrow('fob')}</th>
+    <th class="sortable pct" onclick="sortBy('fob')">% of Total${arrow('fob')}</th>
+    <th style="width:60px;">Type</th>
   </tr></thead><tbody>`;
+
   for (const r of rows) {
-    h += `<tr>`;
-    for (let i = 0; i < 5; i++) h += `<td class="lvl L${i+1}">${r.path[i] || ''}</td>`;
-    h += `<td class="num">${fmt(r.cost)}</td>
-          <td class="pct">${pct(r.pctOfParent)}</td>
-          <td class="pct">${pct(r.pctOfFob)}</td></tr>`;
+    const indent = '&nbsp;'.repeat(r.depth * 3);
+    const icon = r.hasChildren ? (r.isExpanded ? '▼' : '▶') : '•';
+    const cls = r.hasChildren ? 'node-name' : 'node-name leaf';
+    const clickHandler = r.hasChildren ? `onclick="toggleNode('${r.path.join('|||')}')"` : '';
+    const typeBadge = r.type ? `<span style="font-size:10px; color:#888;">${r.type.replace(/_/g, ' ')}</span>` : '';
+    h += `<tr>
+      <td>${indent}<span class="expand-icon">${icon}</span><span class="${cls}" ${clickHandler}>${r.path[r.path.length-1]}</span>${typeBadge}</td>
+      <td class="num">${fmt(r.cost)}</td>
+      <td class="pct">${pct(r.pctOfParent)}</td>
+      <td class="pct">${pct(r.pctOfFob)}</td>
+      <td></td>
+    </tr>`;
   }
   h += `</tbody>`;
   document.getElementById('table').innerHTML = h;
 }
 
-function sortBy(col) {
-  if (sortState.column === col) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
-  else { sortState.column = col; sortState.dir = col.startsWith('L') ? 'asc' : 'desc'; }
+function toggleNode(pathStr) {
+  const path = pathStr.split('|||');
+  const name = path[path.length - 1];
+  expandedNodes[name] = expandedNodes[name] === false ? true : false;
+  if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); drawTreeChart(c.tree); }
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === f));
   if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); }
 }
 
-function onLocationChange() {
-  currentLocation = data.assumptions.locations.find(l => l.id === document.getElementById('locationSelect').value);
-  renderCards();
-  if (selected) renderDrilldown();
+function sortBy(col) {
+  if (sortState.column === col) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+  else { sortState.column = col; sortState.dir = col === 'name' ? 'asc' : 'desc'; }
+  if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); }
 }
 
-function onMOQChange() {
-  currentMOQ = parseInt(document.getElementById('moqSlider').value);
-  updateMOQDisplay();
+// ---------- MOQ ----------
+function onLocationChange() {
+  currentLocation = data.assumptions.locations.find(l => l.id === document.getElementById('locationSelect').value);
+  renderCards(); if (selected) renderDrilldown();
 }
+function onTierChange() {
+  currentTier = document.getElementById('tierSelect').value;
+  renderCards(); if (selected) renderDrilldown();
+}
+function onMOQChange() { currentMOQ = parseInt(document.getElementById('moqSlider').value); updateMOQDisplay(); }
 
 function updateMOQDisplay() {
   if (!selected.moq) return;
   const moq = selected.moq;
+  const tier = data.assumptions.supplierTiers[currentTier];
+  const effectiveMOQ = currentMOQ * tier.moqMultiplier;
   const variableCost = calc(selected).fob;
   const fixedPool = moq.fixedCostPool;
-  const fixedPerUnit = fixedPool / currentMOQ;
-  document.getElementById('moqValue').textContent = currentMOQ.toLocaleString() + ' ' + moq.unit;
+  const fixedPerUnit = fixedPool / effectiveMOQ;
+
+  document.getElementById('moqValue').textContent = Math.round(effectiveMOQ).toLocaleString() + ' ' + moq.unit;
   document.getElementById('mVariable').textContent = fmt(variableCost);
   document.getElementById('mPool').textContent = '€' + fixedPool.toLocaleString();
   document.getElementById('mFixedPerUnit').textContent = fmt(fixedPerUnit);
@@ -513,7 +557,7 @@ function updateMOQDisplay() {
 
   const quantities = [], fixedCurve = [], totalCurve = [];
   for (let i = 0; i <= 60; i++) {
-    const q = moq.min + (moq.max - moq.min) * i / 60;
+    const q = (moq.min + (moq.max - moq.min) * i / 60) * tier.moqMultiplier;
     quantities.push(Math.round(q));
     fixedCurve.push(fixedPool / q);
     totalCurve.push(variableCost + fixedPool / q);
@@ -526,15 +570,13 @@ function updateMOQDisplay() {
       { label: 'Total unit cost', data: totalCurve, borderColor: '#111', borderWidth: 2, pointRadius: 0, tension: 0.3 }
     ]},
     options: { responsive: true, plugins: { legend: { position: 'bottom' } },
-      scales: { x: { title: { display: true, text: 'Order Quantity' }, ticks: { maxTicksLimit: 10 } }, y: { title: { display: true, text: '€ per unit' } } } }
+      scales: { x: { title: { display: true, text: 'Effective Order Quantity' }, ticks: { maxTicksLimit: 10 } }, y: { title: { display: true, text: '€ per unit' } } } }
   });
 }
 
 // ---------- ASSUMPTIONS EDITOR ----------
 function renderAssumptionEditors() {
-  // Location tabs
-  const tabs = document.getElementById('locTabs');
-  tabs.innerHTML = '';
+  const tabs = document.getElementById('locTabs'); tabs.innerHTML = '';
   data.assumptions.locations.forEach(loc => {
     const b = document.createElement('button');
     b.className = 'loc-tab' + (loc.id === editingLocId ? ' active' : '');
@@ -543,150 +585,77 @@ function renderAssumptionEditors() {
     tabs.appendChild(b);
   });
   if (!editingLocId) editingLocId = data.assumptions.locations[0].id;
-
   const loc = data.assumptions.locations.find(l => l.id === editingLocId);
-  const locEd = document.getElementById('locEditor');
-  locEd.innerHTML = '';
+  const locEd = document.getElementById('locEditor'); locEd.innerHTML = '';
   const fields = [
-    { key: 'laborRatePerHr', label: 'Labour rate / hr (€)', note: 'Direct operator wage + benefits' },
-    { key: 'machineRatePerHr', label: 'Machine rate / hr (€)', note: 'Depreciation + power + maintenance' },
+    { key: 'laborRatePerHr', label: 'Labour rate / hr (€)', note: loc.source || '' },
+    { key: 'machineRatePerHr', label: 'Machine rate / hr (€)', note: 'Base — overridden by machine-specific rates' },
     { key: 'overheadRatePerHr', label: 'Overhead rate / hr (€)', note: 'Indirect factory cost' },
     { key: 'freightPerUnit', label: 'Freight per unit (€)', note: 'Shipping to destination' },
-    { key: 'dutyRatePercent', label: 'Duty rate (%)', note: 'Import tariff to destination' }
+    { key: 'dutyRatePercent', label: 'Duty rate (%)', note: 'Import tariff' }
   ];
   fields.forEach(f => {
-    const row = document.createElement('div');
-    row.className = 'assumption-row';
+    const row = document.createElement('div'); row.className = 'assumption-row';
     row.innerHTML = `<div class="key">${f.label}<div class="id">${loc.id}.${f.key}</div></div>
       <input type="number" step="0.01" value="${loc[f.key]}" onchange="updateLocField('${loc.id}','${f.key}', this.value)">
       <div class="note">${f.note}</div>`;
     locEd.appendChild(row);
   });
 
-  // Material editor
-  const matEd = document.getElementById('materialEditor');
-  matEd.innerHTML = '';
-  Object.entries(data.assumptions.materialPrices).forEach(([key, val]) => {
-    const row = document.createElement('div');
-    row.className = 'assumption-row';
+  // Materials
+  const matEd = document.getElementById('materialEditor'); matEd.innerHTML = '';
+  Object.entries(data.assumptions.materialPrices).forEach(([key, entry]) => {
+    const val = typeof entry === 'number' ? entry : entry.price;
+    const src = typeof entry === 'object' ? entry.source : '';
+    const row = document.createElement('div'); row.className = 'assumption-row';
     row.innerHTML = `<div class="key">${key}<div class="id">materialPrices.${key}</div></div>
       <input type="number" step="0.01" value="${val}" onchange="updateMaterial('${key}', this.value)">
-      <div class="note">Price per unit</div>`;
+      <div class="note">${src}</div>`;
     matEd.appendChild(row);
+  });
+
+  // Machines
+  const machEd = document.getElementById('machineEditor'); machEd.innerHTML = '';
+  Object.entries(data.assumptions.machineAssumptions).forEach(([key, m]) => {
+    const row = document.createElement('div'); row.className = 'assumption-row';
+    const rate = (m.capitalCost / (m.lifeYears * m.operatingHoursPerYear)) + m.powerCostPerHr;
+    row.innerHTML = `<div class="key">${key}<div class="id">machineAssumptions.${key}</div></div>
+      <input type="number" step="0.01" value="${m.capitalCost}" onchange="updateMachine('${key}','capitalCost', this.value)">
+      <div class="note">Capital €${m.capitalCost.toLocaleString()} · ${m.lifeYears}yr life · ${m.operatingHoursPerYear}hr/yr → €${rate.toFixed(2)}/hr <br>${m.source || ''}</div>`;
+    machEd.appendChild(row);
   });
 }
 
 function updateLocField(locId, key, val) {
   const loc = data.assumptions.locations.find(l => l.id === locId);
-  loc[key] = parseFloat(val);
-  markDirty();
-  renderCards();
-  if (selected) renderDrilldown();
+  loc[key] = parseFloat(val); markDirty(); renderCards(); if (selected) renderDrilldown();
 }
-
 function updateMaterial(key, val) {
-  data.assumptions.materialPrices[key] = parseFloat(val);
+  if (typeof data.assumptions.materialPrices[key] === 'object') {
+    data.assumptions.materialPrices[key].price = parseFloat(val);
+  } else {
+    data.assumptions.materialPrices[key] = parseFloat(val);
+  }
+  markDirty(); renderCards(); if (selected) renderDrilldown();
+}
+function updateMachine(key, field, val) {
+  data.assumptions.machineAssumptions[key][field] = parseFloat(val);
   markDirty();
-  renderCards();
-  if (selected) renderDrilldown();
 }
-
 function markDirty() { document.getElementById('dirtyWarning').classList.add('on'); }
-
-function saveAssumptions() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data.assumptions));
-  alert('✅ Assumptions saved to your browser. They will persist across refreshes.');
-}
-
+function saveAssumptions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data.assumptions)); alert('✅ Saved.'); }
 function resetAssumptions() {
-  if (!confirm('Reset all assumptions to the values in cost_data.json?')) return;
+  if (!confirm('Reset all assumptions?')) return;
   data.assumptions = JSON.parse(JSON.stringify(originalAssumptions));
   localStorage.removeItem(STORAGE_KEY);
   document.getElementById('dirtyWarning').classList.remove('on');
   editingLocId = data.assumptions.locations[0].id;
-  renderAssumptionEditors();
-  renderCards();
-  if (selected) renderDrilldown();
-  runSensitivity();
+  renderAssumptionEditors(); renderCards(); if (selected) renderDrilldown();
 }
-
 function exportAssumptions() {
   const blob = new Blob([JSON.stringify(data.assumptions, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'assumptions_export.json';
-  a.click(); URL.revokeObjectURL(url);
-}
-
-// ---------- SENSITIVITY ----------
-function populateSensitivityProducts() {
-  const sel = document.getElementById('sensProduct');
-  sel.innerHTML = '';
-  data.products.forEach(p => {
-    const o = document.createElement('option');
-    o.value = p.id; o.textContent = p.name;
-    sel.appendChild(o);
-  });
-  runSensitivity();
-}
-
-function runSensitivity() {
-  const pid = document.getElementById('sensProduct').value;
-  const variable = document.getElementById('sensVariable').value;
-  const product = data.products.find(p => p.id === pid);
-  if (!product) return;
-
-  const baseVal = variable === 'moq' ? product.moq.current : currentLocation[variable];
-  const steps = 11;
-  const labels = [], values = [];
-
-  // Save base state
-  const originalLoc = JSON.parse(JSON.stringify(currentLocation));
-
-  for (let i = 0; i < steps; i++) {
-    const factor = 0.5 + (i / (steps - 1)) * 1.0; // 0.5x to 1.5x
-    const testVal = baseVal * factor;
-
-    if (variable === 'moq') {
-      product.moq.current = testVal;
-      const c = calc(product);
-      const fixedPerUnit = product.moq.fixedCostPool / testVal;
-      labels.push(Math.round(testVal).toLocaleString());
-      values.push(c.fob + fixedPerUnit);
-    } else {
-      // Temporarily modify currentLocation
-      const idx = data.assumptions.locations.findIndex(l => l.id === currentLocation.id);
-      const backup = data.assumptions.locations[idx][variable];
-      data.assumptions.locations[idx][variable] = testVal;
-      const loc = data.assumptions.locations[idx];
-
-      const savedLoc = currentLocation;
-      currentLocation = loc;
-      const c = calc(product);
-      currentLocation = savedLoc;
-
-      data.assumptions.locations[idx][variable] = backup;
-
-      labels.push(testVal.toFixed(2));
-      values.push(c.fob);
-    }
-  }
-
-  // Restore
-  if (variable === 'moq') product.moq.current = baseVal;
-  currentLocation = originalLoc;
-
-  if (sensChart) sensChart.destroy();
-  sensChart = new Chart(document.getElementById('sensChart'), {
-    type: 'line',
-    data: { labels, datasets: [{
-      label: variable + ' sensitivity — ' + product.name,
-      data: values, borderColor: '#2e7d32', backgroundColor: 'rgba(46,125,50,0.08)',
-      borderWidth: 2, tension: 0.3, fill: true, pointRadius: 4
-    }]},
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } },
-      scales: { x: { title: { display: true, text: variable } }, y: { title: { display: true, text: 'FOB €' } } } }
-  });
+  const a = document.createElement('a'); a.href = url; a.download = 'assumptions_v4.json'; a.click(); URL.revokeObjectURL(url);
 }
 
 load();
