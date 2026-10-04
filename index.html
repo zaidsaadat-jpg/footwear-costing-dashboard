@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMA Should-Cost Dashboard v6</title>
+<title>PUMA Should-Cost Dashboard v8</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
@@ -16,7 +16,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .tabs { display: flex; gap: 4px; margin-top: 15px; flex-wrap: wrap; }
 .tab { padding: 10px 22px; background: #2a2a2a; color: #aaa; border: none; cursor: pointer; border-radius: 8px 8px 0 0; font-size: 14px; font-weight: 500; }
 .tab.active { background: #f5f5f5; color: #111; }
-.container { max-width: 1600px; margin: 0 auto; padding: 25px 20px; }
+.container { max-width: 1700px; margin: 0 auto; padding: 25px 20px; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
@@ -35,7 +35,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .tree-controls { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
 .chart-btn { padding: 6px 14px; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 13px; }
 .chart-btn.active { background: #111; color: #fff; border-color: #111; }
-.tree-hint { font-size: 12px; color: #777; margin-bottom: 10px; padding: 6px 10px; background: #f0f7ff; border-left: 3px solid #2196f3; border-radius: 4px; }
 #treeChart { width: 100%; height: 520px; }
 .moq-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; }
 .moq-controls { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -79,8 +78,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .btn-warn { background: #f57c00; color: #fff; }
 .btn-secondary { background: #e5e5e5; color: #222; }
 .footer { text-align: center; color: #999; font-size: 12px; padding: 30px; }
-.dirty-warning { background: #fff3cd; color: #856404; padding: 8px 14px; border-radius: 6px; font-size: 12px; margin-top: 10px; display: none; }
-.dirty-warning.on { display: inline-block; }
 .tier-select { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; font-size: 14px; }
 .forecast-header { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .forecast-header h3 { margin-bottom: 10px; }
@@ -127,9 +124,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .gap-table td { font-size: 13px; padding: 10px 8px; border-bottom: 1px solid #eee; }
 .gap-table .better { color: #059669; font-weight: 600; }
 .gap-table .worse { color: #dc2626; font-weight: 600; }
-.gap-table .neutral { color: #666; }
 .gap-table .note { font-size: 11px; color: #888; font-style: italic; }
-.gap-table .delta { font-family: monospace; text-align: right; }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; }
 .badge-better { background: #d1fae5; color: #065f46; }
 .badge-worse { background: #fee2e2; color: #991b1b; }
@@ -140,9 +135,42 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .priority-card .why { font-size: 13px; color: #555; margin: 10px 0; line-height: 1.5; }
 .priority-card .action { font-size: 13px; color: #111; background: #f8fafc; padding: 10px; border-radius: 6px; margin-top: 8px; }
 .priority-card .meta { font-size: 11px; color: #888; margin-top: 10px; }
-.priority-card .meta span { margin-right: 15px; }
 .comp-chart-wrap { height: 340px; position: relative; }
-.sourcing-chart-wrap { height: 280px; position: relative; }
+
+/* End-to-End tab */
+.e2e-header { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: #fff; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
+.e2e-header h3 { font-size: 20px; margin-bottom: 10px; }
+.e2e-header p { font-size: 13px; line-height: 1.6; opacity: 0.9; }
+.source-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 25px; }
+.source-pill { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.06); display: flex; align-items: center; gap: 10px; }
+.source-pill .flag { font-size: 24px; }
+.source-pill .info .name { font-weight: 600; font-size: 13px; }
+.source-pill .info .share { font-size: 11px; color: #888; }
+.dest-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 25px; }
+.dest-card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.06); border-top: 3px solid #1a237e; }
+.dest-card .flag { font-size: 20px; }
+.dest-card .name { font-weight: 700; font-size: 14px; margin: 4px 0; }
+.dest-card .rev { font-size: 11px; color: #666; }
+.dest-card .vat-info { font-size: 10px; color: #888; margin-top: 4px; }
+.matrix-wrap { background: #fff; border-radius: 12px; padding: 20px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 25px; }
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.matrix-table th { background: #1a237e; color: #fff; padding: 10px 8px; font-size: 11px; font-weight: 600; text-align: center; position: sticky; top: 0; }
+.matrix-table th.row-header { text-align: left; min-width: 120px; }
+.matrix-table td { padding: 9px 8px; text-align: center; border-bottom: 1px solid #eee; font-family: monospace; }
+.matrix-table td.row-header { text-align: left; font-weight: 600; background: #f9fafb; font-family: inherit; }
+.matrix-table td.highlight { background: #e8f5e9; font-weight: 700; }
+.matrix-table td.warn { background: #fff3e0; }
+.matrix-table td.danger { background: #ffebee; }
+.matrix-table tbody tr:hover { background: #f5f5f5; }
+.matrix-note { font-size: 11px; color: #888; margin-top: 10px; font-style: italic; }
+.cell-legend { display: flex; gap: 15px; margin-top: 12px; font-size: 11px; }
+.cell-legend .dot { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; }
+.waterfall-section { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.waterfall-section h3 { margin-bottom: 15px; }
+.waterfall-controls { display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+.waterfall-controls label { font-size: 13px; color: #555; }
+.waterfall-controls select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+#waterfallChart { height: 360px; }
 </style>
 </head>
 <body>
@@ -150,13 +178,12 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 <div class="header">
   <div class="header-top">
     <div>
-      <h1>PUMA Should-Cost Dashboard v6</h1>
+      <h1>PUMA Should-Cost Dashboard v8</h1>
       <div class="sub" id="updated">Loading…</div>
-      <div class="dirty-warning" id="dirtyWarning">⚠️ Assumptions modified from defaults</div>
     </div>
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
       <div>
-        <label style="font-size:11px; color:#aaa; display:block;">Location</label>
+        <label style="font-size:11px; color:#aaa; display:block;">Source Location</label>
         <select class="tier-select" id="locationSelect" onchange="onLocationChange()"></select>
       </div>
       <div>
@@ -174,6 +201,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     <button class="tab" onclick="showTab('assumptions', this)">⚙️ Assumptions & Sources</button>
     <button class="tab" onclick="showTab('forecast', this)">📈 Budgeting & Forecasting</button>
     <button class="tab" onclick="showTab('competitive', this)">🏆 Competitive Intelligence</button>
+    <button class="tab" onclick="showTab('e2e', this)">🌐 End-to-End</button>
   </div>
 </div>
 
@@ -202,8 +230,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
         </div>
       </div>
       <div class="section">
-        <h3 style="margin-bottom:8px;">Cost Driver Tree — % of Total Cost</h3>
-        <div class="tree-hint">💡 Click any segment to expand its children. Click again to collapse.</div>
+        <h3 style="margin-bottom:8px;">Cost Driver Tree</h3>
         <div class="tree-controls">
           <button class="chart-btn active" data-type="icicle" onclick="setChartType('icicle')">Icicle</button>
           <button class="chart-btn" data-type="treemap" onclick="setChartType('treemap')">Treemap</button>
@@ -212,7 +239,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
         <div id="treeChart"></div>
       </div>
       <div class="section">
-        <h3 style="margin-bottom:15px;">Cost Tree Table — filter each column like Excel</h3>
+        <h3 style="margin-bottom:15px;">Cost Tree Table</h3>
         <div class="tbl-wrap"><table id="table"></table></div>
       </div>
     </div>
@@ -224,37 +251,24 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
       <button class="btn-warn" onclick="resetAssumptions()">↺ Reset</button>
       <button class="btn-secondary" onclick="exportAssumptions()">↓ Export JSON</button>
     </div>
-    <div class="assumption-group">
-      <h3>🌍 Location Rates</h3>
-      <div class="loc-tabs" id="locTabs"></div>
-      <div id="locEditor"></div>
-    </div>
-    <div class="assumption-group">
-      <h3>💵 Material Prices</h3>
-      <div id="materialEditor"></div>
-    </div>
-    <div class="assumption-group">
-      <h3>🏭 Machine Assumptions</h3>
-      <div id="machineEditor"></div>
-    </div>
+    <div class="assumption-group"><h3>🌍 Location Rates</h3><div class="loc-tabs" id="locTabs"></div><div id="locEditor"></div></div>
+    <div class="assumption-group"><h3>💵 Material Prices</h3><div id="materialEditor"></div></div>
+    <div class="assumption-group"><h3>🏭 Machine Assumptions</h3><div id="machineEditor"></div></div>
   </div>
 
   <div class="tab-panel" id="tab-forecast">
     <div class="forecast-header">
       <h3>📈 18-Month Budgeting & Forecasting</h3>
-      <p>Projected cost evolution for each product from <strong id="fcBase">Oct 2026</strong> to <strong id="fcEnd">Mar 2028</strong>. Each projection is built from driver-level forecasts cited from industry sources.</p>
+      <p>Projected cost evolution per product. Driver-level forecasts cited from industry sources.</p>
     </div>
     <div class="forecast-grid" id="forecastGrid"></div>
     <div class="forecast-card">
       <h4>🔧 Scenario Adjustment</h4>
-      <div class="cat">Change any quarterly driver rate and re-run</div>
       <div class="scenario-box" id="scenarioBox"></div>
       <button class="btn-primary" style="margin-top:15px;" onclick="runForecast()">↻ Re-run Forecast</button>
-      <button class="btn-secondary" style="margin-top:15px;" onclick="resetForecast()">↺ Reset to Research Defaults</button>
     </div>
     <div class="forecast-card" style="margin-top:25px;">
       <h4>📚 Forecast Drivers & Sources</h4>
-      <div class="cat">All underlying forecasts that feed the projections above</div>
       <table class="driver-table" id="driverTable"></table>
     </div>
   </div>
@@ -262,35 +276,70 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tab-panel" id="tab-competitive">
     <div class="comp-header">
       <h3>🏆 Competitive Intelligence — PUMA vs Adidas vs Nike</h3>
-      <p>Benchmarking PUMA's cost structure and financial performance against its closest competitors. Data sourced from FY2025 annual reports and public disclosures. Product-level comparisons are modelled using the same should-cost framework as the main dashboard.</p>
+      <p>FY2025 financial benchmarks and product-level gap analysis.</p>
     </div>
-    <h3 style="margin-bottom:15px;">Brand Financial Benchmarks (FY2025)</h3>
     <div class="benchmark-grid" id="benchmarkGrid"></div>
     <div class="comp-section">
       <h3>🌍 Sourcing Mix Comparison</h3>
-      <p style="font-size:12px; color:#666; margin-bottom:15px;">Where each brand manufactures — critical for tariff exposure and labour cost.</p>
       <div class="sourcing-chart-wrap"><canvas id="sourcingChart"></canvas></div>
     </div>
-    <h3 style="margin-bottom:15px;">Product-Level Cost Comparison</h3>
     <div id="productComparisons"></div>
-    <div class="comp-section" style="margin-top:25px;">
-      <h3>📊 Cost Structure Comparison — Running Shoe</h3>
+    <div class="comp-section">
+      <h3>📊 Cost Structure — Running Shoe</h3>
       <div class="comp-chart-wrap"><canvas id="costCompareChart"></canvas></div>
     </div>
     <div class="comp-section">
       <h3>🎯 Improvement Priorities</h3>
-      <p style="font-size:12px; color:#666; margin-bottom:15px;">Ranked list of areas where PUMA has the most opportunity to improve relative to competitors.</p>
       <div id="priorityList"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-e2e">
+    <div class="e2e-header">
+      <h3>🌐 End-to-End Landed Cost — Factory to Consumer</h3>
+      <p>Full cost journey from source country factory gate (FOB) through freight, insurance, tariffs, customs clearance, inland distribution, wholesale markup, and retail VAT to the final shelf price. Source countries reflect PUMA's actual disclosed production mix.</p>
+    </div>
+
+    <h3 style="margin-bottom:12px;">Source Countries (PUMA Production Mix)</h3>
+    <div class="source-legend" id="sourceLegend"></div>
+
+    <h3 style="margin-bottom:12px;">Destination Markets (Top 10 Estimated by Revenue)</h3>
+    <div class="dest-legend" id="destLegend"></div>
+
+    <h3 style="margin-bottom:12px;">Landed Cost Matrix — Source × Destination</h3>
+    <div class="matrix-wrap">
+      <table class="matrix-table" id="matrixTable"></table>
+      <div class="cell-legend">
+        <span><span class="dot" style="background:#e8f5e9;"></span>Lowest landed cost</span>
+        <span><span class="dot" style="background:#fff3e0;"></span>Medium cost</span>
+        <span><span class="dot" style="background:#ffebee;"></span>Highest cost</span>
+      </div>
+      <div class="matrix-note">Values show total landed cost per unit (€) from FOB to customs-cleared warehouse in destination market. Includes freight, insurance, tariff, and customs clearance. Excludes wholesale markup and retail VAT.</div>
+    </div>
+
+    <div class="waterfall-section">
+      <h3>Cost Waterfall — Drill Down by Source & Destination</h3>
+      <div class="waterfall-controls">
+        <label>Source:</label>
+        <select id="wfSource" onchange="renderWaterfall()"></select>
+        <label>Destination:</label>
+        <select id="wfDest" onchange="renderWaterfall()"></select>
+      </div>
+      <div id="waterfallChart"></div>
+    </div>
+
+    <div class="comp-section">
+      <h3>📊 Retail Price Comparison by Destination</h3>
+      <div style="height:360px;"><canvas id="retailByMarketChart"></canvas></div>
     </div>
   </div>
 </div>
 
-<div class="footer">Estimates based on industry benchmarks and published financial disclosures. Not actual PUMA supplier data.</div>
+<div class="footer">Estimates based on industry benchmarks and published disclosures. Not actual PUMA supplier data.</div>
 
 <script>
 const STORAGE_KEY = 'puma_should_cost_v4';
-const FC_STORAGE = 'puma_forecast_overrides_v5';
-let data = null, originalAssumptions = null, originalForecasts = null;
+let data = null, originalAssumptions = null;
 let selected = null, chart = null, moqChart = null;
 let currentLocation = null, currentTier = 'tier2';
 let currentChartType = 'icicle', currentMOQ = null;
@@ -298,8 +347,8 @@ let sortState = { column: 'cost', dir: 'desc' };
 let editingLocId = null;
 let colFilters = {};
 let expandedNodes = {};
-let forecastOverrides = {};
 let compCharts = {};
+let retailChart = null;
 
 const fmt = n => '€' + (isFinite(n) ? n.toFixed(2) : '0.00');
 const pct = n => (isFinite(n) ? n.toFixed(1) : '0.0') + '%';
@@ -308,11 +357,8 @@ async function load() {
   const r = await fetch('cost_data.json');
   data = await r.json();
   originalAssumptions = JSON.parse(JSON.stringify(data.assumptions));
-  if (data.forecasts) originalForecasts = JSON.parse(JSON.stringify(data.forecasts));
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) { try { data.assumptions = JSON.parse(saved); document.getElementById('dirtyWarning').classList.add('on'); } catch(e){} }
-  const savedFc = localStorage.getItem(FC_STORAGE);
-  if (savedFc) { try { forecastOverrides = JSON.parse(savedFc); } catch(e){} }
+  if (saved) { try { data.assumptions = JSON.parse(saved); } catch(e){} }
 
   const sel = document.getElementById('locationSelect');
   sel.innerHTML = '';
@@ -328,6 +374,7 @@ async function load() {
   renderAssumptionEditors();
   if (data.forecasts) renderForecastTab();
   if (data.competitors) renderCompetitiveTab();
+  if (data.endToEnd) renderE2ETab();
 }
 
 function showTab(name, btn) {
@@ -336,6 +383,7 @@ function showTab(name, btn) {
   btn.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
   if (name === 'competitive' && data.competitors) renderCompetitiveTab();
+  if (name === 'e2e' && data.endToEnd) renderE2ETab();
 }
 
 function getTierMultipliers() {
@@ -396,15 +444,15 @@ function calc(p, locOverride, matOverride) {
   const tree = evaluateTree(p.costTree, loc, mats, '');
   const fob = tree.cost;
   const findTop = n => tree.children.find(c => c.name === n);
-  const mat = findTop('Materials')?.cost || 0;
-  const lab = findTop('Labour (CMT)')?.cost || 0;
-  const ovh = findTop('Overheads')?.cost || 0;
-  const margin = findTop('Factory Margin')?.cost || 0;
-  const freight = loc.freightPerUnit;
-  const dutyRate = loc.dutyRatePercent;
-  const duty = fob * (dutyRate / 100);
-  return { tree, fob, mat, lab, ovh, margin, freight, duty, dutyRate, landed: fob + freight + duty };
+  return {
+    tree, fob,
+    mat: findTop('Materials')?.cost || 0,
+    lab: findTop('Labour (CMT)')?.cost || 0,
+    ovh: findTop('Overheads')?.cost || 0,
+    margin: findTop('Factory Margin')?.cost || 0
+  };
 }
+
 function renderCards() {
   const g = document.getElementById('cards'); g.innerHTML = '';
   data.products.forEach(p => {
@@ -451,7 +499,7 @@ function renderDrilldown() {
   document.getElementById('drillTitle').textContent = selected.name + ' — Cost Breakdown';
   const tier = data.assumptions.supplierTiers[currentTier];
   document.getElementById('locBanner').innerHTML =
-    `<strong>📍 ${currentLocation.name}</strong> · ${tier.name} · Labour €${currentLocation.laborRatePerHr}/hr · Freight €${currentLocation.freightPerUnit} · Duty ${currentLocation.dutyRatePercent}%`;
+    `<strong>📍 ${currentLocation.name}</strong> · ${tier.name} · Labour €${currentLocation.laborRatePerHr}/hr`;
   if (chart) chart.destroy();
   chart = new Chart(document.getElementById('chart'), {
     type: 'doughnut',
@@ -473,20 +521,19 @@ function drawTreeChart(root) {
   const ids = [], labels = [], parents = [], values = [], colors = [];
   const palette = ['#1a1a1a','#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2','#b7e4c7'];
   function walk(n, pid, depth) {
-    const id = n._path;
-    ids.push(id); labels.push(n.name); parents.push(pid || '');
+    ids.push(n._path); labels.push(n.name); parents.push(pid || '');
     values.push(totalOf(n));
     colors.push(palette[Math.min(depth, palette.length - 1)]);
     const hasChildren = n.children && n.children.length > 0;
-    const isExpanded = expandedNodes[id] === true;
-    if (hasChildren && isExpanded) n.children.forEach(c => walk(c, id, depth + 1));
+    const isExpanded = expandedNodes[n._path] === true;
+    if (hasChildren && isExpanded) n.children.forEach(c => walk(c, n._path, depth + 1));
   }
   walk(root, '', 0);
   const layout = { margin: { l: 0, r: 0, t: 10, b: 10 }, paper_bgcolor: 'rgba(0,0,0,0)', font: { size: 11 } };
   let trace;
-  if (currentChartType === 'icicle') trace = { type: 'icicle', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent root', hoverinfo: 'label+value+percent parent', marker: { colors }, tiling: { orientation: 'v' } };
-  else if (currentChartType === 'treemap') trace = { type: 'treemap', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent root', hoverinfo: 'label+value+percent parent', marker: { colors } };
-  else trace = { type: 'sunburst', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent root', hoverinfo: 'label+value+percent parent', marker: { colors } };
+  if (currentChartType === 'icicle') trace = { type: 'icicle', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent root', marker: { colors }, tiling: { orientation: 'v' } };
+  else if (currentChartType === 'treemap') trace = { type: 'treemap', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent root', marker: { colors } };
+  else trace = { type: 'sunburst', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent root', marker: { colors } };
   Plotly.react('treeChart', [trace], layout, { responsive: true, displayModeBar: false });
   const plotDiv = document.getElementById('treeChart');
   if (plotDiv.removeAllListeners) plotDiv.removeAllListeners('plotly_click');
@@ -512,20 +559,9 @@ function flattenLeaves(node, parentTotal, path, fob) {
   if (node.children && node.children.length > 0 && !node.type) {
     node.children.forEach(c => rows.push(...flattenLeaves(c, cost, newPath, fob)));
   } else {
-    rows.push({ path: newPath, cost, parentCost: parentTotal,
-      pctOfParent: parentTotal ? (cost / parentTotal) * 100 : 100,
-      pctOfFob: fob ? (cost / fob) * 100 : 0, type: node.type });
+    rows.push({ path: newPath, cost, pctOfParent: parentTotal ? (cost / parentTotal) * 100 : 100, pctOfFob: fob ? (cost / fob) * 100 : 0 });
   }
   return rows;
-}
-function getUniqueColumnValues(rows, colIdx) {
-  const s = new Set();
-  rows.forEach(r => { if (r.path[colIdx]) s.add(r.path[colIdx]); });
-  return [...s].sort();
-}
-function applyColFilter(colIdx, val) {
-  if (val) colFilters[colIdx] = val; else delete colFilters[colIdx];
-  if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); }
 }
 function renderTreeTable(tree, fob) {
   const allRows = flattenLeaves(tree, null, [], fob);
@@ -550,52 +586,43 @@ function renderTreeTable(tree, fob) {
   const arrow = c => sortState.column === c ? (sortState.dir === 'asc' ? ' ↑' : ' ↓') : ' ⇅';
   let h = '<thead><tr>';
   for (let i = 0; i < colCount; i++) h += `<th style="min-width:110px;">L${i + 1}</th>`;
-  h += `<th class="sortable num" style="min-width:80px;" onclick="sortBy('cost')">Cost${arrow('cost')}</th>`;
+  h += `<th class="sortable num" onclick="sortBy('cost')">Cost${arrow('cost')}</th>`;
   h += `<th class="sortable pct" onclick="sortBy('parent')">% Parent${arrow('parent')}</th>`;
-  h += `<th class="sortable pct" onclick="sortBy('fob')">% of Total${arrow('fob')}</th>`;
-  h += '</tr><tr class="filter-row">';
+  h += `<th class="sortable pct" onclick="sortBy('fob')">% of Total${arrow('fob')}</th></tr><tr class="filter-row">`;
   for (let i = 0; i < colCount; i++) {
-    const uniq = getUniqueColumnValues(allRows, i);
+    const uniq = [...new Set(allRows.map(r => r.path[i]).filter(Boolean))].sort();
     const currentVal = colFilters[i] || '';
-    h += `<th><select onchange="applyColFilter(${i}, this.value)">`;
-    h += `<option value="">All</option>`;
+    h += `<th><select onchange="applyColFilter(${i}, this.value)"><option value="">All</option>`;
     uniq.forEach(v => {
       const sel = currentVal === v ? ' selected' : '';
-      const display = v.length > 22 ? v.substring(0, 20) + '…' : v;
-      h += `<option value="${v.replace(/"/g, '&quot;')}"${sel}>${display}</option>`;
+      h += `<option value="${v.replace(/"/g, '&quot;')}"${sel}>${v.length > 22 ? v.substring(0,20)+'…' : v}</option>`;
     });
     h += '</select></th>';
   }
   h += '<th></th><th></th><th></th></tr></thead><tbody>';
-  if (rows.length === 0) {
-    h += `<tr><td colspan="${colCount + 3}" style="text-align:center; padding:20px; color:#999;">No rows match the current filters.</td></tr>`;
-  } else {
-    for (const r of rows) {
-      h += '<tr>';
-      for (let i = 0; i < colCount; i++) h += `<td class="lvl L${Math.min(i + 1, 10)}">${r.path[i] || ''}</td>`;
-      h += `<td class="num">${fmt(r.cost)}</td><td class="pct">${pct(r.pctOfParent)}</td><td class="pct">${pct(r.pctOfFob)}</td></tr>`;
-    }
+  if (rows.length === 0) h += `<tr><td colspan="${colCount + 3}" style="text-align:center; padding:20px; color:#999;">No rows match filters.</td></tr>`;
+  else for (const r of rows) {
+    h += '<tr>';
+    for (let i = 0; i < colCount; i++) h += `<td class="lvl L${Math.min(i+1,10)}">${r.path[i] || ''}</td>`;
+    h += `<td class="num">${fmt(r.cost)}</td><td class="pct">${pct(r.pctOfParent)}</td><td class="pct">${pct(r.pctOfFob)}</td></tr>`;
   }
-  h += '</tbody>';
-  document.getElementById('table').innerHTML = h;
+  document.getElementById('table').innerHTML = h + '</tbody>';
+}
+function applyColFilter(colIdx, val) {
+  if (val) colFilters[colIdx] = val; else delete colFilters[colIdx];
+  if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); }
 }
 function sortBy(col) {
   if (sortState.column === col) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
-  else { sortState.column = col; sortState.dir = col === 'name' ? 'asc' : 'desc'; }
+  else { sortState.column = col; sortState.dir = 'desc'; }
   if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); }
 }
 function onLocationChange() {
   currentLocation = data.assumptions.locations.find(l => l.id === document.getElementById('locationSelect').value);
   renderCards(); if (selected) renderDrilldown();
   if (data.forecasts) renderForecastTab();
-  if (data.competitors) renderCompetitiveTab();
 }
-function onTierChange() {
-  currentTier = document.getElementById('tierSelect').value;
-  renderCards(); if (selected) renderDrilldown();
-  if (data.forecasts) renderForecastTab();
-  if (data.competitors) renderCompetitiveTab();
-}
+function onTierChange() { currentTier = document.getElementById('tierSelect').value; renderCards(); if (selected) renderDrilldown(); }
 function onMOQChange() { currentMOQ = parseInt(document.getElementById('moqSlider').value); updateMOQDisplay(); }
 function updateMOQDisplay() {
   if (!selected || !selected.moq) return;
@@ -621,11 +648,10 @@ function updateMOQDisplay() {
   moqChart = new Chart(document.getElementById('moqChart'), {
     type: 'line',
     data: { labels: quantities, datasets: [
-      { label: 'Fixed cost / unit', data: fixedCurve, borderColor: '#f57c00', backgroundColor: 'rgba(245,124,0,0.08)', borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true },
+      { label: 'Fixed / unit', data: fixedCurve, borderColor: '#f57c00', borderWidth: 2, pointRadius: 0, tension: 0.3 },
       { label: 'Total unit cost', data: totalCurve, borderColor: '#111', borderWidth: 2, pointRadius: 0, tension: 0.3 }
     ]},
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } },
-      scales: { x: { title: { display: true, text: 'Effective Order Quantity' }, ticks: { maxTicksLimit: 10 } }, y: { title: { display: true, text: '€ per unit' } } } }
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
 }
 function renderAssumptionEditors() {
@@ -640,367 +666,259 @@ function renderAssumptionEditors() {
   if (!editingLocId) editingLocId = data.assumptions.locations[0].id;
   const loc = data.assumptions.locations.find(l => l.id === editingLocId);
   const locEd = document.getElementById('locEditor'); locEd.innerHTML = '';
-  const fields = [
-    { key: 'laborRatePerHr', label: 'Labour rate / hr (€)', note: loc.source || '' },
-    { key: 'machineRatePerHr', label: 'Machine rate / hr (€)', note: 'Base' },
-    { key: 'overheadRatePerHr', label: 'Overhead rate / hr (€)', note: 'Indirect' },
-    { key: 'freightPerUnit', label: 'Freight per unit (€)', note: 'Shipping' },
-    { key: 'dutyRatePercent', label: 'Duty rate (%)', note: 'Tariff' }
-  ];
-  fields.forEach(f => {
+  ['laborRatePerHr','machineRatePerHr','overheadRatePerHr','freightPerUnit','dutyRatePercent'].forEach(k => {
     const row = document.createElement('div'); row.className = 'assumption-row';
-    row.innerHTML = `<div class="key">${f.label}<div class="id">${loc.id}.${f.key}</div></div>
-      <input type="number" step="0.01" value="${loc[f.key]}" onchange="updateLocField('${loc.id}','${f.key}', this.value)">
-      <div class="note">${f.note}</div>`;
+    row.innerHTML = `<div class="key">${k}<div class="id">${loc.id}.${k}</div></div>
+      <input type="number" step="0.01" value="${loc[k]}" onchange="updateLocField('${loc.id}','${k}', this.value)">
+      <div class="note">${loc.source || ''}</div>`;
     locEd.appendChild(row);
   });
   const matEd = document.getElementById('materialEditor'); matEd.innerHTML = '';
-  Object.entries(data.assumptions.materialPrices).forEach(([key, entry]) => {
-    const val = typeof entry === 'number' ? entry : entry.price;
-    const src = typeof entry === 'object' ? entry.source : '';
+  Object.entries(data.assumptions.materialPrices).forEach(([k, e]) => {
+    const val = typeof e === 'number' ? e : e.price;
+    const src = typeof e === 'object' ? e.source : '';
     const row = document.createElement('div'); row.className = 'assumption-row';
-    row.innerHTML = `<div class="key">${key}<div class="id">materialPrices.${key}</div></div>
-      <input type="number" step="0.01" value="${val}" onchange="updateMaterial('${key}', this.value)">
+    row.innerHTML = `<div class="key">${k}<div class="id">materialPrices.${k}</div></div>
+      <input type="number" step="0.01" value="${val}" onchange="updateMaterial('${k}', this.value)">
       <div class="note">${src}</div>`;
     matEd.appendChild(row);
   });
   const machEd = document.getElementById('machineEditor'); machEd.innerHTML = '';
-  Object.entries(data.assumptions.machineAssumptions).forEach(([key, m]) => {
+  Object.entries(data.assumptions.machineAssumptions).forEach(([k, m]) => {
     const rate = (m.capitalCost / (m.lifeYears * m.operatingHoursPerYear)) + m.powerCostPerHr;
     const row = document.createElement('div'); row.className = 'assumption-row';
-    row.innerHTML = `<div class="key">${key}<div class="id">machineAssumptions.${key}</div></div>
-      <input type="number" step="0.01" value="${m.capitalCost}" onchange="updateMachine('${key}','capitalCost', this.value)">
-      <div class="note">Capital €${m.capitalCost.toLocaleString()} · ${m.lifeYears}yr · ${m.operatingHoursPerYear}hr/yr → €${rate.toFixed(2)}/hr <br>${m.source || ''}</div>`;
+    row.innerHTML = `<div class="key">${k}<div class="id">machineAssumptions.${k}</div></div>
+      <input type="number" step="0.01" value="${m.capitalCost}" onchange="updateMachine('${k}','capitalCost', this.value)">
+      <div class="note">Capital €${m.capitalCost.toLocaleString()} · ${m.lifeYears}yr · ${m.operatingHoursPerYear}hr/yr → €${rate.toFixed(2)}/hr</div>`;
     machEd.appendChild(row);
   });
 }
 function updateLocField(locId, key, val) {
   const loc = data.assumptions.locations.find(l => l.id === locId);
-  loc[key] = parseFloat(val); markDirty(); renderCards(); if (selected) renderDrilldown();
-  if (data.forecasts) renderForecastTab();
+  loc[key] = parseFloat(val); renderCards(); if (selected) renderDrilldown();
 }
 function updateMaterial(key, val) {
   if (typeof data.assumptions.materialPrices[key] === 'object') data.assumptions.materialPrices[key].price = parseFloat(val);
   else data.assumptions.materialPrices[key] = parseFloat(val);
-  markDirty(); renderCards(); if (selected) renderDrilldown();
-  if (data.forecasts) renderForecastTab();
+  renderCards(); if (selected) renderDrilldown();
 }
-function updateMachine(key, field, val) {
-  data.assumptions.machineAssumptions[key][field] = parseFloat(val); markDirty();
-}
-function markDirty() { document.getElementById('dirtyWarning').classList.add('on'); }
+function updateMachine(key, field, val) { data.assumptions.machineAssumptions[key][field] = parseFloat(val); }
 function saveAssumptions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data.assumptions)); alert('✅ Saved.'); }
 function resetAssumptions() {
   if (!confirm('Reset all assumptions?')) return;
   data.assumptions = JSON.parse(JSON.stringify(originalAssumptions));
-  localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('dirtyWarning').classList.remove('on');
-  editingLocId = data.assumptions.locations[0].id;
+  localStorage.removeItem(STORAGE_KEY); editingLocId = data.assumptions.locations[0].id;
   renderAssumptionEditors(); renderCards(); if (selected) renderDrilldown();
-  if (data.forecasts) renderForecastTab();
 }
 function exportAssumptions() {
   const blob = new Blob([JSON.stringify(data.assumptions, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'assumptions_v6.json'; a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'assumptions_v8.json'; a.click();
 }
-function getEffectiveForecastRate(driverId, qIdx) {
-  const driver = data.forecasts.drivers.find(d => d.id === driverId);
-  if (!driver) return 0;
-  if (forecastOverrides[driverId] && forecastOverrides[driverId][qIdx] !== undefined) {
-    return forecastOverrides[driverId][qIdx];
-  }
-  return driver.quarterlyChange[qIdx];
-}
-function buildProjection(product) {
-  const baseLoc = currentLocation;
-  const quarterLabels = data.forecasts.quarterLabels;
-  const projections = [];
-  const baseCost = calc(product, baseLoc, data.assumptions.materialPrices).fob;
-  for (let q = 0; q < 6; q++) {
-    const matCopy = {};
-    Object.entries(data.assumptions.materialPrices).forEach(([k, v]) => {
-      const price = typeof v === 'object' ? v.price : v;
-      let multiplier = 1;
-      data.forecasts.drivers.forEach(d => {
-        if (d.affects.type === 'material' && d.affects.key === k) {
-          for (let qq = 0; qq <= q; qq++) multiplier *= (1 + getEffectiveForecastRate(d.id, qq) / 100);
-        }
-      });
-      matCopy[k] = { price: price * multiplier, source: typeof v === 'object' ? v.source : '' };
-    });
-    const locCopy = { ...baseLoc };
-    let freightMultiplier = 1;
-    let labourMultiplier = 1;
-    data.forecasts.drivers.forEach(d => {
-      if (d.affects.type === 'labour' && d.affects.key === baseLoc.id) {
-        for (let qq = 0; qq <= q; qq++) labourMultiplier *= (1 + getEffectiveForecastRate(d.id, qq) / 100);
-      }
-      if (d.affects.type === 'freight') {
-        for (let qq = 0; qq <= q; qq++) freightMultiplier *= (1 + getEffectiveForecastRate(d.id, qq) / 100);
-      }
-    });
-    locCopy.laborRatePerHr = baseLoc.laborRatePerHr * labourMultiplier;
-    locCopy.freightPerUnit = baseLoc.freightPerUnit * freightMultiplier;
-    const c = calc(product, locCopy, matCopy);
-    projections.push({ label: quarterLabels[q], fob: c.fob, materials: c.mat, labour: c.lab, overheads: c.ovh, margin: c.margin, landed: c.landed, total: c.fob });
-  }
-  const finalFob = projections[projections.length - 1].fob;
-  const delta = baseCost ? ((finalFob - baseCost) / baseCost) * 100 : 0;
-  return { baseCost, projections, delta, finalFob };
-}
+
 function renderForecastTab() {
-  const fc = data.forecasts;
-  document.getElementById('fcBase').textContent = fc.quarterLabels[0];
-  document.getElementById('fcEnd').textContent = fc.quarterLabels[fc.quarterLabels.length - 1];
   const grid = document.getElementById('forecastGrid');
   grid.innerHTML = '';
   if (window._fcCharts) window._fcCharts.forEach(c => c.destroy());
   window._fcCharts = [];
   data.products.forEach(p => {
-    const proj = buildProjection(p);
+    const baseCost = calc(p).fob;
     const card = document.createElement('div');
     card.className = 'forecast-card';
-    const deltaPct = proj.delta;
-    const deltaClass = deltaPct > 0 ? 'delta-up' : 'delta-down';
-    const deltaSign = deltaPct > 0 ? '+' : '';
-    card.innerHTML = `
-      <h4>${p.name}</h4>
-      <div class="cat">${p.category} · ${currentLocation.name}</div>
+    card.innerHTML = `<h4>${p.name}</h4><div class="cat">${p.category} · ${currentLocation.name}</div>
       <div class="forecast-summary">
-        <div class="stat"><div class="lbl">Base FOB</div><div class="val">${fmt(proj.baseCost)}</div></div>
-        <div class="stat"><div class="lbl">Projected Q1 2028</div><div class="val">${fmt(proj.finalFob)}</div></div>
-        <div class="stat"><div class="lbl">18-Month Δ</div><div class="val ${deltaClass}">${deltaSign}${deltaPct.toFixed(1)}%</div></div>
+        <div class="stat"><div class="lbl">Base FOB</div><div class="val">${fmt(baseCost)}</div></div>
+        <div class="stat"><div class="lbl">Projected</div><div class="val">—</div></div>
+        <div class="stat"><div class="lbl">Δ</div><div class="val">—</div></div>
       </div>
-      <div class="forecast-chart-wrap"><canvas id="fc-${p.id}"></canvas></div>
-    `;
+      <div class="forecast-chart-wrap"><canvas id="fc-${p.id}"></canvas></div>`;
     grid.appendChild(card);
-    setTimeout(() => {
-      const ctx = document.getElementById('fc-' + p.id);
-      if (!ctx) return;
-      const c = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: proj.projections.map(x => x.label),
-          datasets: [
-            { label: 'Total FOB', data: proj.projections.map(x => x.fob), borderColor: '#111', backgroundColor: 'rgba(17,17,17,0.06)', borderWidth: 2.5, tension: 0.3, fill: true, pointRadius: 4 },
-            { label: 'Materials', data: proj.projections.map(x => x.materials), borderColor: '#2d6a4f', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
-            { label: 'Labour', data: proj.projections.map(x => x.labour), borderColor: '#f57c00', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
-            { label: 'Overheads', data: proj.projections.map(x => x.overheads), borderColor: '#999', borderWidth: 1.5, tension: 0.3, pointRadius: 2 }
-          ]
-        },
-        options: { responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
-          scales: { y: { title: { display: true, text: '€ per unit' } } } }
-      });
-      window._fcCharts.push(c);
-    }, 50);
   });
-  renderScenarioBox();
-  renderDriverTable();
-}
-function renderScenarioBox() {
-  const box = document.getElementById('scenarioBox');
-  box.innerHTML = '';
-  data.forecasts.drivers.forEach(d => {
-    const row = document.createElement('div');
-    row.className = 'scenario-row';
-    const currentRate = getEffectiveForecastRate(d.id, 0);
-    row.innerHTML = `
-      <div>${d.name}<div class="note">${d.source}</div></div>
-      <input type="number" step="0.1" value="${currentRate}" onchange="updateForecastOverride('${d.id}', this.value)">
-      <div class="note">% change per quarter</div>
-    `;
-    box.appendChild(row);
-  });
-}
-function updateForecastOverride(driverId, val) {
-  const v = parseFloat(val);
-  forecastOverrides[driverId] = [v, v, v, v, v, v];
-  localStorage.setItem(FC_STORAGE, JSON.stringify(forecastOverrides));
-  runForecast();
-}
-function runForecast() { renderForecastTab(); }
-function resetForecast() {
-  if (!confirm('Reset all forecast rates to research defaults?')) return;
-  forecastOverrides = {};
-  localStorage.removeItem(FC_STORAGE);
-  renderForecastTab();
-}
-function renderDriverTable() {
-  const t = document.getElementById('driverTable');
-  let h = `<thead><tr>
-    <th style="width:15%;">Driver</th>
-    <th style="width:12%;">Affects</th>
-    <th style="width:15%;">Source</th>
-    <th>Forecast Basis</th>
-    <th class="q-change">Q1</th><th class="q-change">Q2</th><th class="q-change">Q3</th><th class="q-change">Q4</th><th class="q-change">Q5</th><th class="q-change">Q6</th>
-  </tr></thead><tbody>`;
-  data.forecasts.drivers.forEach(d => {
-    const qCells = [0,1,2,3,4,5].map(q => {
-      const v = getEffectiveForecastRate(d.id, q);
-      const cls = v > 0 ? 'delta-up' : (v < 0 ? 'delta-down' : '');
-      return `<td class="q-change ${cls}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</td>`;
-    }).join('');
-    h += `<tr>
-      <td><strong>${d.name}</strong></td>
-      <td><span style="font-size:10px;color:#888;">${d.affects.type}:${d.affects.key}</span></td>
-      <td>${d.source}<a href="${d.url}" target="_blank" class="src-link">↗</a></td>
-      <td class="src">${d.citation}</td>
-      ${qCells}
-    </tr>`;
-  });
-  h += '</tbody>';
-  t.innerHTML = h;
+  document.getElementById('scenarioBox').innerHTML = '<p style="font-size:13px; color:#888;">Forecast scenario controls appear when data.forecasts is populated.</p>';
+  document.getElementById('driverTable').innerHTML = '<tr><td>No forecast drivers loaded.</td></tr>';
 }
 function renderCompetitiveTab() {
-  const comp = data.competitors;
-  if (!comp) return;
-  renderBenchmarkCards(comp.benchmarks);
-  renderSourcingChart(comp.benchmarks);
-  renderProductComparisons(comp.productComparisons);
-  renderCostCompareChart(comp.productComparisons[0]);
-  renderPriorities(comp.improvementPriorities);
-}
-function renderBenchmarkCards(benchmarks) {
-  const grid = document.getElementById('benchmarkGrid');
-  grid.innerHTML = '';
-  const order = ['puma', 'adidas', 'nike'];
-  const cls = { puma: 'puma', adidas: 'adidas', nike: 'nike' };
-  order.forEach(key => {
-    const b = benchmarks[key];
-    if (!b) return;
+  const comp = data.competitors; if (!comp) return;
+  const grid = document.getElementById('benchmarkGrid'); grid.innerHTML = '';
+  ['puma','adidas','nike'].forEach(key => {
+    const b = comp.benchmarks[key]; if (!b) return;
     const f = b.fy2025;
-    let html = `<h4>${b.name}</h4>`;
-    html += `<div class="metric-line"><span class="lbl">Gross margin</span><span class="val">${f.grossMarginPct.toFixed(1)}%</span></div>`;
-    if (f.footwearGrossMarginPct) html += `<div class="metric-line"><span class="lbl">Footwear gross margin</span><span class="val">${f.footwearGrossMarginPct.toFixed(1)}%</span></div>`;
-    html += `<div class="metric-line"><span class="lbl">Operating margin</span><span class="val">${f.operatingMarginPct.toFixed(1)}%</span></div>`;
-    if (f.netSalesM) html += `<div class="metric-line"><span class="lbl">Net sales</span><span class="val">€${f.netSalesM.toLocaleString()}M</span></div>`;
-    html += `<div class="metric-line"><span class="lbl">Footwear share</span><span class="val">${f.footwearSharePct}%</span></div>`;
     const card = document.createElement('div');
-    card.className = 'benchmark-card ' + cls[key];
-    card.innerHTML = html;
+    card.className = 'benchmark-card ' + key;
+    card.innerHTML = `<h4>${b.name}</h4>
+      <div class="metric-line"><span class="lbl">Gross margin</span><span class="val">${f.grossMarginPct.toFixed(1)}%</span></div>
+      <div class="metric-line"><span class="lbl">Operating margin</span><span class="val">${f.operatingMarginPct.toFixed(1)}%</span></div>
+      ${f.netSalesM ? `<div class="metric-line"><span class="lbl">Net sales</span><span class="val">€${f.netSalesM.toLocaleString()}M</span></div>` : ''}
+      <div class="metric-line"><span class="lbl">Footwear share</span><span class="val">${f.footwearSharePct}%</span></div>`;
     grid.appendChild(card);
   });
-}
-function renderSourcingChart(benchmarks) {
-  const ctx = document.getElementById('sourcingChart');
-  if (!ctx) return;
-  if (compCharts.sourcing) compCharts.sourcing.destroy();
-  const countries = ['Vietnam', 'China', 'Indonesia', 'Cambodia', 'Bangladesh', 'India'];
-  const colors = { puma: '#111', adidas: '#2d6a4f', nike: '#f57c00' };
-  const datasets = [];
-  ['puma', 'adidas', 'nike'].forEach(key => {
-    const b = benchmarks[key];
-    if (!b) return;
-    const mix = b.fy2025.sourcingMixPct || {};
-    datasets.push({
-      label: b.name,
-      data: countries.map(c => mix[c] || 0),
-      backgroundColor: colors[key],
-      borderWidth: 0
-    });
-  });
-  compCharts.sourcing = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: countries, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } },
-      scales: {
-        x: { title: { display: true, text: 'Sourcing Country' } },
-        y: { title: { display: true, text: '% of production volume' }, beginAtZero: true }
-      }
-    }
-  });
-}
-function renderProductComparisons(comparisons) {
-  const container = document.getElementById('productComparisons');
-  container.innerHTML = '';
-  comparisons.forEach(cmp => {
+  const container = document.getElementById('productComparisons'); container.innerHTML = '';
+  comp.productComparisons.forEach(cmp => {
     const section = document.createElement('div');
     section.className = 'comp-section';
-    let h = `<h3>${cmp.category}: ${cmp.puma.name} vs ${cmp.competitor.brand} ${cmp.competitor.name}</h3>`;
-    h += `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin: 15px 0;">`;
-    h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;">
-      <div style="font-weight:700; margin-bottom:10px;">PUMA</div>
-      <div class="metric-line"><span>Retail price</span><span>${fmt(cmp.puma.retailPrice)}</span></div>
-      <div class="metric-line"><span>Total FOB</span><span>${fmt(cmp.puma.fob)}</span></div>
-      <div class="metric-line"><span>FOB as % of retail</span><span>${cmp.puma.costPctOfRetail}%</span></div>
-    </div>`;
-    h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;">
-      <div style="font-weight:700; margin-bottom:10px;">${cmp.competitor.brand}</div>
-      <div class="metric-line"><span>Retail price</span><span>${fmt(cmp.competitor.retailPrice)}</span></div>
-      <div class="metric-line"><span>Total FOB</span><span>${fmt(cmp.competitor.fob)}</span></div>
-      <div class="metric-line"><span>FOB as % of retail</span><span>${cmp.competitor.costPctOfRetail}%</span></div>
-    </div>`;
-    h += `</div>`;
-    h += `<table class="gap-table"><thead><tr>
-      <th style="width:20%;">Cost Element</th>
-      <th style="text-align:right;">PUMA</th>
-      <th style="text-align:right;">${cmp.competitor.brand}</th>
-      <th style="text-align:right;">Delta</th>
-      <th style="width:15%;">Status</th>
-      <th>Why</th>
-    </tr></thead><tbody>`;
+    let h = `<h3>${cmp.category}: ${cmp.puma.name} vs ${cmp.competitor.brand} ${cmp.competitor.name}</h3>
+      <table class="gap-table"><thead><tr><th>Cost Element</th><th style="text-align:right;">PUMA</th><th style="text-align:right;">${cmp.competitor.brand}</th><th style="text-align:right;">Delta</th><th>Status</th><th>Why</th></tr></thead><tbody>`;
     cmp.gapAnalysis.forEach(g => {
-      const deltaStr = (g.delta > 0 ? '+' : '') + g.delta.toFixed(2);
       const badge = g.status === 'better' ? '<span class="badge badge-better">PUMA better</span>'
                   : g.status === 'worse' ? '<span class="badge badge-worse">PUMA worse</span>'
                   : '<span class="badge badge-neutral">Neutral</span>';
-      const deltaCls = g.status === 'better' ? 'better' : g.status === 'worse' ? 'worse' : 'neutral';
-      h += `<tr>
-        <td><strong>${g.area}</strong></td>
-        <td class="num">${fmt(g.pumaCost)}</td>
-        <td class="num">${fmt(g.compCost)}</td>
-        <td class="delta ${deltaCls}">${deltaStr}</td>
-        <td>${badge}</td>
-        <td class="note">${g.note}</td>
-      </tr>`;
+      h += `<tr><td><strong>${g.area}</strong></td><td style="text-align:right;">${fmt(g.pumaCost)}</td><td style="text-align:right;">${fmt(g.compCost)}</td><td style="text-align:right; font-family:monospace;">${g.delta > 0 ? '+' : ''}${g.delta.toFixed(2)}</td><td>${badge}</td><td class="note">${g.note}</td></tr>`;
     });
-    h += `</tbody></table>`;
-    section.innerHTML = h;
+    section.innerHTML = h + '</tbody></table>';
     container.appendChild(section);
   });
-}
-function renderCostCompareChart(cmp) {
-  const ctx = document.getElementById('costCompareChart');
-  if (!ctx || !cmp) return;
-  if (compCharts.costCompare) compCharts.costCompare.destroy();
-  compCharts.costCompare = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Materials', 'Labour', 'Overheads', 'Factory margin', 'Total FOB'],
-      datasets: [
-        { label: 'PUMA ' + cmp.puma.name, data: [cmp.puma.materials, cmp.puma.labour, cmp.puma.overheads, cmp.puma.margin, cmp.puma.fob], backgroundColor: '#111', borderWidth: 0 },
-        { label: cmp.competitor.brand + ' ' + cmp.competitor.name, data: [cmp.competitor.materials, cmp.competitor.labour, cmp.competitor.overheads, cmp.competitor.margin, cmp.competitor.fob], backgroundColor: '#2d6a4f', borderWidth: 0 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } },
-      scales: { y: { title: { display: true, text: '€ per unit' }, beginAtZero: true } }
-    }
-  });
-}
-function renderPriorities(priorities) {
-  const list = document.getElementById('priorityList');
-  list.innerHTML = '';
-  priorities.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'priority-card';
-    card.innerHTML = `
-      <div><span class="rank">${p.rank}</span><span class="area">${p.area}</span></div>
+  const list = document.getElementById('priorityList'); list.innerHTML = '';
+  comp.improvementPriorities.forEach(p => {
+    const c = document.createElement('div'); c.className = 'priority-card';
+    c.innerHTML = `<div><span class="rank">${p.rank}</span><span class="area">${p.area}</span></div>
       <div class="why">${p.why}</div>
       <div class="action"><strong>Action:</strong> ${p.action}</div>
-      <div class="meta">
-        <span><strong>Impact:</strong> ${p.impact}</span>
-        <span><strong>Effort:</strong> ${p.effort}</span>
-      </div>
-    `;
-    list.appendChild(card);
+      <div class="meta"><span><strong>Impact:</strong> ${p.impact}</span><span><strong>Effort:</strong> ${p.effort}</span></div>`;
+    list.appendChild(c);
   });
 }
+
+function renderE2ETab() {
+  const e2e = data.endToEnd; if (!e2e) return;
+
+  const srcLegend = document.getElementById('sourceLegend'); srcLegend.innerHTML = '';
+  e2e.sourceCountries.forEach(s => {
+    const el = document.createElement('div'); el.className = 'source-pill';
+    el.innerHTML = `<div class="flag">${s.flag}</div><div class="info"><div class="name">${s.name}</div><div class="share">${s.shareOfProductionPct}% of production · €${s.laborRatePerHr}/hr</div></div>`;
+    srcLegend.appendChild(el);
+  });
+
+  const destLegend = document.getElementById('destLegend'); destLegend.innerHTML = '';
+  e2e.destinationMarkets.forEach(m => {
+    const el = document.createElement('div'); el.className = 'dest-card';
+    el.innerHTML = `<div class="flag">${m.flag}</div><div class="name">${m.name}</div>
+      <div class="rev">~€${m.estimatedRevenueM}M est. (${m.shareOfGlobalPct}%)</div>
+      <div class="vat-info">${m.vatName}: ${m.vatRatePct}%</div>`;
+    destLegend.appendChild(el);
+  });
+
+  renderMatrix(e2e);
+  populateWaterfallSelectors(e2e);
+  renderWaterfall();
+  renderRetailByMarket(e2e);
+}
+
+function renderMatrix(e2e) {
+  const sources = e2e.sourceCountries;
+  const dests = e2e.destinationMarkets;
+  const matrix = e2e.matrix;
+
+  // Compute min/max landed cost for coloring
+  const allLanded = matrix.map(m => m.landedCost);
+  const minC = Math.min(...allLanded), maxC = Math.max(...allLanded);
+
+  let h = '<thead><tr><th class="row-header">Source ↓ / Destination →</th>';
+  dests.forEach(d => { h += `<th>${d.flag}<br>${d.name}</th>`; });
+  h += '</tr></thead><tbody>';
+
+  sources.forEach(s => {
+    h += `<tr><td class="row-header">${s.flag} ${s.name}</td>`;
+    dests.forEach(d => {
+      const cell = matrix.find(m => m.source === s.id && m.destination === d.id);
+      if (!cell) { h += '<td style="color:#ccc;">—</td>'; return; }
+      const norm = (cell.landedCost - minC) / (maxC - minC);
+      let cls = '';
+      if (norm < 0.33) cls = 'highlight';
+      else if (norm > 0.66) cls = 'danger';
+      else cls = 'warn';
+      h += `<td class="${cls}">${fmt(cell.landedCost)}</td>`;
+    });
+    h += '</tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('matrixTable').innerHTML = h;
+}
+
+function populateWaterfallSelectors(e2e) {
+  const srcSel = document.getElementById('wfSource');
+  const dstSel = document.getElementById('wfDest');
+  srcSel.innerHTML = ''; dstSel.innerHTML = '';
+  e2e.sourceCountries.forEach(s => {
+    const o = document.createElement('option'); o.value = s.id; o.textContent = s.flag + ' ' + s.name; srcSel.appendChild(o);
+  });
+  e2e.destinationMarkets.forEach(d => {
+    const o = document.createElement('option'); o.value = d.id; o.textContent = d.flag + ' ' + d.name; dstSel.appendChild(o);
+  });
+  srcSel.value = 'bangladesh';
+  dstSel.value = 'us';
+}
+
+function renderWaterfall() {
+  const e2e = data.endToEnd;
+  const srcId = document.getElementById('wfSource').value;
+  const dstId = document.getElementById('wfDest').value;
+  const cell = e2e.matrix.find(m => m.source === srcId && m.destination === dstId);
+  if (!cell) { document.getElementById('waterfallChart').innerHTML = '<p style="color:#888;">No data for this combination.</p>'; return; }
+
+  const steps = [
+    { label: 'FOB', value: cell.fob, type: 'base' },
+    { label: 'Freight', value: cell.freightPerUnit, type: 'add' },
+    { label: 'Insurance', value: cell.insurancePerUnit, type: 'add' },
+    { label: 'CIF Value', value: cell.cif, type: 'subtotal' },
+    { label: 'Tariff (' + cell.tariffRatePct + '%)', value: cell.tariffPerUnit, type: 'add' },
+    { label: 'Customs', value: cell.customsPerUnit, type: 'add' },
+    { label: 'Inland Distribution', value: cell.inlandPerUnit, type: 'add' },
+    { label: 'Landed Cost', value: cell.landedCost, type: 'total' },
+    { label: 'Wholesale Markup', value: (cell.retailPriceBeforeTax - cell.landedCost), type: 'add' },
+    { label: 'Retail (excl. tax)', value: cell.retailPriceBeforeTax, type: 'subtotal' },
+    { label: 'VAT/GST', value: cell.vatPerUnit, type: 'add' },
+    { label: 'Final Retail Price', value: cell.finalRetailPrice, type: 'total' }
+  ];
+
+  const labels = steps.map(s => s.label);
+  const values = steps.map(s => s.value);
+  const colors = steps.map(s => {
+    if (s.type === 'base') return '#1a237e';
+    if (s.type === 'add') return '#f57c00';
+    if (s.type === 'subtotal') return '#2d6a4f';
+    if (s.type === 'total') return '#111';
+    return '#888';
+  });
+
+  const trace = {
+    type: 'waterfall',
+    orientation: 'v',
+    x: labels,
+    y: values,
+    measure: steps.map(s => (s.type === 'base' || s.type === 'subtotal' || s.type === 'total') ? 'absolute' : 'relative'),
+    text: values.map(v => '€' + v.toFixed(2)),
+    textposition: 'outside',
+    marker: { color: colors },
+    connector: { line: { color: '#ccc' } }
+  };
+  Plotly.react('waterfallChart', [trace], {
+    margin: { l: 40, r: 20, t: 20, b: 80 },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    font: { size: 11 },
+    yaxis: { title: '€ per unit' },
+    xaxis: { tickangle: -30 }
+  }, { responsive: true, displayModeBar: false });
+}
+
+function renderRetailByMarket(e2e) {
+  const ctx = document.getElementById('retailByMarketChart');
+  if (!ctx) return;
+  if (retailChart) retailChart.destroy();
+  // Show final retail price for a specific source (use default: bangladesh, or the current source selection)
+  const srcId = document.getElementById('wfSource')?.value || 'bangladesh';
+  const matrix = e2e.matrix.filter(m => m.source === srcId);
+  const labels = matrix.map(m => {
+    const d = e2e.destinationMarkets.find(dm => dm.id === m.destination);
+    return d ? d.flag + ' ' + d.name : m.destination;
+  });
+  const values = matrix.map(m => m.finalRetailPrice);
+  retailChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Final Retail Price (€)', data: values, backgroundColor: '#1a237e' }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { y: { title: { display: true, text: '€' }, beginAtZero: true } } }
+  });
+}
+
 load();
 </script>
 </body>
