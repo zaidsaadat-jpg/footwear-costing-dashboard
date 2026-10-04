@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMA Should-Cost Dashboard v5</title>
+<title>PUMA Should-Cost Dashboard v6</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
@@ -108,6 +108,41 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .scenario-row:last-child { border-bottom: none; }
 .scenario-row input { padding: 6px 8px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; width: 100%; }
 .scenario-row .note { font-size: 11px; color: #999; }
+.comp-header { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.comp-header h3 { margin-bottom: 10px; }
+.comp-header p { font-size: 13px; color: #555; line-height: 1.6; }
+.benchmark-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 25px; }
+.benchmark-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.benchmark-card h4 { font-size: 14px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+.benchmark-card .metric-line { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+.benchmark-card .metric-line .lbl { color: #666; }
+.benchmark-card .metric-line .val { font-weight: 600; }
+.benchmark-card.puma { border-top: 4px solid #111; }
+.benchmark-card.adidas { border-top: 4px solid #2d6a4f; }
+.benchmark-card.nike { border-top: 4px solid #f57c00; }
+.comp-section { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.comp-section h3 { margin-bottom: 15px; }
+.gap-table { width: 100%; border-collapse: collapse; }
+.gap-table th { font-size: 10px; text-transform: uppercase; color: #666; background: #f9fafb; padding: 8px; text-align: left; }
+.gap-table td { font-size: 13px; padding: 10px 8px; border-bottom: 1px solid #eee; }
+.gap-table .better { color: #059669; font-weight: 600; }
+.gap-table .worse { color: #dc2626; font-weight: 600; }
+.gap-table .neutral { color: #666; }
+.gap-table .note { font-size: 11px; color: #888; font-style: italic; }
+.gap-table .delta { font-family: monospace; text-align: right; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; }
+.badge-better { background: #d1fae5; color: #065f46; }
+.badge-worse { background: #fee2e2; color: #991b1b; }
+.badge-neutral { background: #f3f4f6; color: #4b5563; }
+.priority-card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,.05); border-left: 4px solid #f57c00; }
+.priority-card .rank { display: inline-block; background: #f57c00; color: #fff; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 50%; font-weight: 700; font-size: 13px; margin-right: 10px; }
+.priority-card .area { font-size: 15px; font-weight: 700; display: inline-block; }
+.priority-card .why { font-size: 13px; color: #555; margin: 10px 0; line-height: 1.5; }
+.priority-card .action { font-size: 13px; color: #111; background: #f8fafc; padding: 10px; border-radius: 6px; margin-top: 8px; }
+.priority-card .meta { font-size: 11px; color: #888; margin-top: 10px; }
+.priority-card .meta span { margin-right: 15px; }
+.comp-chart-wrap { height: 340px; position: relative; }
+.sourcing-chart-wrap { height: 280px; position: relative; }
 </style>
 </head>
 <body>
@@ -115,7 +150,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 <div class="header">
   <div class="header-top">
     <div>
-      <h1>PUMA Should-Cost Dashboard v5</h1>
+      <h1>PUMA Should-Cost Dashboard v6</h1>
       <div class="sub" id="updated">Loading…</div>
       <div class="dirty-warning" id="dirtyWarning">⚠️ Assumptions modified from defaults</div>
     </div>
@@ -138,6 +173,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     <button class="tab active" onclick="showTab('dashboard', this)">📊 Dashboard</button>
     <button class="tab" onclick="showTab('assumptions', this)">⚙️ Assumptions & Sources</button>
     <button class="tab" onclick="showTab('forecast', this)">📈 Budgeting & Forecasting</button>
+    <button class="tab" onclick="showTab('competitive', this)">🏆 Competitive Intelligence</button>
   </div>
 </div>
 
@@ -206,7 +242,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tab-panel" id="tab-forecast">
     <div class="forecast-header">
       <h3>📈 18-Month Budgeting & Forecasting</h3>
-      <p>Projected cost evolution for each product from <strong id="fcBase">Oct 2026</strong> to <strong id="fcEnd">Mar 2028</strong>. Each projection is built from driver-level forecasts cited from industry sources. Adjust the scenario inputs below to stress-test.</p>
+      <p>Projected cost evolution for each product from <strong id="fcBase">Oct 2026</strong> to <strong id="fcEnd">Mar 2028</strong>. Each projection is built from driver-level forecasts cited from industry sources.</p>
     </div>
     <div class="forecast-grid" id="forecastGrid"></div>
     <div class="forecast-card">
@@ -222,9 +258,34 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
       <table class="driver-table" id="driverTable"></table>
     </div>
   </div>
+
+  <div class="tab-panel" id="tab-competitive">
+    <div class="comp-header">
+      <h3>🏆 Competitive Intelligence — PUMA vs Adidas vs Nike</h3>
+      <p>Benchmarking PUMA's cost structure and financial performance against its closest competitors. Data sourced from FY2025 annual reports and public disclosures. Product-level comparisons are modelled using the same should-cost framework as the main dashboard.</p>
+    </div>
+    <h3 style="margin-bottom:15px;">Brand Financial Benchmarks (FY2025)</h3>
+    <div class="benchmark-grid" id="benchmarkGrid"></div>
+    <div class="comp-section">
+      <h3>🌍 Sourcing Mix Comparison</h3>
+      <p style="font-size:12px; color:#666; margin-bottom:15px;">Where each brand manufactures — critical for tariff exposure and labour cost.</p>
+      <div class="sourcing-chart-wrap"><canvas id="sourcingChart"></canvas></div>
+    </div>
+    <h3 style="margin-bottom:15px;">Product-Level Cost Comparison</h3>
+    <div id="productComparisons"></div>
+    <div class="comp-section" style="margin-top:25px;">
+      <h3>📊 Cost Structure Comparison — Running Shoe</h3>
+      <div class="comp-chart-wrap"><canvas id="costCompareChart"></canvas></div>
+    </div>
+    <div class="comp-section">
+      <h3>🎯 Improvement Priorities</h3>
+      <p style="font-size:12px; color:#666; margin-bottom:15px;">Ranked list of areas where PUMA has the most opportunity to improve relative to competitors.</p>
+      <div id="priorityList"></div>
+    </div>
+  </div>
 </div>
 
-<div class="footer">Estimates based on industry benchmarks and published forecasts. Not actual PUMA supplier data.</div>
+<div class="footer">Estimates based on industry benchmarks and published financial disclosures. Not actual PUMA supplier data.</div>
 
 <script>
 const STORAGE_KEY = 'puma_should_cost_v4';
@@ -238,6 +299,7 @@ let editingLocId = null;
 let colFilters = {};
 let expandedNodes = {};
 let forecastOverrides = {};
+let compCharts = {};
 
 const fmt = n => '€' + (isFinite(n) ? n.toFixed(2) : '0.00');
 const pct = n => (isFinite(n) ? n.toFixed(1) : '0.0') + '%';
@@ -265,7 +327,7 @@ async function load() {
   renderCards();
   renderAssumptionEditors();
   if (data.forecasts) renderForecastTab();
-  else document.getElementById('tab-forecast').innerHTML = '<div class="forecast-header"><h3>No forecast data</h3><p>Add the <code>forecasts</code> block to cost_data.json to enable this tab.</p></div>';
+  if (data.competitors) renderCompetitiveTab();
 }
 
 function showTab(name, btn) {
@@ -273,6 +335,7 @@ function showTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'competitive' && data.competitors) renderCompetitiveTab();
 }
 
 function getTierMultipliers() {
@@ -342,7 +405,6 @@ function calc(p, locOverride, matOverride) {
   const duty = fob * (dutyRate / 100);
   return { tree, fob, mat, lab, ovh, margin, freight, duty, dutyRate, landed: fob + freight + duty };
 }
-
 function renderCards() {
   const g = document.getElementById('cards'); g.innerHTML = '';
   data.products.forEach(p => {
@@ -371,7 +433,6 @@ function renderCards() {
     g.appendChild(d);
   });
 }
-
 function selectProduct(id) {
   selected = data.products.find(p => p.id === id);
   document.getElementById('drill').classList.add('on');
@@ -384,7 +445,6 @@ function selectProduct(id) {
   expandedNodes[rootPath + '/Factory Margin'] = true;
   renderDrilldown();
 }
-
 function renderDrilldown() {
   if (!selected) return;
   const c = calc(selected);
@@ -392,7 +452,6 @@ function renderDrilldown() {
   const tier = data.assumptions.supplierTiers[currentTier];
   document.getElementById('locBanner').innerHTML =
     `<strong>📍 ${currentLocation.name}</strong> · ${tier.name} · Labour €${currentLocation.laborRatePerHr}/hr · Freight €${currentLocation.freightPerUnit} · Duty ${currentLocation.dutyRatePercent}%`;
-
   if (chart) chart.destroy();
   chart = new Chart(document.getElementById('chart'), {
     type: 'doughnut',
@@ -410,7 +469,6 @@ function renderDrilldown() {
   drawTreeChart(c.tree);
   renderTreeTable(c.tree, c.fob);
 }
-
 function drawTreeChart(root) {
   const ids = [], labels = [], parents = [], values = [], colors = [];
   const palette = ['#1a1a1a','#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2','#b7e4c7'];
@@ -447,7 +505,6 @@ function setChartType(type) {
   document.querySelectorAll('.chart-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
   if (selected) drawTreeChart(calc(selected).tree);
 }
-
 function flattenLeaves(node, parentTotal, path, fob) {
   const rows = [];
   const cost = totalOf(node);
@@ -531,11 +588,13 @@ function onLocationChange() {
   currentLocation = data.assumptions.locations.find(l => l.id === document.getElementById('locationSelect').value);
   renderCards(); if (selected) renderDrilldown();
   if (data.forecasts) renderForecastTab();
+  if (data.competitors) renderCompetitiveTab();
 }
 function onTierChange() {
   currentTier = document.getElementById('tierSelect').value;
   renderCards(); if (selected) renderDrilldown();
   if (data.forecasts) renderForecastTab();
+  if (data.competitors) renderCompetitiveTab();
 }
 function onMOQChange() { currentMOQ = parseInt(document.getElementById('moqSlider').value); updateMOQDisplay(); }
 function updateMOQDisplay() {
@@ -643,9 +702,8 @@ function resetAssumptions() {
 function exportAssumptions() {
   const blob = new Blob([JSON.stringify(data.assumptions, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'assumptions_v5.json'; a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement('a'); a.href = url; a.download = 'assumptions_v6.json'; a.click(); URL.revokeObjectURL(url);
 }
-
 function getEffectiveForecastRate(driverId, qIdx) {
   const driver = data.forecasts.drivers.find(d => d.id === driverId);
   if (!driver) return 0;
@@ -731,11 +789,9 @@ function renderForecastTab() {
             { label: 'Overheads', data: proj.projections.map(x => x.overheads), borderColor: '#999', borderWidth: 1.5, tension: 0.3, pointRadius: 2 }
           ]
         },
-        options: {
-          responsive: true, maintainAspectRatio: false,
+        options: { responsive: true, maintainAspectRatio: false,
           plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
-          scales: { y: { title: { display: true, text: '€ per unit' } } }
-        }
+          scales: { y: { title: { display: true, text: '€ per unit' } } } }
       });
       window._fcCharts.push(c);
     }, 50);
@@ -753,7 +809,7 @@ function renderScenarioBox() {
     row.innerHTML = `
       <div>${d.name}<div class="note">${d.source}</div></div>
       <input type="number" step="0.1" value="${currentRate}" onchange="updateForecastOverride('${d.id}', this.value)">
-      <div class="note">% change per quarter (applied to all quarters)</div>
+      <div class="note">% change per quarter</div>
     `;
     box.appendChild(row);
   });
@@ -797,8 +853,81 @@ function renderDriverTable() {
   h += '</tbody>';
   t.innerHTML = h;
 }
-
-load();
-</script>
-</body>
-</html>
+function renderCompetitiveTab() {
+  const comp = data.competitors;
+  if (!comp) return;
+  renderBenchmarkCards(comp.benchmarks);
+  renderSourcingChart(comp.benchmarks);
+  renderProductComparisons(comp.productComparisons);
+  renderCostCompareChart(comp.productComparisons[0]);
+  renderPriorities(comp.improvementPriorities);
+}
+function renderBenchmarkCards(benchmarks) {
+  const grid = document.getElementById('benchmarkGrid');
+  grid.innerHTML = '';
+  const order = ['puma', 'adidas', 'nike'];
+  const cls = { puma: 'puma', adidas: 'adidas', nike: 'nike' };
+  order.forEach(key => {
+    const b = benchmarks[key];
+    if (!b) return;
+    const f = b.fy2025;
+    let html = `<h4>${b.name}</h4>`;
+    html += `<div class="metric-line"><span class="lbl">Gross margin</span><span class="val">${f.grossMarginPct.toFixed(1)}%</span></div>`;
+    if (f.footwearGrossMarginPct) html += `<div class="metric-line"><span class="lbl">Footwear gross margin</span><span class="val">${f.footwearGrossMarginPct.toFixed(1)}%</span></div>`;
+    html += `<div class="metric-line"><span class="lbl">Operating margin</span><span class="val">${f.operatingMarginPct.toFixed(1)}%</span></div>`;
+    if (f.netSalesM) html += `<div class="metric-line"><span class="lbl">Net sales</span><span class="val">€${f.netSalesM.toLocaleString()}M</span></div>`;
+    html += `<div class="metric-line"><span class="lbl">Footwear share</span><span class="val">${f.footwearSharePct}%</span></div>`;
+    const card = document.createElement('div');
+    card.className = 'benchmark-card ' + cls[key];
+    card.innerHTML = html;
+    grid.appendChild(card);
+  });
+}
+function renderSourcingChart(benchmarks) {
+  const ctx = document.getElementById('sourcingChart');
+  if (!ctx) return;
+  if (compCharts.sourcing) compCharts.sourcing.destroy();
+  const countries = ['Vietnam', 'China', 'Indonesia', 'Cambodia', 'Bangladesh', 'India'];
+  const colors = { puma: '#111', adidas: '#2d6a4f', nike: '#f57c00' };
+  const datasets = [];
+  ['puma', 'adidas', 'nike'].forEach(key => {
+    const b = benchmarks[key];
+    if (!b) return;
+    const mix = b.fy2025.sourcingMixPct || {};
+    datasets.push({
+      label: b.name,
+      data: countries.map(c => mix[c] || 0),
+      backgroundColor: colors[key],
+      borderWidth: 0
+    });
+  });
+  compCharts.sourcing = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: countries, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: {
+        x: { title: { display: true, text: 'Sourcing Country' } },
+        y: { title: { display: true, text: '% of production volume' }, beginAtZero: true }
+      }
+    }
+  });
+}
+function renderProductComparisons(comparisons) {
+  const container = document.getElementById('productComparisons');
+  container.innerHTML = '';
+  comparisons.forEach(cmp => {
+    const section = document.createElement('div');
+    section.className = 'comp-section';
+    let h = `<h3>${cmp.category}: ${cmp.puma.name} vs ${cmp.competitor.brand} ${cmp.competitor.name}</h3>`;
+    h += `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin: 15px 0;">`;
+    h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;">
+      <div style="font-weight:700; margin-bottom:10px;">PUMA</div>
+      <div class="metric-line"><span>Retail price</span><span>${fmt(cmp.puma.retailPrice)}</span></div>
+      <div class="metric-line"><span>Total FOB</span><span>${fmt(cmp.puma.fob)}</span></div>
+      <div class="metric-line"><span>FOB as % of retail</span><span>${cmp.puma.costPctOfRetail}%</span></div>
+    </div>`;
+    h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;">
+      <div style="font-weight:700; margin-bottom:10px;">${cmp.competitor.brand}</div>
+      <div class="metric-line"><span>Retail price</span><span>${fmt(cmp.competitor.ret
