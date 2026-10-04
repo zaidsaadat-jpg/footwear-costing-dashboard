@@ -3,9 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMA Should-Cost Dashboard v7.1</title>
+<title>PUMA Should-Cost Dashboard v7.3</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/controls/OrbitControls.js"></script>
+<link rel="stylesheet" href="dtc.css">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #222; }
@@ -79,11 +82,12 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .btn-secondary { background: #e5e5e5; color: #222; }
 .footer { text-align: center; color: #999; font-size: 12px; padding: 30px; }
 .tier-select { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; font-size: 14px; }
+
 .forecast-header { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .forecast-header h3 { margin-bottom: 10px; }
 .forecast-header p { font-size: 13px; color: #555; line-height: 1.6; }
 .forecast-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 25px; margin-bottom: 25px; }
-.forecast-card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.forecast-card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 20px; }
 .forecast-card h4 { font-size: 15px; margin-bottom: 6px; }
 .forecast-card .cat { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 15px; }
 .forecast-chart-wrap { height: 260px; margin-bottom: 15px; position: relative; }
@@ -103,6 +107,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .scenario-row:last-child { border-bottom: none; }
 .scenario-row input { padding: 6px 8px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; width: 100%; }
 .scenario-row .note { font-size: 11px; color: #999; }
+
 .comp-header { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .comp-header h3 { margin-bottom: 10px; }
 .comp-header p { font-size: 13px; color: #555; line-height: 1.6; }
@@ -160,8 +165,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .matrix-table td.highlight { background: #e8f5e9; font-weight: 700; }
 .matrix-table td.warn { background: #fff3e0; }
 .matrix-table td.danger { background: #ffebee; }
-.matrix-table tbody tr:hover { background: #f5f5f5; }
-.matrix-note { font-size: 11px; color: #888; margin-top: 10px; font-style: italic; }
 .cell-legend { display: flex; gap: 15px; margin-top: 12px; font-size: 11px; }
 .cell-legend .dot { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; }
 .waterfall-section { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
@@ -176,7 +179,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 <div class="header">
   <div class="header-top">
     <div>
-      <h1>PUMA Should-Cost Dashboard v7.1</h1>
+      <h1>PUMA Should-Cost Dashboard v7.3</h1>
       <div class="sub" id="updated">Loading…</div>
     </div>
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
@@ -200,6 +203,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     <button class="tab" onclick="showTab('forecast', this)">📈 Budgeting & Forecasting</button>
     <button class="tab" onclick="showTab('competitive', this)">🏆 Competitive Intelligence</button>
     <button class="tab" onclick="showTab('e2e', this)">🌐 End-to-End</button>
+    <button class="tab" onclick="showTab('dtc', this)">🎨 Design-to-Cost</button>
   </div>
 </div>
 
@@ -257,7 +261,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tab-panel" id="tab-forecast">
     <div class="forecast-header">
       <h3>📈 18-Month Budgeting & Forecasting</h3>
-      <p>Projected cost evolution for each product from Q4 2026 to Q1 2028. Each projection is built from driver-level forecasts cited from industry sources.</p>
+      <p id="forecastSubtitle">Projected cost evolution for each product. Driver-level forecasts cited from industry sources.</p>
     </div>
     <div class="forecast-grid" id="forecastGrid"></div>
     <div class="forecast-card">
@@ -267,7 +271,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
       <button class="btn-primary" style="margin-top:15px;" onclick="runForecast()">↻ Re-run Forecast</button>
       <button class="btn-secondary" style="margin-top:15px;" onclick="resetForecast()">↺ Reset to Research Defaults</button>
     </div>
-    <div class="forecast-card" style="margin-top:25px;">
+    <div class="forecast-card">
       <h4>📚 Forecast Drivers & Sources</h4>
       <table class="driver-table" id="driverTable"></table>
     </div>
@@ -325,14 +329,98 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
       <div style="height:360px;"><canvas id="retailByMarketChart"></canvas></div>
     </div>
   </div>
+
+  <div class="tab-panel" id="tab-dtc">
+    <div class="dtc-header">
+      <h3>🎨 Design-to-Cost & Value Engineering</h3>
+      <p>Cross-functional decision workspace for Design, Procurement, Costing, and Engineering. Adjust the levers below to see live cost and value impact. Each lever is tagged with the owner who needs to act.</p>
+    </div>
+
+    <div class="dtc-layout">
+      <div class="dtc-viewer-card">
+        <h4>Product Visualization</h4>
+        <div class="dtc-upload-zone" onclick="document.getElementById('dtcImage').click()">
+          <div class="icon">📸</div>
+          <p><strong>Upload product image</strong> for 3D preview</p>
+          <p style="font-size:11px;">The image wraps onto a rotatable 3D form</p>
+          <input type="file" id="dtcImage" accept="image/*" style="display:none">
+        </div>
+        <div id="viewer3d" class="viewer3d"></div>
+        <p class="viewer-hint">🖱️ Drag to rotate · Scroll to zoom</p>
+        <div class="color-picker">
+          <label>Base color:</label>
+          <input type="color" id="meshColor" value="#2d6a4f" onchange="updateMeshColor()">
+          <label style="margin-left: 15px;">
+            <input type="checkbox" id="wireframeToggle" onchange="toggleWireframe()"> Wireframe
+          </label>
+        </div>
+      </div>
+
+      <div class="dtc-levers-card">
+        <h4>Optimization Levers</h4>
+        <p class="dtc-subtitle">Live impact of each lever on the selected product's cost</p>
+        <div id="leversPanel"></div>
+
+        <div class="dtc-impact-panel">
+          <div class="impact-row">
+            <span class="impact-label">Baseline FOB</span>
+            <span class="impact-value" id="dtcBaseFob">—</span>
+          </div>
+          <div class="impact-row">
+            <span class="impact-label">Current FOB (with levers)</span>
+            <span class="impact-value highlight" id="dtcCurrentFob">—</span>
+          </div>
+          <div class="impact-row">
+            <span class="impact-label">Delta vs Baseline</span>
+            <span class="impact-value delta" id="dtcDelta">—</span>
+          </div>
+          <div class="impact-row">
+            <span class="impact-label">Landed Cost @ MOQ</span>
+            <span class="impact-value" id="dtcLanded">—</span>
+          </div>
+          <div class="impact-row">
+            <span class="impact-label">Value Score (brand perception)</span>
+            <span class="impact-value" id="dtcValueScore">—</span>
+          </div>
+        </div>
+
+        <div class="dtc-actions">
+          <button class="btn-primary" onclick="resetLevers()">↺ Reset to Baseline</button>
+          <button class="btn-secondary" onclick="applyLeanScenario()">💰 Auto-Optimize for Cost</button>
+          <button class="btn-secondary" onclick="applyPremiumScenario()">✨ Auto-Optimize for Value</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dtc-section">
+      <h3>Value Engineering Matrix</h3>
+      <p class="dtc-subtitle">Each option positioned by cost impact (X-axis) and value impact (Y-axis). Green = win-win. Red = cost up + value down.</p>
+      <div class="dtc-matrix-wrap"><canvas id="valueMatrixChart"></canvas></div>
+    </div>
+
+    <div class="dtc-section">
+      <h3>Cross-Functional Action Board</h3>
+      <p class="dtc-subtitle">What each function needs to deliver to realize the current scenario</p>
+      <div class="action-grid" id="actionBoard"></div>
+    </div>
+
+    <div class="dtc-section">
+      <h3>Scenario Comparison</h3>
+      <p class="dtc-subtitle">Baseline vs your current lever configuration</p>
+      <div class="scenario-compare" id="scenarioCompare"></div>
+    </div>
+  </div>
 </div>
 
 <div class="footer">Estimates based on industry benchmarks and published disclosures. Not actual PUMA supplier data.</div>
 
 <script>
+// ============================================================
+// GLOBAL STATE
+// ============================================================
 const STORAGE_KEY = 'puma_should_cost_v4';
 const FC_STORAGE = 'puma_forecast_overrides_v5';
-let data = null, originalAssumptions = null, originalForecasts = null;
+let data = null, originalAssumptions = null;
 let selected = null, chart = null, moqChart = null;
 let currentLocation = null, currentTier = 'tier2';
 let currentChartType = 'icicle', currentMOQ = null;
@@ -343,15 +431,38 @@ let expandedNodes = {};
 let forecastOverrides = {};
 let compCharts = {};
 let retailChart = null;
+window._fcCharts = [];
 
 const fmt = n => '€' + (isFinite(n) ? n.toFixed(2) : '0.00');
 const pct = n => (isFinite(n) ? n.toFixed(1) : '0.0') + '%';
 
+// ============================================================
+// SAFE RENDER WRAPPER
+// ============================================================
+function safeRender(name, fn) {
+  try { fn(); } catch (err) { console.error('[Render error in ' + name + ']:', err); }
+}
+
+// ============================================================
+// LOAD
+// ============================================================
 async function load() {
-  const r = await fetch('cost_data.json');
-  data = await r.json();
+  try {
+    const r = await fetch('cost_data.json');
+    data = await r.json();
+    console.log('Data loaded. Keys:', Object.keys(data));
+    console.log('Products:', data.products ? data.products.length : 0);
+    console.log('Forecasts:', data.forecasts ? data.forecasts.drivers.length + ' drivers' : 'missing');
+    console.log('Competitors:', data.competitors ? 'present' : 'missing');
+    console.log('EndToEnd:', data.endToEnd ? 'present' : 'missing');
+  } catch (err) {
+    console.error('Failed to load cost_data.json:', err);
+    document.getElementById('updated').textContent = 'Error loading cost_data.json';
+    return;
+  }
+
   originalAssumptions = JSON.parse(JSON.stringify(data.assumptions));
-  if (data.forecasts) originalForecasts = JSON.parse(JSON.stringify(data.forecasts));
+
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) { try { data.assumptions = JSON.parse(saved); } catch(e){} }
   const savedFc = localStorage.getItem(FC_STORAGE);
@@ -366,24 +477,34 @@ async function load() {
   currentLocation = data.assumptions.locations.find(l => l.id === sel.value);
   currentTier = document.getElementById('tierSelect').value;
 
-  document.getElementById('updated').textContent = 'Last updated: ' + (data.last_updated || '—') + ' · v' + (data.version || '');
-  renderCards();
-  renderAssumptionEditors();
-  if (data.forecasts) renderForecastTab();
-  if (data.competitors) renderCompetitiveTab();
-  if (data.endToEnd) renderE2ETab();
+  document.getElementById('updated').textContent =
+    'Last updated: ' + (data.last_updated || '—') + ' · v' + (data.version || '');
+
+  safeRender('cards', renderCards);
+  safeRender('assumptions', renderAssumptionEditors);
+  safeRender('forecast', renderForecastTab);
+  safeRender('competitive', renderCompetitiveTab);
+  safeRender('e2e', renderE2ETab);
 }
 
+// ============================================================
+// TABS
+// ============================================================
 function showTab(name, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'forecast' && data.forecasts) renderForecastTab();
-  if (name === 'competitive' && data.competitors) renderCompetitiveTab();
-  if (name === 'e2e' && data.endToEnd) renderE2ETab();
+
+  if (name === 'forecast') safeRender('forecast', renderForecastTab);
+  if (name === 'competitive') safeRender('competitive', renderCompetitiveTab);
+  if (name === 'e2e') safeRender('e2e', renderE2ETab);
+  if (name === 'dtc' && typeof renderDtcTab === 'function') safeRender('dtc', renderDtcTab);
 }
 
+// ============================================================
+// COST ENGINE
+// ============================================================
 function getTierMultipliers() {
   const tier = data.assumptions.supplierTiers[currentTier];
   return tier || { laborMultiplier: 1, machineMultiplier: 1, overheadMultiplier: 1, moqMultiplier: 1, marginPercent: 9 };
@@ -451,8 +572,12 @@ function calc(p, locOverride, matOverride) {
   };
 }
 
+// ============================================================
+// DASHBOARD
+// ============================================================
 function renderCards() {
-  const g = document.getElementById('cards'); g.innerHTML = '';
+  const g = document.getElementById('cards'); if (!g) return;
+  g.innerHTML = '';
   data.products.forEach(p => {
     const c = calc(p);
     const d = document.createElement('div');
@@ -561,6 +686,7 @@ function flattenLeaves(node, parentTotal, path, fob) {
   return rows;
 }
 function renderTreeTable(tree, fob) {
+  const t = document.getElementById('table'); if (!t) return;
   const allRows = flattenLeaves(tree, null, [], fob);
   const maxCols = Math.max(...allRows.map(r => r.path.length));
   const colCount = Math.max(maxCols, 5);
@@ -603,7 +729,7 @@ function renderTreeTable(tree, fob) {
     for (let i = 0; i < colCount; i++) h += `<td class="lvl L${Math.min(i+1,10)}">${r.path[i] || ''}</td>`;
     h += `<td class="num">${fmt(r.cost)}</td><td class="pct">${pct(r.pctOfParent)}</td><td class="pct">${pct(r.pctOfFob)}</td></tr>`;
   }
-  document.getElementById('table').innerHTML = h + '</tbody>';
+  t.innerHTML = h + '</tbody>';
 }
 function applyColFilter(colIdx, val) {
   if (val) colFilters[colIdx] = val; else delete colFilters[colIdx];
@@ -616,10 +742,15 @@ function sortBy(col) {
 }
 function onLocationChange() {
   currentLocation = data.assumptions.locations.find(l => l.id === document.getElementById('locationSelect').value);
-  renderCards(); if (selected) renderDrilldown();
-  if (data.forecasts) renderForecastTab();
+  safeRender('cards', renderCards);
+  if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('forecast', renderForecastTab);
 }
-function onTierChange() { currentTier = document.getElementById('tierSelect').value; renderCards(); if (selected) renderDrilldown(); }
+function onTierChange() {
+  currentTier = document.getElementById('tierSelect').value;
+  safeRender('cards', renderCards);
+  if (selected) safeRender('drilldown', renderDrilldown);
+}
 function onMOQChange() { currentMOQ = parseInt(document.getElementById('moqSlider').value); updateMOQDisplay(); }
 function updateMOQDisplay() {
   if (!selected || !selected.moq) return;
@@ -651,8 +782,13 @@ function updateMOQDisplay() {
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
 }
+
+// ============================================================
+// ASSUMPTIONS
+// ============================================================
 function renderAssumptionEditors() {
-  const tabs = document.getElementById('locTabs'); tabs.innerHTML = '';
+  const tabs = document.getElementById('locTabs'); if (!tabs) return;
+  tabs.innerHTML = '';
   data.assumptions.locations.forEach(loc => {
     const b = document.createElement('button');
     b.className = 'loc-tab' + (loc.id === editingLocId ? ' active' : '');
@@ -662,7 +798,8 @@ function renderAssumptionEditors() {
   });
   if (!editingLocId) editingLocId = data.assumptions.locations[0].id;
   const loc = data.assumptions.locations.find(l => l.id === editingLocId);
-  const locEd = document.getElementById('locEditor'); locEd.innerHTML = '';
+  const locEd = document.getElementById('locEditor'); if (!locEd) return;
+  locEd.innerHTML = '';
   ['laborRatePerHr','machineRatePerHr','overheadRatePerHr','freightPerUnit','dutyRatePercent'].forEach(k => {
     const row = document.createElement('div'); row.className = 'assumption-row';
     row.innerHTML = `<div class="key">${k}<div class="id">${loc.id}.${k}</div></div>
@@ -670,7 +807,8 @@ function renderAssumptionEditors() {
       <div class="note">${loc.source || ''}</div>`;
     locEd.appendChild(row);
   });
-  const matEd = document.getElementById('materialEditor'); matEd.innerHTML = '';
+  const matEd = document.getElementById('materialEditor'); if (!matEd) return;
+  matEd.innerHTML = '';
   Object.entries(data.assumptions.materialPrices).forEach(([k, e]) => {
     const val = typeof e === 'number' ? e : e.price;
     const src = typeof e === 'object' ? e.source : '';
@@ -680,26 +818,30 @@ function renderAssumptionEditors() {
       <div class="note">${src}</div>`;
     matEd.appendChild(row);
   });
-  const machEd = document.getElementById('machineEditor'); machEd.innerHTML = '';
+  const machEd = document.getElementById('machineEditor'); if (!machEd) return;
+  machEd.innerHTML = '';
   Object.entries(data.assumptions.machineAssumptions).forEach(([k, m]) => {
     const rate = (m.capitalCost / (m.lifeYears * m.operatingHoursPerYear)) + m.powerCostPerHr;
     const row = document.createElement('div'); row.className = 'assumption-row';
     row.innerHTML = `<div class="key">${k}<div class="id">machineAssumptions.${k}</div></div>
       <input type="number" step="0.01" value="${m.capitalCost}" onchange="updateMachine('${k}','capitalCost', this.value)">
-      <div class="note">Capital €${m.capitalCost.toLocaleString()} · ${m.lifeYears}yr · ${m.operatingHoursPerYear}hr/yr → €${rate.toFixed(2)}/hr</div>`;
+      <div class="note">€${m.capitalCost.toLocaleString()} · ${m.lifeYears}yr · ${m.operatingHoursPerYear}hr/yr → €${rate.toFixed(2)}/hr</div>`;
     machEd.appendChild(row);
   });
 }
 function updateLocField(locId, key, val) {
   const loc = data.assumptions.locations.find(l => l.id === locId);
-  loc[key] = parseFloat(val); renderCards(); if (selected) renderDrilldown();
-  if (data.forecasts) renderForecastTab();
+  loc[key] = parseFloat(val);
+  safeRender('cards', renderCards);
+  if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('forecast', renderForecastTab);
 }
 function updateMaterial(key, val) {
   if (typeof data.assumptions.materialPrices[key] === 'object') data.assumptions.materialPrices[key].price = parseFloat(val);
   else data.assumptions.materialPrices[key] = parseFloat(val);
-  renderCards(); if (selected) renderDrilldown();
-  if (data.forecasts) renderForecastTab();
+  safeRender('cards', renderCards);
+  if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('forecast', renderForecastTab);
 }
 function updateMachine(key, field, val) { data.assumptions.machineAssumptions[key][field] = parseFloat(val); }
 function saveAssumptions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data.assumptions)); alert('✅ Saved.'); }
@@ -707,16 +849,21 @@ function resetAssumptions() {
   if (!confirm('Reset all assumptions?')) return;
   data.assumptions = JSON.parse(JSON.stringify(originalAssumptions));
   localStorage.removeItem(STORAGE_KEY); editingLocId = data.assumptions.locations[0].id;
-  renderAssumptionEditors(); renderCards(); if (selected) renderDrilldown();
-  if (data.forecasts) renderForecastTab();
+  safeRender('assumptions', renderAssumptionEditors);
+  safeRender('cards', renderCards);
+  if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('forecast', renderForecastTab);
 }
 function exportAssumptions() {
   const blob = new Blob([JSON.stringify(data.assumptions, null, 2)], { type: 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'assumptions_v7.json'; a.click();
 }
 
-// ---------- FORECAST ----------
+// ============================================================
+// FORECAST
+// ============================================================
 function getEffectiveForecastRate(driverId, qIdx) {
+  if (!data.forecasts) return 0;
   const driver = data.forecasts.drivers.find(d => d.id === driverId);
   if (!driver) return 0;
   if (forecastOverrides[driverId] && forecastOverrides[driverId][qIdx] !== undefined) {
@@ -725,6 +872,7 @@ function getEffectiveForecastRate(driverId, qIdx) {
   return driver.quarterlyChange[qIdx];
 }
 function buildProjection(product) {
+  if (!data.forecasts) return null;
   const baseLoc = currentLocation;
   const quarterLabels = data.forecasts.quarterLabels;
   const projections = [];
@@ -735,45 +883,50 @@ function buildProjection(product) {
       const price = typeof v === 'object' ? v.price : v;
       let multiplier = 1;
       data.forecasts.drivers.forEach(d => {
-        if (d.affects.type === 'material' && d.affects.key === k) {
+        if (d.affects && d.affects.type === 'material' && d.affects.key === k) {
           for (let qq = 0; qq <= q; qq++) multiplier *= (1 + getEffectiveForecastRate(d.id, qq) / 100);
         }
       });
       matCopy[k] = { price: price * multiplier, source: typeof v === 'object' ? v.source : '' };
     });
     const locCopy = { ...baseLoc };
-    let freightMultiplier = 1;
     let labourMultiplier = 1;
     data.forecasts.drivers.forEach(d => {
-      if (d.affects.type === 'labour' && d.affects.key === baseLoc.id) {
+      if (d.affects && d.affects.type === 'labour' && d.affects.key === baseLoc.id) {
         for (let qq = 0; qq <= q; qq++) labourMultiplier *= (1 + getEffectiveForecastRate(d.id, qq) / 100);
-      }
-      if (d.affects.type === 'freight') {
-        for (let qq = 0; qq <= q; qq++) freightMultiplier *= (1 + getEffectiveForecastRate(d.id, qq) / 100);
       }
     });
     locCopy.laborRatePerHr = baseLoc.laborRatePerHr * labourMultiplier;
-    locCopy.freightPerUnit = baseLoc.freightPerUnit * freightMultiplier;
     const c = calc(product, locCopy, matCopy);
-    projections.push({ label: quarterLabels[q], fob: c.fob, materials: c.mat, labour: c.lab, overheads: c.ovh, margin: c.margin });
+    projections.push({
+      label: quarterLabels[q],
+      fob: c.fob, materials: c.mat, labour: c.lab,
+      overheads: c.ovh, margin: c.margin
+    });
   }
   const finalFob = projections[projections.length - 1].fob;
   const delta = baseCost ? ((finalFob - baseCost) / baseCost) * 100 : 0;
   return { baseCost, projections, delta, finalFob };
 }
+
 function renderForecastTab() {
-  if (!data.forecasts) return;
-  const fc = data.forecasts;
-  const baseEl = document.getElementById('fcBase');
-  const endEl = document.getElementById('fcEnd');
-  if (baseEl) baseEl.textContent = fc.quarterLabels[0];
-  if (endEl) endEl.textContent = fc.quarterLabels[fc.quarterLabels.length - 1];
-  const grid = document.getElementById('forecastGrid');
-  grid.innerHTML = '';
-  if (window._fcCharts) window._fcCharts.forEach(c => c.destroy());
+  if (!data.forecasts) { console.log('No forecasts data'); return; }
+
+  const sub = document.getElementById('forecastSubtitle');
+  if (sub) sub.textContent = `Projected cost evolution for each product from ${data.forecasts.quarterLabels[0]} to ${data.forecasts.quarterLabels[data.forecasts.quarterLabels.length-1]}. Driver-level forecasts cited from industry sources.`;
+
+  if (window._fcCharts && window._fcCharts.length) {
+    window._fcCharts.forEach(c => { try { c.destroy(); } catch(e){} });
+  }
   window._fcCharts = [];
-  data.products.forEach(p => {
+
+  const grid = document.getElementById('forecastGrid');
+  if (!grid) { console.error('forecastGrid missing'); return; }
+  grid.innerHTML = '';
+
+  data.products.forEach((p, idx) => {
     const proj = buildProjection(p);
+    if (!proj) return;
     const card = document.createElement('div');
     card.className = 'forecast-card';
     const deltaPct = proj.delta;
@@ -790,39 +943,48 @@ function renderForecastTab() {
       <div class="forecast-chart-wrap"><canvas id="fc-${p.id}"></canvas></div>
     `;
     grid.appendChild(card);
-    setTimeout(() => {
+  });
+
+  requestAnimationFrame(() => {
+    data.products.forEach(p => {
+      const proj = buildProjection(p);
+      if (!proj) return;
       const ctx = document.getElementById('fc-' + p.id);
       if (!ctx) return;
-      const c = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: proj.projections.map(x => x.label),
-          datasets: [
-            { label: 'Total FOB', data: proj.projections.map(x => x.fob), borderColor: '#111', backgroundColor: 'rgba(17,17,17,0.06)', borderWidth: 2.5, tension: 0.3, fill: true, pointRadius: 4 },
-            { label: 'Materials', data: proj.projections.map(x => x.materials), borderColor: '#2d6a4f', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
-            { label: 'Labour', data: proj.projections.map(x => x.labour), borderColor: '#f57c00', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
-            { label: 'Overheads', data: proj.projections.map(x => x.overheads), borderColor: '#999', borderWidth: 1.5, tension: 0.3, pointRadius: 2 }
-          ]
-        },
-        options: { responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
-          scales: { y: { title: { display: true, text: '€ per unit' } } } }
-      });
-      window._fcCharts.push(c);
-    }, 50);
+      try {
+        const c = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: proj.projections.map(x => x.label),
+            datasets: [
+              { label: 'Total FOB', data: proj.projections.map(x => x.fob), borderColor: '#111', backgroundColor: 'rgba(17,17,17,0.06)', borderWidth: 2.5, tension: 0.3, fill: true, pointRadius: 4 },
+              { label: 'Materials', data: proj.projections.map(x => x.materials), borderColor: '#2d6a4f', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
+              { label: 'Labour', data: proj.projections.map(x => x.labour), borderColor: '#f57c00', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
+              { label: 'Overheads', data: proj.projections.map(x => x.overheads), borderColor: '#999', borderWidth: 1.5, tension: 0.3, pointRadius: 2 }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
+            scales: { y: { title: { display: true, text: '€ per unit' } } } }
+        });
+        window._fcCharts.push(c);
+      } catch (err) { console.error('Chart error for', p.id, err); }
+    });
   });
+
   renderScenarioBox();
   renderDriverTable();
 }
+
 function renderScenarioBox() {
-  const box = document.getElementById('scenarioBox');
+  const box = document.getElementById('scenarioBox'); if (!box || !data.forecasts) return;
   box.innerHTML = '';
   data.forecasts.drivers.forEach(d => {
     const row = document.createElement('div');
     row.className = 'scenario-row';
     const currentRate = getEffectiveForecastRate(d.id, 0);
     row.innerHTML = `
-      <div>${d.name}<div class="note">${d.source}</div></div>
+      <div>${d.name}<div class="note">${d.source || ''}</div></div>
       <input type="number" step="0.1" value="${currentRate}" onchange="updateForecastOverride('${d.id}', this.value)">
       <div class="note">% change per quarter</div>`;
     box.appendChild(row);
@@ -832,15 +994,15 @@ function updateForecastOverride(driverId, val) {
   const v = parseFloat(val);
   forecastOverrides[driverId] = [v, v, v, v, v, v];
   localStorage.setItem(FC_STORAGE, JSON.stringify(forecastOverrides));
-  runForecast();
+  safeRender('forecast', renderForecastTab);
 }
-function runForecast() { renderForecastTab(); }
+function runForecast() { safeRender('forecast', renderForecastTab); }
 function resetForecast() {
   if (!confirm('Reset all forecast rates?')) return;
-  forecastOverrides = {}; localStorage.removeItem(FC_STORAGE); renderForecastTab();
+  forecastOverrides = {}; localStorage.removeItem(FC_STORAGE); safeRender('forecast', renderForecastTab);
 }
 function renderDriverTable() {
-  const t = document.getElementById('driverTable');
+  const t = document.getElementById('driverTable'); if (!t || !data.forecasts) return;
   let h = `<thead><tr>
     <th style="width:15%;">Driver</th><th style="width:12%;">Affects</th><th style="width:15%;">Source</th>
     <th>Forecast Basis</th>
@@ -854,27 +1016,30 @@ function renderDriverTable() {
     }).join('');
     h += `<tr>
       <td><strong>${d.name}</strong></td>
-      <td><span style="font-size:10px;color:#888;">${d.affects.type}:${d.affects.key}</span></td>
-      <td>${d.source}<a href="${d.url}" target="_blank" class="src-link">↗</a></td>
-      <td class="src">${d.citation}</td>
+      <td><span style="font-size:10px;color:#888;">${d.affects ? d.affects.type + ':' + d.affects.key : ''}</span></td>
+      <td>${d.source || ''}${d.url ? `<a href="${d.url}" target="_blank" class="src-link">↗</a>` : ''}</td>
+      <td class="src">${d.citation || ''}</td>
       ${qCells}
     </tr>`;
   });
   t.innerHTML = h + '</tbody>';
 }
 
-// ---------- COMPETITIVE ----------
+// ============================================================
+// COMPETITIVE
+// ============================================================
 function renderCompetitiveTab() {
-  if (!data.competitors) return;
+  if (!data.competitors) { console.log('No competitors data'); return; }
   const comp = data.competitors;
-  renderBenchmarkCards(comp.benchmarks);
-  renderSourcingChart(comp.benchmarks);
-  renderProductComparisons(comp.productComparisons);
-  renderCostCompareChart(comp.productComparisons[0]);
-  renderPriorities(comp.improvementPriorities);
+  safeRender('benchmarkCards', () => renderBenchmarkCards(comp.benchmarks));
+  safeRender('sourcingChart', () => renderSourcingChart(comp.benchmarks));
+  safeRender('productComparisons', () => renderProductComparisons(comp.productComparisons));
+  safeRender('costCompare', () => renderCostCompareChart(comp.productComparisons[0]));
+  safeRender('priorities', () => renderPriorities(comp.improvementPriorities));
 }
+
 function renderBenchmarkCards(benchmarks) {
-  const grid = document.getElementById('benchmarkGrid');
+  const grid = document.getElementById('benchmarkGrid'); if (!grid) return;
   grid.innerHTML = '';
   ['puma','adidas','nike'].forEach(key => {
     const b = benchmarks[key]; if (!b) return;
@@ -891,10 +1056,11 @@ function renderBenchmarkCards(benchmarks) {
     grid.appendChild(card);
   });
 }
+
 function renderSourcingChart(benchmarks) {
   const ctx = document.getElementById('sourcingChart');
   if (!ctx) return;
-  if (compCharts.sourcing) compCharts.sourcing.destroy();
+  if (compCharts.sourcing) { try { compCharts.sourcing.destroy(); } catch(e){} }
   const countries = ['Vietnam', 'China', 'Indonesia', 'Cambodia', 'Bangladesh', 'India'];
   const colors = { puma: '#111', adidas: '#2d6a4f', nike: '#f57c00' };
   const datasets = [];
@@ -911,8 +1077,9 @@ function renderSourcingChart(benchmarks) {
       scales: { y: { title: { display: true, text: '% of production volume' }, beginAtZero: true } } }
   });
 }
+
 function renderProductComparisons(comparisons) {
-  const container = document.getElementById('productComparisons');
+  const container = document.getElementById('productComparisons'); if (!container) return;
   container.innerHTML = '';
   comparisons.forEach(cmp => {
     const section = document.createElement('div');
@@ -958,10 +1125,11 @@ function renderProductComparisons(comparisons) {
     container.appendChild(section);
   });
 }
+
 function renderCostCompareChart(cmp) {
   const ctx = document.getElementById('costCompareChart');
   if (!ctx || !cmp) return;
-  if (compCharts.costCompare) compCharts.costCompare.destroy();
+  if (compCharts.costCompare) { try { compCharts.costCompare.destroy(); } catch(e){} }
   compCharts.costCompare = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -976,8 +1144,9 @@ function renderCostCompareChart(cmp) {
       scales: { y: { title: { display: true, text: '€ per unit' }, beginAtZero: true } } }
   });
 }
+
 function renderPriorities(priorities) {
-  const list = document.getElementById('priorityList');
+  const list = document.getElementById('priorityList'); if (!list) return;
   list.innerHTML = '';
   priorities.forEach(p => {
     const card = document.createElement('div');
@@ -991,27 +1160,34 @@ function renderPriorities(priorities) {
   });
 }
 
-// ---------- END TO END ----------
+// ============================================================
+// END-TO-END
+// ============================================================
 function renderE2ETab() {
   const e2e = data.endToEnd; if (!e2e) return;
-  const srcLegend = document.getElementById('sourceLegend'); srcLegend.innerHTML = '';
-  e2e.sourceCountries.forEach(s => {
-    const el = document.createElement('div'); el.className = 'source-pill';
-    el.innerHTML = `<div class="flag">${s.flag}</div><div class="info"><div class="name">${s.name}</div><div class="share">${s.shareOfProductionPct}% · €${s.laborRatePerHr}/hr</div></div>`;
-    srcLegend.appendChild(el);
-  });
-  const destLegend = document.getElementById('destLegend'); destLegend.innerHTML = '';
-  e2e.destinationMarkets.forEach(m => {
-    const el = document.createElement('div'); el.className = 'dest-card';
-    el.innerHTML = `<div class="flag">${m.flag}</div><div class="name">${m.name}</div><div class="rev">~€${m.estimatedRevenueM}M (${m.shareOfGlobalPct}%)</div><div class="vat-info">${m.vatName}: ${m.vatRatePct}%</div>`;
-    destLegend.appendChild(el);
-  });
-  renderMatrix(e2e);
-  populateWaterfallSelectors(e2e);
-  renderWaterfall();
-  renderRetailByMarket(e2e);
+  const srcLegend = document.getElementById('sourceLegend'); if (srcLegend) {
+    srcLegend.innerHTML = '';
+    e2e.sourceCountries.forEach(s => {
+      const el = document.createElement('div'); el.className = 'source-pill';
+      el.innerHTML = `<div class="flag">${s.flag}</div><div class="info"><div class="name">${s.name}</div><div class="share">${s.shareOfProductionPct}% · €${s.laborRatePerHr}/hr</div></div>`;
+      srcLegend.appendChild(el);
+    });
+  }
+  const destLegend = document.getElementById('destLegend'); if (destLegend) {
+    destLegend.innerHTML = '';
+    e2e.destinationMarkets.forEach(m => {
+      const el = document.createElement('div'); el.className = 'dest-card';
+      el.innerHTML = `<div class="flag">${m.flag}</div><div class="name">${m.name}</div><div class="rev">~€${m.estimatedRevenueM}M (${m.shareOfGlobalPct}%)</div><div class="vat-info">${m.vatName}: ${m.vatRatePct}%</div>`;
+      destLegend.appendChild(el);
+    });
+  }
+  safeRender('matrix', () => renderMatrix(e2e));
+  safeRender('wfSelectors', () => populateWaterfallSelectors(e2e));
+  safeRender('waterfall', renderWaterfall);
+  safeRender('retailChart', () => renderRetailByMarket(e2e));
 }
 function renderMatrix(e2e) {
+  const t = document.getElementById('matrixTable'); if (!t) return;
   const sources = e2e.sourceCountries, dests = e2e.destinationMarkets, matrix = e2e.matrix;
   const allLanded = matrix.map(m => m.landedCost);
   const minC = Math.min(...allLanded), maxC = Math.max(...allLanded);
@@ -1030,11 +1206,12 @@ function renderMatrix(e2e) {
     h += '</tr>';
   });
   h += '</tbody>';
-  document.getElementById('matrixTable').innerHTML = h;
+  t.innerHTML = h;
 }
 function populateWaterfallSelectors(e2e) {
   const srcSel = document.getElementById('wfSource');
   const dstSel = document.getElementById('wfDest');
+  if (!srcSel || !dstSel) return;
   srcSel.innerHTML = ''; dstSel.innerHTML = '';
   e2e.sourceCountries.forEach(s => {
     const o = document.createElement('option'); o.value = s.id; o.textContent = s.flag + ' ' + s.name; srcSel.appendChild(o);
@@ -1045,10 +1222,10 @@ function populateWaterfallSelectors(e2e) {
   srcSel.value = 'bangladesh'; dstSel.value = 'us';
 }
 function renderWaterfall() {
-  const e2e = data.endToEnd;
-  const srcId = document.getElementById('wfSource').value;
-  const dstId = document.getElementById('wfDest').value;
-  const cell = e2e.matrix.find(m => m.source === srcId && m.destination === dstId);
+  const e2e = data.endToEnd; if (!e2e) return;
+  const srcSel = document.getElementById('wfSource'), dstSel = document.getElementById('wfDest');
+  if (!srcSel || !dstSel) return;
+  const cell = e2e.matrix.find(m => m.source === srcSel.value && m.destination === dstSel.value);
   if (!cell) { document.getElementById('waterfallChart').innerHTML = '<p style="color:#888;">No data.</p>'; return; }
   const steps = [
     { label: 'FOB', value: cell.fob, type: 'base' },
@@ -1058,7 +1235,7 @@ function renderWaterfall() {
     { label: 'Tariff ' + cell.tariffRatePct + '%', value: cell.tariffPerUnit, type: 'add' },
     { label: 'Customs', value: cell.customsPerUnit, type: 'add' },
     { label: 'Inland', value: cell.inlandPerUnit, type: 'add' },
-    { label: 'Landed Cost', value: cell.landedCost, type: 'total' },
+    { label: 'Landed', value: cell.landedCost, type: 'total' },
     { label: 'Wholesale', value: (cell.retailPriceBeforeTax - cell.landedCost), type: 'add' },
     { label: 'Retail ex-tax', value: cell.retailPriceBeforeTax, type: 'subtotal' },
     { label: 'VAT/GST', value: cell.vatPerUnit, type: 'add' },
@@ -1066,13 +1243,7 @@ function renderWaterfall() {
   ];
   const labels = steps.map(s => s.label);
   const values = steps.map(s => s.value);
-  const colors = steps.map(s => {
-    if (s.type === 'base') return '#1a237e';
-    if (s.type === 'add') return '#f57c00';
-    if (s.type === 'subtotal') return '#2d6a4f';
-    if (s.type === 'total') return '#111';
-    return '#888';
-  });
+  const colors = steps.map(s => s.type === 'base' ? '#1a237e' : s.type === 'add' ? '#f57c00' : s.type === 'subtotal' ? '#2d6a4f' : s.type === 'total' ? '#111' : '#888');
   const trace = {
     type: 'waterfall', orientation: 'v',
     x: labels, y: values,
@@ -1089,10 +1260,10 @@ function renderWaterfall() {
   }, { responsive: true, displayModeBar: false });
 }
 function renderRetailByMarket(e2e) {
-  const ctx = document.getElementById('retailByMarketChart');
-  if (!ctx) return;
-  if (retailChart) retailChart.destroy();
-  const srcId = document.getElementById('wfSource')?.value || 'bangladesh';
+  const ctx = document.getElementById('retailByMarketChart'); if (!ctx) return;
+  if (retailChart) { try { retailChart.destroy(); } catch(e){} }
+  const srcSel = document.getElementById('wfSource');
+  const srcId = srcSel ? srcSel.value : 'bangladesh';
   const matrix = e2e.matrix.filter(m => m.source === srcId);
   const labels = matrix.map(m => {
     const d = e2e.destinationMarkets.find(dm => dm.id === m.destination);
@@ -1107,7 +1278,15 @@ function renderRetailByMarket(e2e) {
   });
 }
 
-load();
+// ============================================================
+// BOOT
+// ============================================================
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', load);
+} else {
+  load();
+}
 </script>
+<script src="dtc.js"></script>
 </body>
 </html>
