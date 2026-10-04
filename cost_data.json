@@ -1,8 +1,8 @@
 {
-  "version": "5.0",
+  "version": "6.0",
   "last_updated": "2026-10-04",
   "currency": "EUR",
-  "notes": "Formula-driven supplier-tier should-cost model with 18-month forecast projections. All costs derive from assumptions. Not actual PUMA supplier data.",
+  "notes": "Formula-driven supplier-tier should-cost model with forecast projections and competitive benchmarks. All costs derive from assumptions. Not actual PUMA supplier data.",
 
   "assumptions": {
     "sources": {
@@ -863,6 +863,185 @@
         "url": "https://ustr.gov",
         "quarterlyChange": [0, 12.5, 0, 0, 0, 0],
         "isStepChange": true
+      }
+    ]
+  },
+
+  "competitors": {
+    "benchmarks": {
+      "puma": {
+        "name": "PUMA SE",
+        "fy2025": {
+          "netSalesM": 7296.2,
+          "grossMarginPct": 45.0,
+          "footwearGrossMarginPct": 44.3,
+          "operatingMarginPct": -4.9,
+          "footwearSharePct": 56,
+          "sourcingMixPct": { "China": 28, "Vietnam": 26, "Cambodia": 16, "Bangladesh": 11, "Indonesia": 6, "India": 4 }
+        }
+      },
+      "adidas": {
+        "name": "Adidas AG",
+        "fy2025": {
+          "netSalesM": 24811,
+          "grossMarginPct": 51.6,
+          "footwearGrossMarginPct": 50.2,
+          "operatingMarginPct": 8.3,
+          "footwearSharePct": 58,
+          "sourcingMixPct": { "Vietnam": 27, "Indonesia": 19, "China": 16 }
+        }
+      },
+      "nike": {
+        "name": "Nike Inc.",
+        "fy2025": {
+          "grossMarginPct": 42.7,
+          "operatingMarginPct": 9.4,
+          "footwearSharePct": 65,
+          "sourcingMixPct": { "Vietnam": 50, "Indonesia": 27, "China": 18 }
+        }
+      }
+    },
+    "productComparisons": [
+      {
+        "id": "running",
+        "category": "Running Shoe",
+        "puma": {
+          "name": "PUMA Velocity NITRO 4",
+          "retailPrice": 140.00,
+          "fob": 20.93,
+          "materials": 12.81,
+          "labour": 3.60,
+          "overheads": 2.80,
+          "margin": 1.73,
+          "costPctOfRetail": 14.9
+        },
+        "competitor": {
+          "brand": "Adidas",
+          "name": "Adizero SL2",
+          "retailPrice": 130.00,
+          "fob": 22.50,
+          "materials": 13.20,
+          "labour": 3.80,
+          "overheads": 2.60,
+          "margin": 2.90,
+          "costPctOfRetail": 17.3
+        },
+        "gapAnalysis": [
+          { "area": "Materials", "pumaCost": 12.81, "compCost": 13.20, "delta": -0.39, "status": "better", "note": "PUMA's simpler mesh construction uses less material than Adidas' engineered knit upper." },
+          { "area": "Labour", "pumaCost": 3.60, "compCost": 3.80, "delta": -0.20, "status": "better", "note": "Comparable. Both concentrate in Vietnam where labour costs are similar." },
+          { "area": "Overheads", "pumaCost": 2.80, "compCost": 2.60, "delta": 0.20, "status": "worse", "note": "PUMA carries higher overhead per unit due to smaller production volume and less factory scale leverage." },
+          { "area": "Factory margin", "pumaCost": 1.73, "compCost": 2.90, "delta": -1.17, "status": "better", "note": "PUMA accepts lower factory margin; Adidas' suppliers earn more due to larger orders." },
+          { "area": "Total FOB", "pumaCost": 20.93, "compCost": 22.50, "delta": -1.57, "status": "better", "note": "PUMA achieves €1.57 lower FOB through lower margin and simpler design." },
+          { "area": "FOB as % of retail", "pumaCost": 14.9, "compCost": 17.3, "delta": -2.4, "status": "better", "note": "PUMA captures more value at the brand level because its FOB is a smaller share of retail." }
+        ]
+      },
+      {
+        "id": "football",
+        "category": "Football Boot",
+        "puma": {
+          "name": "PUMA Future 9 Match FG/AG",
+          "retailPrice": 75.00,
+          "fob": 13.44,
+          "materials": 8.10,
+          "labour": 2.30,
+          "overheads": 1.85,
+          "margin": 1.21,
+          "costPctOfRetail": 17.9
+        },
+        "competitor": {
+          "brand": "Adidas",
+          "name": "Predator League FG",
+          "retailPrice": 85.00,
+          "fob": 15.20,
+          "materials": 8.90,
+          "labour": 2.60,
+          "overheads": 1.70,
+          "margin": 2.00,
+          "costPctOfRetail": 17.9
+        },
+        "gapAnalysis": [
+          { "area": "Materials", "pumaCost": 8.10, "compCost": 8.90, "delta": -0.80, "status": "better", "note": "PUMA's Future 9 uses simpler mesh upper with fewer TPU elements than Predator's Demonskin texture." },
+          { "area": "Labour", "pumaCost": 2.30, "compCost": 2.60, "delta": -0.30, "status": "better", "note": "Lower stitching complexity on PUMA's design." },
+          { "area": "Overheads", "pumaCost": 1.85, "compCost": 1.70, "delta": 0.15, "status": "worse", "note": "PUMA's smaller footwear volume means overhead per unit is slightly higher than Adidas." },
+          { "area": "Factory margin", "pumaCost": 1.21, "compCost": 2.00, "delta": -0.79, "status": "better", "note": "PUMA accepts a lower factory margin to win the order." },
+          { "area": "Total FOB", "pumaCost": 13.44, "compCost": 15.20, "delta": -1.76, "status": "better", "note": "PUMA's FOB is €1.76 lower despite similar retail positioning." },
+          { "area": "FOB as % of retail", "pumaCost": 17.9, "compCost": 17.9, "delta": 0.0, "status": "neutral", "note": "Both brands capture the same relative share of retail." }
+        ]
+      },
+      {
+        "id": "apparel",
+        "category": "Sports Shirt",
+        "puma": {
+          "name": "PUMA Training Tee",
+          "retailPrice": 35.00,
+          "fob": 6.42,
+          "materials": 4.00,
+          "labour": 1.65,
+          "overheads": 0.77,
+          "margin": 0.52,
+          "costPctOfRetail": 18.3
+        },
+        "competitor": {
+          "brand": "Adidas",
+          "name": "Own The Run Tee",
+          "retailPrice": 40.00,
+          "fob": 7.10,
+          "materials": 4.30,
+          "labour": 1.50,
+          "overheads": 0.70,
+          "margin": 0.60,
+          "costPctOfRetail": 17.8
+        },
+        "gapAnalysis": [
+          { "area": "Materials", "pumaCost": 4.00, "compCost": 4.30, "delta": -0.30, "status": "better", "note": "PUMA uses simpler fabric construction with fewer panel seams." },
+          { "area": "Labour", "pumaCost": 1.65, "compCost": 1.50, "delta": 0.15, "status": "worse", "note": "PUMA's sewing is less automated in its Tier-2 supplier base, raising labour per unit." },
+          { "area": "Overheads", "pumaCost": 0.77, "compCost": 0.70, "delta": 0.07, "status": "worse", "note": "Slightly higher overhead per unit at smaller apparel volumes." },
+          { "area": "Factory margin", "pumaCost": 0.52, "compCost": 0.60, "delta": -0.08, "status": "better", "note": "PUMA accepts a lower factory margin." },
+          { "area": "Total FOB", "pumaCost": 6.42, "compCost": 7.10, "delta": -0.68, "status": "better", "note": "PUMA's FOB is €0.68 lower, a ~10% cost advantage." },
+          { "area": "FOB as % of retail", "pumaCost": 18.3, "compCost": 17.8, "delta": 0.5, "status": "worse", "note": "PUMA's retail price is lower, so its FOB represents a slightly higher share." }
+        ]
+      }
+    ],
+    "improvementPriorities": [
+      {
+        "rank": 1,
+        "area": "Overheads per unit",
+        "why": "PUMA carries higher overhead per unit across all three product categories. This is a direct consequence of smaller production volumes.",
+        "action": "Consolidate to fewer, larger Tier-1 suppliers for core products to spread fixed overhead across more units.",
+        "impact": "High",
+        "effort": "Medium"
+      },
+      {
+        "rank": 2,
+        "area": "Gross margin gap vs Adidas",
+        "why": "PUMA's gross margin (45.0%) is 6.6 percentage points below Adidas (51.6%). This is the single largest financial gap.",
+        "action": "Shift channel mix toward DTC (higher margin) and reduce reliance on promotional wholesale.",
+        "impact": "High",
+        "effort": "High"
+      },
+      {
+        "rank": 3,
+        "area": "Sourcing concentration in China",
+        "why": "28% of PUMA production is in China vs 16% for Adidas. US Section 301 tariffs hit PUMA harder.",
+        "action": "Accelerate the shift to Vietnam, Indonesia, and Bangladesh; PUMA already has 26% Vietnam.",
+        "impact": "High",
+        "effort": "High"
+      },
+      {
+        "rank": 4,
+        "area": "Apparel labour efficiency",
+        "why": "PUMA's apparel labour cost per unit (€1.65) is higher than Adidas (€1.50) due to less automated sewing.",
+        "action": "Invest in automated sewing and cutting equipment at Tier-2 apparel suppliers.",
+        "impact": "Medium",
+        "effort": "Medium"
+      },
+      {
+        "rank": 5,
+        "area": "Material cost on running shoes",
+        "why": "PUMA's running shoe materials (€12.81) are already lower than Adidas (€13.20). This is a strength to maintain.",
+        "action": "Protect this advantage by keeping mesh construction simple and avoiding over-engineering.",
+        "impact": "Medium",
+        "effort": "Low"
       }
     ]
   }
