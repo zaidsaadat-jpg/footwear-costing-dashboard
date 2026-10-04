@@ -1,5 +1,5 @@
 /* ============================================================
-   DESIGN-TO-COST / VALUE ENGINEERING TAB  (v3 — Fixed 3D)
+   DESIGN-TO-COST / VALUE ENGINEERING TAB  (v4 — Proper silhouettes)
    ============================================================ */
 
 const DTC_STORAGE = 'puma_dtc_scenario_v1';
@@ -74,7 +74,6 @@ let dtcState = {};
 let dtcProduct = null;
 let valueMatrixChart = null;
 
-// 3D viewer state
 let cad = {
   scene: null, camera: null, renderer: null, controls: null,
   group: null, edgeLines: null, texture: null,
@@ -105,16 +104,11 @@ function saveDtcState() { localStorage.setItem(DTC_STORAGE, JSON.stringify(dtcSt
 // ---------- COST COMPUTATION ----------
 function computeDtcCost(product) {
   const baseCalc = calc(product);
-  const designLever = DTC_LEVERS.find(l => l.id === 'designComplexity');
-  const designOpt = designLever.options.find(o => o.id === dtcState.designComplexity);
-  const materialLever = DTC_LEVERS.find(l => l.id === 'materialSubstitution');
-  const materialOpt = materialLever.options.find(o => o.id === dtcState.materialSubstitution);
-  const automationLever = DTC_LEVERS.find(l => l.id === 'automation');
-  const automationOpt = automationLever.options.find(o => o.id === dtcState.automation);
-  const volumeLever = DTC_LEVERS.find(l => l.id === 'volume');
-  const volumeOpt = volumeLever.options.find(o => o.id === dtcState.volume);
-  const marginLever = DTC_LEVERS.find(l => l.id === 'marginTarget');
-  const marginOpt = marginLever.options.find(o => o.id === dtcState.marginTarget);
+  const designOpt = DTC_LEVERS.find(l => l.id === 'designComplexity').options.find(o => o.id === dtcState.designComplexity);
+  const materialOpt = DTC_LEVERS.find(l => l.id === 'materialSubstitution').options.find(o => o.id === dtcState.materialSubstitution);
+  const automationOpt = DTC_LEVERS.find(l => l.id === 'automation').options.find(o => o.id === dtcState.automation);
+  const volumeOpt = DTC_LEVERS.find(l => l.id === 'volume').options.find(o => o.id === dtcState.volume);
+  const marginOpt = DTC_LEVERS.find(l => l.id === 'marginTarget').options.find(o => o.id === dtcState.marginTarget);
 
   const matCost = baseCalc.mat * designOpt.costMultiplier * (materialOpt.costMultiplier || 1);
   const labCost = baseCalc.lab * designOpt.costMultiplier * (automationOpt.costMultiplier || 1);
@@ -164,17 +158,13 @@ function renderLevers() {
 function selectLeverOption(leverId, optionId) {
   dtcState[leverId] = optionId;
   saveDtcState();
-  renderLevers();
-  updateDtcImpact();
-  renderActionBoard();
-  renderScenarioCompare();
-  renderValueMatrix();
+  renderLevers(); updateDtcImpact(); renderActionBoard();
+  renderScenarioCompare(); renderValueMatrix();
 }
 function resetLevers() {
   localStorage.removeItem(DTC_STORAGE);
   dtcState = {};
-  initDtcState();
-  saveDtcState();
+  initDtcState(); saveDtcState();
   renderLevers(); updateDtcImpact(); renderActionBoard();
   renderScenarioCompare(); renderValueMatrix();
 }
@@ -313,177 +303,241 @@ function renderScenarioCompare() {
 }
 
 /* ============================================================
-   CAD-STYLE 3D VIEWER
+   CAD-STYLE 3D VIEWER — PROPER SILHOUETTES
    ============================================================ */
 
 function getMaterialPreset(name) {
   switch (name) {
-    case 'matte':      return { roughness: 0.75, metalness: 0.05 };
-    case 'gloss':      return { roughness: 0.25, metalness: 0.15 };
-    case 'metal':      return { roughness: 0.35, metalness: 0.85 };
-    case 'leather':    return { roughness: 0.85, metalness: 0.02 };
-    case 'fabric':     return { roughness: 0.95, metalness: 0.00 };
-    default:           return { roughness: 0.6, metalness: 0.05 };
+    case 'matte':   return { roughness: 0.75, metalness: 0.05 };
+    case 'gloss':   return { roughness: 0.25, metalness: 0.15 };
+    case 'metal':   return { roughness: 0.35, metalness: 0.85 };
+    case 'leather': return { roughness: 0.85, metalness: 0.02 };
+    case 'fabric':  return { roughness: 0.95, metalness: 0.00 };
+    default:        return { roughness: 0.6,  metalness: 0.05 };
   }
 }
 
-// ---------- PROCEDURAL MODELS ----------
+// ---------- RUNNING SHOE ----------
 function buildShoeModel() {
   const group = new THREE.Group();
-  const soleGeo = new THREE.BoxGeometry(3.0, 0.35, 1.05, 40, 4, 12);
-  shapeLateralCurve(soleGeo, 0.10);
-  const sole = new THREE.Mesh(soleGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }));
-  sole.position.set(0, -0.45, 0);
-  group.add(sole);
 
-  const midGeo = new THREE.BoxGeometry(3.0, 0.35, 1.05, 40, 4, 12);
-  shapeLateralCurve(midGeo, 0.14);
-  const mid = new THREE.Mesh(midGeo, new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.6 }));
-  mid.position.set(0, -0.15, 0);
+  // --- UPPER: side profile of a running shoe, extruded ---
+  const upperShape = new THREE.Shape();
+  upperShape.moveTo(-1.45, -0.15);              // heel back-bottom
+  upperShape.bezierCurveTo(-1.55, 0.05, -1.55, 0.30, -1.50, 0.50); // heel back curving up
+  upperShape.bezierCurveTo(-1.45, 0.68, -1.28, 0.80, -1.00, 0.82); // heel collar top
+  upperShape.bezierCurveTo(-0.80, 0.84, -0.62, 0.72, -0.50, 0.75); // ankle dip
+  upperShape.bezierCurveTo(-0.30, 0.78, -0.10, 0.78,  0.10, 0.72); // tongue
+  upperShape.bezierCurveTo( 0.35, 0.64,  0.55, 0.52,  0.80, 0.42); // instep
+  upperShape.bezierCurveTo( 1.05, 0.32,  1.28, 0.22,  1.45, 0.12); // forefoot
+  upperShape.bezierCurveTo( 1.58, 0.05,  1.62,-0.08,  1.58,-0.22); // toe tip
+  upperShape.bezierCurveTo( 1.52,-0.32,  1.42,-0.38,  1.28,-0.40); // toe bottom
+  upperShape.bezierCurveTo( 1.00,-0.42,  0.50,-0.42,  0.00,-0.42); // sole line
+  upperShape.bezierCurveTo(-0.50,-0.42, -1.00,-0.40, -1.35,-0.35); // sole to heel
+  upperShape.bezierCurveTo(-1.42,-0.30, -1.45,-0.22, -1.45,-0.15); // close
+
+  const upperGeo = new THREE.ExtrudeGeometry(upperShape, {
+    steps: 1, depth: 0.90,
+    bevelEnabled: true, bevelThickness: 0.08, bevelSize: 0.08, bevelSegments: 6,
+    curveSegments: 32
+  });
+  upperGeo.translate(0, 0.1, -0.45); // centre depth, lift for sole
+
+  const upperMat = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.7, metalness: 0.05 });
+  const upper = new THREE.Mesh(upperGeo, upperMat);
+  upper.userData.isMainSurface = true;
+  upper.castShadow = true;
+  group.add(upper);
+
+  // --- MIDSOLE: thicker foam slab under the upper ---
+  const midShape = new THREE.Shape();
+  midShape.moveTo(-1.45, -0.50);
+  midShape.bezierCurveTo(-0.80, -0.54, 0.00, -0.55, 0.80, -0.52);
+  midShape.bezierCurveTo( 1.20, -0.48, 1.45, -0.42, 1.55, -0.30);
+  midShape.bezierCurveTo( 1.60, -0.20, 1.60, -0.10, 1.55, -0.05);
+  midShape.bezierCurveTo( 0.90, -0.05, 0.00, -0.05, -1.00, -0.10);
+  midShape.bezierCurveTo(-1.30, -0.15, -1.48, -0.30, -1.45, -0.50);
+
+  const midGeo = new THREE.ExtrudeGeometry(midShape, {
+    steps: 1, depth: 0.92, bevelEnabled: true,
+    bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 5, curveSegments: 32
+  });
+  midGeo.translate(0, 0, -0.46);
+
+  const midMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.6, metalness: 0.02 });
+  const mid = new THREE.Mesh(midGeo, midMat);
+  mid.castShadow = true;
   group.add(mid);
 
-  const upperGeo = new THREE.BoxGeometry(2.7, 0.85, 1.0, 40, 10, 14);
-  shapeUpperProfile(upperGeo, 0.4);
-  const upper = new THREE.Mesh(upperGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.7 }));
-  upper.position.set(-0.05, 0.35, 0);
-  upper.userData.isMainSurface = true;
-  group.add(upper);
+  // --- OUTSOLE: dark rubber bottom, thin ---
+  const outShape = new THREE.Shape();
+  outShape.moveTo(-1.42, -0.62);
+  outShape.bezierCurveTo(-0.80, -0.65, 0.00, -0.66, 0.80, -0.63);
+  outShape.bezierCurveTo( 1.20, -0.60, 1.48, -0.55, 1.58, -0.42);
+  outShape.bezierCurveTo( 1.63, -0.32, 1.62, -0.22, 1.55, -0.20);
+  outShape.bezierCurveTo( 0.90, -0.20, 0.00, -0.22, -1.00, -0.28);
+  outShape.bezierCurveTo(-1.28, -0.32, -1.45, -0.42, -1.42, -0.62);
 
-  const heelGeo = new THREE.CylinderGeometry(0.48, 0.42, 0.85, 24, 4, true);
-  const heel = new THREE.Mesh(heelGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5, side: THREE.DoubleSide }));
-  heel.position.set(1.15, 0.35, 0);
-  heel.rotation.z = -0.15;
-  group.add(heel);
+  const outGeo = new THREE.ExtrudeGeometry(outShape, {
+    steps: 1, depth: 0.94, bevelEnabled: true,
+    bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 4, curveSegments: 32
+  });
+  outGeo.translate(0, 0, -0.47);
 
-  const toeGeo = new THREE.SphereGeometry(0.42, 20, 12, 0, Math.PI, 0, Math.PI/2);
-  const toe = new THREE.Mesh(toeGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.65 }));
-  toe.position.set(-1.4, 0.25, 0);
-  toe.rotation.z = Math.PI / 2;
-  group.add(toe);
+  const outMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.95, metalness: 0.02 });
+  const out = new THREE.Mesh(outGeo, outMat);
+  out.castShadow = true;
+  group.add(out);
 
+  // --- LACES: three short cylinders across the tongue ---
   for (let i = 0; i < 3; i++) {
-    const laceGeo = new THREE.BoxGeometry(0.06, 0.02, 0.55);
+    const laceGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.65, 8);
     const lace = new THREE.Mesh(laceGeo, new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.9 }));
-    lace.position.set(0.3 + i * 0.28, 0.85, 0);
+    lace.rotation.x = Math.PI / 2;
+    lace.position.set(0.10 + i * 0.28, 0.72 - i * 0.05, 0);
     group.add(lace);
   }
+
+  // --- HEEL TAB (small accent) ---
+  const heelTabGeo = new THREE.BoxGeometry(0.20, 0.12, 0.85, 4, 3, 8);
+  const heelTab = new THREE.Mesh(heelTabGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.5 }));
+  heelTab.position.set(-1.42, 0.65, 0);
+  group.add(heelTab);
+
+  // Centre the whole shoe
+  group.position.set(0, 0.05, 0);
+
   return group;
 }
 
+// ---------- FOOTBALL BOOT ----------
 function buildBootModel() {
   const group = new THREE.Group();
-  const soleGeo = new THREE.BoxGeometry(3.0, 0.28, 1.05, 40, 4, 12);
-  shapeLateralCurve(soleGeo, 0.08);
-  const sole = new THREE.Mesh(soleGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }));
-  sole.position.set(0, -0.42, 0);
-  group.add(sole);
 
-  for (let x = -1.1; x <= 1.1; x += 0.55) {
-    for (let z = -0.32; z <= 0.32; z += 0.32) {
-      const studGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.14, 8);
-      const stud = new THREE.Mesh(studGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.7 }));
-      stud.position.set(x, -0.63, z);
-      group.add(stud);
-    }
-  }
+  // --- Upper with sock-like collar (taller silhouette) ---
+  const upperShape = new THREE.Shape();
+  upperShape.moveTo(-1.40, -0.20);
+  upperShape.bezierCurveTo(-1.50, 0.10, -1.52, 0.45, -1.48, 0.75); // taller heel
+  upperShape.bezierCurveTo(-1.42, 0.95, -1.20, 1.05, -0.95, 1.05); // taller collar top
+  upperShape.bezierCurveTo(-0.72, 1.05, -0.55, 0.95, -0.42, 0.88); // sock top edge
+  upperShape.bezierCurveTo(-0.25, 0.82, -0.05, 0.78,  0.15, 0.70); // instep
+  upperShape.bezierCurveTo( 0.40, 0.58,  0.65, 0.45,  0.90, 0.32); // forefoot
+  upperShape.bezierCurveTo( 1.15, 0.20,  1.38, 0.08,  1.52,-0.05); // toe
+  upperShape.bezierCurveTo( 1.62,-0.15,  1.62,-0.30,  1.55,-0.42); // toe bottom
+  upperShape.bezierCurveTo( 1.45,-0.50,  1.25,-0.52,  1.00,-0.52); // sole line
+  upperShape.bezierCurveTo( 0.50,-0.52,  0.00,-0.52, -0.50,-0.50);
+  upperShape.bezierCurveTo(-1.00,-0.48, -1.35,-0.40, -1.40,-0.20);
 
-  const upperGeo = new THREE.BoxGeometry(2.7, 0.9, 1.0, 40, 12, 14);
-  shapeUpperProfile(upperGeo, 0.55);
-  const upper = new THREE.Mesh(upperGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.65 }));
-  upper.position.set(-0.05, 0.38, 0);
+  const upperGeo = new THREE.ExtrudeGeometry(upperShape, {
+    steps: 1, depth: 0.82,
+    bevelEnabled: true, bevelThickness: 0.07, bevelSize: 0.07, bevelSegments: 6,
+    curveSegments: 32
+  });
+  upperGeo.translate(0, 0.1, -0.41);
+
+  const upper = new THREE.Mesh(upperGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.6, metalness: 0.05 }));
   upper.userData.isMainSurface = true;
+  upper.castShadow = true;
   group.add(upper);
 
-  const collarGeo = new THREE.CylinderGeometry(0.44, 0.36, 1.0, 24, 4, true);
-  const collar = new THREE.Mesh(collarGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6, side: THREE.DoubleSide }));
-  collar.position.set(1.15, 0.5, 0);
-  collar.rotation.z = -0.12;
-  group.add(collar);
+  // --- Outsole with studs ---
+  const outShape = new THREE.Shape();
+  outShape.moveTo(-1.38, -0.50);
+  outShape.bezierCurveTo(-0.80, -0.55, 0.00, -0.56, 0.80, -0.54);
+  outShape.bezierCurveTo( 1.20, -0.50, 1.48, -0.45, 1.55, -0.35);
+  outShape.bezierCurveTo( 1.60, -0.28, 1.58, -0.20, 1.50, -0.18);
+  outShape.bezierCurveTo( 0.90, -0.18, 0.00, -0.20, -1.00, -0.24);
+  outShape.bezierCurveTo(-1.30, -0.28, -1.42, -0.38, -1.38, -0.50);
 
+  const outGeo = new THREE.ExtrudeGeometry(outShape, {
+    steps: 1, depth: 0.84, bevelEnabled: true,
+    bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 4, curveSegments: 32
+  });
+  outGeo.translate(0, 0, -0.42);
+
+  const out = new THREE.Mesh(outGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }));
+  out.castShadow = true;
+  group.add(out);
+
+  // --- Studs (six visible clusters, drawn as short cones) ---
+  const studPositions = [
+    [-0.95, -0.65, -0.25], [-0.95, -0.65, 0.25],
+    [-0.20, -0.68, -0.30], [-0.20, -0.68, 0.30],
+    [ 0.55, -0.65, -0.30], [ 0.55, -0.65, 0.30],
+    [ 1.15, -0.55, -0.20], [ 1.15, -0.55, 0.20]
+  ];
+  studPositions.forEach(([x, y, z]) => {
+    const studGeo = new THREE.ConeGeometry(0.07, 0.15, 6);
+    const stud = new THREE.Mesh(studGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.7 }));
+    stud.position.set(x, y, z);
+    stud.rotation.x = Math.PI;
+    group.add(stud);
+  });
+
+  // --- Grip texture bands on the upper ---
   for (let i = 0; i < 3; i++) {
-    const bandGeo = new THREE.BoxGeometry(0.55, 0.04, 0.95);
+    const bandGeo = new THREE.BoxGeometry(0.55, 0.05, 0.80, 4, 3, 6);
     const band = new THREE.Mesh(bandGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.4 }));
-    band.position.set(-1.0 + i * 0.7, 0.7 - i * 0.05, 0);
+    band.position.set(-0.6 + i * 0.55, 0.55 - i * 0.08, 0);
     group.add(band);
   }
+
+  group.position.set(0, 0.1, 0);
   return group;
 }
 
+// ---------- SPORTS SHIRT ----------
 function buildShirtModel() {
   const group = new THREE.Group();
-  const bodyGeo = new THREE.BoxGeometry(2.0, 2.6, 0.5, 30, 40, 10);
-  shapeShirtBody(bodyGeo);
-  const body = new THREE.Mesh(bodyGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.9 }));
+
+  // --- Body: front-view T-shirt outline ---
+  const bodyShape = new THREE.Shape();
+  bodyShape.moveTo(-0.90,  1.25);              // left shoulder
+  bodyShape.bezierCurveTo(-1.05, 1.20, -1.30, 1.05, -1.45, 0.75); // left sleeve top
+  bodyShape.bezierCurveTo(-1.60, 0.45, -1.55, 0.10, -1.42, -0.05); // left sleeve end
+  bodyShape.bezierCurveTo(-1.30, -0.15, -1.15, -0.10, -1.10,  0.05); // underarm
+  bodyShape.bezierCurveTo(-1.05, -0.40, -1.05, -0.80, -1.05, -1.20); // side
+  bodyShape.bezierCurveTo(-1.05, -1.30, -0.95, -1.35, -0.80, -1.35); // hem left
+  bodyShape.bezierCurveTo(-0.30, -1.38,  0.30, -1.38,  0.80, -1.35); // hem bottom
+  bodyShape.bezierCurveTo( 0.95, -1.35,  1.05, -1.30,  1.05, -1.20); // hem right
+  bodyShape.bezierCurveTo( 1.05, -0.80,  1.05, -0.40,  1.10,  0.05); // side
+  bodyShape.bezierCurveTo( 1.15, -0.10,  1.30, -0.15,  1.42, -0.05); // underarm
+  bodyShape.bezierCurveTo( 1.55,  0.10,  1.60,  0.45,  1.45,  0.75); // right sleeve end
+  bodyShape.bezierCurveTo( 1.30,  1.05,  1.05,  1.20,  0.90,  1.25); // right shoulder
+  // Neck opening
+  bodyShape.bezierCurveTo( 0.60,  1.20,  0.30,  0.98,  0.00,  0.98); // right neck
+  bodyShape.bezierCurveTo(-0.30,  0.98, -0.60,  1.20, -0.90,  1.25); // left neck
+  bodyShape.bezierCurveTo(-0.95,  1.26, -0.92,  1.26, -0.90,  1.25); // close
+
+  const bodyGeo = new THREE.ExtrudeGeometry(bodyShape, {
+    steps: 1, depth: 0.35,
+    bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 5,
+    curveSegments: 24
+  });
+  bodyGeo.translate(0, 0, -0.175);
+
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.92, metalness: 0.02 });
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
   body.userData.isMainSurface = true;
+  body.castShadow = true;
   group.add(body);
 
-  const collarGeo = new THREE.TorusGeometry(0.42, 0.08, 8, 24, Math.PI);
+  // --- Collar ring (small torus at neck) ---
+  const collarGeo = new THREE.TorusGeometry(0.42, 0.06, 8, 28, Math.PI);
   const collar = new THREE.Mesh(collarGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.85 }));
-  collar.position.set(0, 1.2, 0.24);
+  collar.position.set(0, 0.98, 0.05);
+  collar.rotation.x = Math.PI / 2;
   collar.rotation.z = Math.PI;
   group.add(collar);
 
-  const sleeveGeoL = new THREE.BoxGeometry(0.9, 0.9, 0.5, 12, 12, 8);
-  const sleeveL = new THREE.Mesh(sleeveGeoL, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.9 }));
-  sleeveL.position.set(-1.35, 0.7, 0);
-  sleeveL.rotation.z = 0.15;
-  group.add(sleeveL);
+  // Scale the whole shirt down to match shoe scale
+  group.scale.set(0.85, 0.85, 0.85);
+  group.position.set(0, 0.1, 0);
 
-  const sleeveGeoR = new THREE.BoxGeometry(0.9, 0.9, 0.5, 12, 12, 8);
-  const sleeveR = new THREE.Mesh(sleeveGeoR, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.9 }));
-  sleeveR.position.set(1.35, 0.7, 0);
-  sleeveR.rotation.z = -0.15;
-  group.add(sleeveR);
-
-  const hemGeo = new THREE.BoxGeometry(2.02, 0.06, 0.52);
-  const hem = new THREE.Mesh(hemGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.85 }));
-  hem.position.set(0, -1.25, 0);
-  group.add(hem);
   return group;
 }
 
-function shapeLateralCurve(geo, strength) {
-  const pos = geo.attributes.position;
-  const w = 3.0;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const t = x / (w / 2);
-    const lift = Math.cos(t * Math.PI / 2) * strength;
-    pos.setY(i, pos.getY(i) + lift);
-    if (x > 0.9) pos.setY(i, pos.getY(i) - (x - 0.9) * 0.15);
-  }
-  geo.computeVertexNormals();
-}
-function shapeUpperProfile(geo, arch = 0.4) {
-  const pos = geo.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-    if (x < -0.6) {
-      const t = (x + 1.35) / 0.75;
-      pos.setY(i, y * (1 - t * 0.55));
-      pos.setZ(i, z * (1 - t * 0.35));
-    }
-    const topness = Math.max(0, y - 0.2) / 0.6;
-    if (topness > 0 && Math.abs(z) < 0.4) {
-      pos.setY(i, y + Math.sin(x * 1.2) * arch * topness * 0.15);
-    }
-  }
-  geo.computeVertexNormals();
-}
-function shapeShirtBody(geo) {
-  const pos = geo.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-    const shoulderFactor = 1 + Math.max(0, y) * 0.12;
-    const waistFactor = y < -0.5 ? 1 + (y + 0.5) * 0.06 : 1;
-    pos.setX(i, x * shoulderFactor * waistFactor);
-    if (Math.abs(z) > 0.2) pos.setZ(i, z + Math.sign(z) * Math.cos(x * 1.3) * 0.05);
-  }
-  geo.computeVertexNormals();
-}
-
 // ---------- SCENE ----------
-// FIX: Delay and resize-safe init
 function initCadViewer() {
   const container = document.getElementById('viewer3d');
   if (!container) return;
@@ -493,11 +547,9 @@ function initCadViewer() {
     return;
   }
 
-  // FIX: If container has 0 size, wait for it
   const w = container.clientWidth;
   const h = container.clientHeight;
   if (w < 10 || h < 10) {
-    console.warn('CAD: container has zero size, retrying in 200ms');
     setTimeout(initCadViewer, 200);
     return;
   }
@@ -514,7 +566,7 @@ function initCadViewer() {
   cad.scene.background = new THREE.Color(0xf1f5f9);
 
   cad.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-  cad.camera.position.set(3.5, 2.4, 4.2);
+  cad.camera.position.set(3.5, 2.2, 4.5);
   cad.camera.lookAt(0, 0.2, 0);
 
   cad.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -524,23 +576,21 @@ function initCadViewer() {
     cad.renderer.shadowMap.enabled = true;
     cad.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   }
-  container.innerHTML = '';  // clear any placeholder
+  container.innerHTML = '';
   container.appendChild(cad.renderer.domElement);
 
-  // Lights
-  cad.scene.add(new THREE.HemisphereLight(0xffffff, 0x888899, 0.55));
-  const key = new THREE.DirectionalLight(0xffffff, 0.95);
+  cad.scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.6));
+  const key = new THREE.DirectionalLight(0xffffff, 0.9);
   key.position.set(4, 6, 5);
-  if (key.castShadow) key.castShadow = true;
+  key.castShadow = true;
   cad.scene.add(key);
-  const rim = new THREE.DirectionalLight(0xc7d2fe, 0.5);
+  const rim = new THREE.DirectionalLight(0xc7d2fe, 0.45);
   rim.position.set(-5, 2, -4);
   cad.scene.add(rim);
   const fill = new THREE.DirectionalLight(0xffffff, 0.35);
   fill.position.set(2, -2, 3);
   cad.scene.add(fill);
 
-  // Grid floor
   if (THREE.GridHelper) {
     const grid = new THREE.GridHelper(10, 20, 0xcbd5e1, 0xe2e8f0);
     grid.position.y = -1.6;
@@ -561,8 +611,6 @@ function initCadViewer() {
     cad.controls.maxDistance = 12;
     cad.controls.target.set(0, 0.2, 0);
     cad.controls.update();
-  } else {
-    console.warn('OrbitControls not available — using fallback auto-rotate');
   }
 
   cad.initialized = true;
@@ -634,7 +682,6 @@ function animateCad() {
   requestAnimationFrame(animateCad);
   if (!cad.renderer) return;
 
-  // FIX: Auto-resize if container changed
   const container = document.getElementById('viewer3d');
   if (container) {
     const w = container.clientWidth;
@@ -750,7 +797,6 @@ document.addEventListener('DOMContentLoaded', () => {
       img.onload = () => {
         try {
           if (!cad.initialized) {
-            console.warn('3D viewer not ready — waiting');
             setTimeout(() => applyTexture(img), 300);
           } else {
             applyTexture(img);
@@ -790,13 +836,11 @@ function renderDtcTab() {
   renderActionBoard();
   renderScenarioCompare();
 
-  // FIX: use longer delay + retry to handle tab transition
   setTimeout(() => {
     try { initCadViewer(); } catch (err) { console.error('CAD init failed:', err); }
   }, 250);
 }
 
-// Auto-run when the tab becomes active
 (function watchDtcTab() {
   const target = document.getElementById('tab-dtc');
   if (!target) return;
