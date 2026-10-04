@@ -1,39 +1,56 @@
 {
-  "version": "3.0",
+  "version": "4.0",
   "last_updated": "2026-10-04",
   "currency": "EUR",
-  "notes": "Formula-driven should-cost model. All costs derive from the assumptions block. Not actual PUMA supplier data.",
+  "notes": "Formula-driven supplier-tier should-cost model. All costs derive from assumptions. Not actual PUMA supplier data.",
 
   "assumptions": {
+    "sources": {
+      "labour_rates": "Misciano Textile Atlas 2026 (hourly cost by country); ILO footwear study",
+      "cmt_rates": "@kobolabs/garment-costing-formulas (CMT minute rates by country, 2026)",
+      "machine_rates": "UNIDO footwear costing framework; industry benchmark",
+      "material_prices": "100ppi.com commodity index (EVA, PET); ANRPC (natural rubber); OPIS/Argus (rPET)",
+      "overhead": "ILO footwear study; industry benchmark",
+      "tiers": "FDRA Shoe Supplier Tiers; Sourcify footwear factory tiers"
+    },
     "locations": [
-      { "id": "vietnam",   "name": "Vietnam",         "laborRatePerHr": 2.50,  "machineRatePerHr": 1.80, "overheadRatePerHr": 0.40, "freightPerUnit": 1.20, "dutyRatePercent": 12.5 },
-      { "id": "china",     "name": "China (Coastal)", "laborRatePerHr": 4.50,  "machineRatePerHr": 2.80, "overheadRatePerHr": 0.70, "freightPerUnit": 0.90, "dutyRatePercent": 37.5 },
-      { "id": "indonesia", "name": "Indonesia",       "laborRatePerHr": 2.10,  "machineRatePerHr": 1.60, "overheadRatePerHr": 0.35, "freightPerUnit": 1.40, "dutyRatePercent": 12.5 },
-      { "id": "cambodia",  "name": "Cambodia",        "laborRatePerHr": 1.90,  "machineRatePerHr": 1.50, "overheadRatePerHr": 0.32, "freightPerUnit": 1.50, "dutyRatePercent": 15.0 },
-      { "id": "portugal",  "name": "Portugal",        "laborRatePerHr": 12.50, "machineRatePerHr": 6.00, "overheadRatePerHr": 1.80, "freightPerUnit": 0.40, "dutyRatePercent": 4.0  }
+      { "id": "bangladesh", "name": "Bangladesh", "laborRatePerHr": 0.90, "machineRatePerHr": 1.20, "overheadRatePerHr": 0.25, "freightPerUnit": 1.60, "dutyRatePercent": 15.0, "source": "Misciano 2026: 0.9 EUR/hr" },
+      { "id": "vietnam",    "name": "Vietnam",    "laborRatePerHr": 2.30, "machineRatePerHr": 1.80, "overheadRatePerHr": 0.40, "freightPerUnit": 1.20, "dutyRatePercent": 12.5, "source": "Misciano 2026: 2.3 EUR/hr" },
+      { "id": "china",      "name": "China (Coastal)", "laborRatePerHr": 4.50, "machineRatePerHr": 2.80, "overheadRatePerHr": 0.70, "freightPerUnit": 0.90, "dutyRatePercent": 37.5, "source": "Misciano 2026; US Section 301" },
+      { "id": "indonesia",  "name": "Indonesia",  "laborRatePerHr": 2.10, "machineRatePerHr": 1.60, "overheadRatePerHr": 0.35, "freightPerUnit": 1.40, "dutyRatePercent": 12.5, "source": "Misciano 2026" },
+      { "id": "cambodia",   "name": "Cambodia",   "laborRatePerHr": 1.90, "machineRatePerHr": 1.50, "overheadRatePerHr": 0.32, "freightPerUnit": 1.50, "dutyRatePercent": 15.0, "source": "Misciano 2026" },
+      { "id": "portugal",   "name": "Portugal",   "laborRatePerHr": 12.50, "machineRatePerHr": 6.00, "overheadRatePerHr": 1.80, "freightPerUnit": 0.40, "dutyRatePercent": 4.0, "source": "EU benchmark" }
     ],
     "defaultLocationId": "vietnam",
-    "materialPrices": {
-      "rawRubber_perKg": 3.20,
-      "evaResin_perKg": 2.10,
-      "polyesterYarn_perKg": 4.50,
-      "tpuFilm_perSqm": 8.50,
-      "meshFabric_perSqm": 3.80,
-      "liningFabric_perSqm": 2.40,
-      "cardboard_perUnit": 0.55,
-      "ldpeFilm_perUnit": 0.12,
-      "hangtag_perUnit": 0.20,
-      "adhesive_perKg": 6.20,
-      "thread_perUnit": 0.08,
-      "label_perUnit": 0.09,
-      "heatTransfer_perUnit": 0.15
+
+    "supplierTiers": {
+      "tier1": { "name": "Tier 1 — Global Manufacturer", "laborMultiplier": 1.20, "machineMultiplier": 1.30, "overheadMultiplier": 1.25, "moqMultiplier": 2.0, "marginPercent": 10, "notes": "Large-scale, sophisticated systems, large MOQs" },
+      "tier2": { "name": "Tier 2 — Mid-Size Specialist", "laborMultiplier": 1.00, "machineMultiplier": 1.00, "overheadMultiplier": 1.00, "moqMultiplier": 1.0, "marginPercent": 9, "notes": "Strong capabilities, lower MOQs, better flexibility" },
+      "tier3": { "name": "Tier 3 — Small/Niche", "laborMultiplier": 0.85, "machineMultiplier": 0.75, "overheadMultiplier": 0.80, "moqMultiplier": 0.4, "marginPercent": 8, "notes": "Low-volume, experimental, limited engineering support" }
     },
-    "overheadBasis": {
-      "rentUtilitiesPerHr": 0.18,
-      "depreciationPerHr": 0.12,
-      "indirectLaborPerHr": 0.08,
-      "qcPerUnit": 0.05,
-      "adminPerUnit": 0.10
+
+    "materialPrices": {
+      "rawRubber_perKg":       { "price": 2.50,  "source": "ANRPC Apr 2026: SMR-20 USD 2.13/kg" },
+      "evaResin_perKg":        { "price": 2.10,  "source": "100ppi Jul 2026: EVA 10,066 CNY/t (~1.30 EUR/kg)" },
+      "polyesterYarn_perKg":   { "price": 4.50,  "source": "100ppi: polyester POY ~9,500 CNY/t" },
+      "rPETPellet_perKg":      { "price": 1.10,  "source": "OPIS Apr 2026: rPET pellet USD 1,122/mt" },
+      "tpuFilm_perSqm":        { "price": 8.50,  "source": "Industry benchmark" },
+      "meshFabric_perSqm":     { "price": 3.80,  "source": "China wire mesh suppliers: USD 0.90-2.10/m" },
+      "liningFabric_perSqm":   { "price": 2.40,  "source": "Industry benchmark" },
+      "cardboard_perUnit":     { "price": 0.55,  "source": "Industry benchmark" },
+      "ldpeFilm_perUnit":      { "price": 0.12,  "source": "100ppi: LDPE 10,450 CNY/t" },
+      "hangtag_perUnit":       { "price": 0.20,  "source": "Industry benchmark" },
+      "adhesive_perKg":        { "price": 6.20,  "source": "Industry benchmark" },
+      "thread_perUnit":        { "price": 0.08,  "source": "Industry benchmark" },
+      "label_perUnit":         { "price": 0.09,  "source": "Industry benchmark" },
+      "heatTransfer_perUnit":  { "price": 0.15,  "source": "Industry benchmark" }
+    },
+
+    "machineAssumptions": {
+      "injectionMouldingMachine":  { "capitalCost": 45000, "lifeYears": 10, "operatingHoursPerYear": 4000, "powerCostPerHr": 0.60, "maintenancePercentOfDep": 8, "source": "ATO depreciation 10yr; industry benchmark" },
+      "compressionMouldingPress":  { "capitalCost": 28000, "lifeYears": 10, "operatingHoursPerYear": 4000, "powerCostPerHr": 0.45, "maintenancePercentOfDep": 8, "source": "Industry benchmark" },
+      "knittingMachine":           { "capitalCost": 35000, "lifeYears": 8,  "operatingHoursPerYear": 5000, "powerCostPerHr": 0.35, "maintenancePercentOfDep": 6, "source": "Industry benchmark" },
+      "sewingMachine":             { "capitalCost": 3500,  "lifeYears": 7,  "operatingHoursPerYear": 4000, "powerCostPerHr": 0.08, "maintenancePercentOfDep": 5, "source": "Industry benchmark" }
     }
   },
 
@@ -43,8 +60,9 @@
       "name": "PUMA Velocity NITRO 4",
       "category": "Running Shoe",
       "retailPrice": 140.00,
+      "supplierTier": "tier2",
       "moq": {
-        "current": 5000, "min": 1000, "max": 50000, "step": 500, "unit": "pairs",
+        "current": 5000, "min": 500, "max": 50000, "step": 500, "unit": "pairs",
         "fixedCostPool": 46000,
         "fixedItems": [
           { "name": "Injection moulds (outsole, multi-size)", "cost": 18000 },
@@ -68,31 +86,40 @@
                   {
                     "name": "Rubber Compound",
                     "children": [
-                      { "name": "Raw Rubber",        "type": "material",         "inputs": { "quantity": 0.172, "unit": "kg",  "priceKey": "rawRubber_perKg" } },
-                      { "name": "Mould Tooling",     "type": "fixed_amortised",  "inputs": { "mouldCost": 6000, "lifecycleUnits": 24000 } },
-                      { "name": "Moulding Energy",   "type": "time_machine",     "inputs": { "minutesPerUnit": 3.0 } },
-                      { "name": "Mould Operation",   "type": "time_labour",      "inputs": { "minutesPerUnit": 4.3 } }
-                    ]
-                  },
-                  {
-                    "name": "Studs / Traction",
-                    "children": [
-                      { "name": "TPU Material",      "type": "material",         "inputs": { "quantity": 0.018, "unit": "kg",  "priceKey": "evaResin_perKg" } },
-                      { "name": "Injection Moulding","type": "time_machine",     "inputs": { "minutesPerUnit": 4.5 } }
-                    ]
-                  },
-                  {
-                    "name": "Adhesive",
-                    "children": [
-                      { "name": "PU Adhesive",       "type": "material",         "inputs": { "quantity": 0.034, "unit": "kg",  "priceKey": "adhesive_perKg" } },
-                      { "name": "Application Labour","type": "time_labour",      "inputs": { "minutesPerUnit": 2.2 } }
+                      { "name": "Raw Rubber", "type": "material", "inputs": { "quantity": 0.172, "unit": "kg", "priceKey": "rawRubber_perKg" } },
+                      { "name": "Compounding", "children": [
+                        { "name": "Mixing Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 1.2 } },
+                        { "name": "Mixing Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 1.5, "machineKey": "injectionMouldingMachine" } }
+                      ]},
+                      { "name": "Sheet Forming", "children": [
+                        { "name": "Calender Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 0.8 } },
+                        { "name": "Calender Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 1.0, "machineKey": "injectionMouldingMachine" } }
+                      ]},
+                      { "name": "Mould Tooling Amortisation", "type": "fixed_amortised", "inputs": { "mouldCost": 6000, "lifecycleUnits": 24000 } }
                     ]
                   },
                   {
                     "name": "Moulding Process",
                     "children": [
-                      { "name": "Machine Time",      "type": "time_machine",     "inputs": { "minutesPerUnit": 6.4 } },
-                      { "name": "Process Energy",    "type": "time_machine",     "inputs": { "minutesPerUnit": 3.6 } }
+                      { "name": "Injection Moulding", "children": [
+                        { "name": "Machine Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 3.0, "machineKey": "injectionMouldingMachine" } },
+                        { "name": "Operator Attendance", "type": "time_labour", "inputs": { "minutesPerUnit": 1.5 } }
+                      ]},
+                      { "name": "Curing", "children": [
+                        { "name": "Curing Oven Time", "type": "time_machine", "inputs": { "minutesPerUnit": 4.0, "machineKey": "compressionMouldingPress" } },
+                        { "name": "Curing Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 1.0 } }
+                      ]},
+                      { "name": "Trimming & Finishing", "children": [
+                        { "name": "Trimming Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.0 } },
+                        { "name": "Finishing Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 0.8, "machineKey": "injectionMouldingMachine" } }
+                      ]}
+                    ]
+                  },
+                  {
+                    "name": "Adhesive",
+                    "children": [
+                      { "name": "PU Adhesive", "type": "material", "inputs": { "quantity": 0.034, "unit": "kg", "priceKey": "adhesive_perKg" } },
+                      { "name": "Application Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.2 } }
                     ]
                   }
                 ]
@@ -101,26 +128,26 @@
                 "name": "Midsole Foam",
                 "children": [
                   {
-                    "name": "EVA / Supercritical Foam",
+                    "name": "EVA Foam",
                     "children": [
-                      { "name": "EVA Resin",         "type": "material",         "inputs": { "quantity": 0.552, "unit": "kg",  "priceKey": "evaResin_perKg" } },
-                      { "name": "Nitrogen Infusion", "type": "time_machine",     "inputs": { "minutesPerUnit": 6.8 } },
-                      { "name": "Foam Process Energy","type": "time_machine",    "inputs": { "minutesPerUnit": 5.4 } }
+                      { "name": "EVA Resin", "type": "material", "inputs": { "quantity": 0.552, "unit": "kg", "priceKey": "evaResin_perKg" } },
+                      { "name": "Nitrogen Infusion", "type": "time_machine", "inputs": { "minutesPerUnit": 6.8, "machineKey": "injectionMouldingMachine" } },
+                      { "name": "Foam Process Energy", "type": "time_machine", "inputs": { "minutesPerUnit": 5.4, "machineKey": "compressionMouldingPress" } }
                     ]
                   },
                   {
                     "name": "Compression Moulding",
                     "children": [
-                      { "name": "Cycle Time",        "type": "time_machine",     "inputs": { "minutesPerUnit": 8.0 } },
-                      { "name": "Mould Tooling",     "type": "fixed_amortised",  "inputs": { "mouldCost": 4800, "lifecycleUnits": 24000 } },
-                      { "name": "Press Energy",      "type": "time_machine",     "inputs": { "minutesPerUnit": 3.2 } }
+                      { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 8.0, "machineKey": "compressionMouldingPress" } },
+                      { "name": "Mould Tooling", "type": "fixed_amortised", "inputs": { "mouldCost": 4800, "lifecycleUnits": 24000 } },
+                      { "name": "Press Energy", "type": "time_machine", "inputs": { "minutesPerUnit": 3.2, "machineKey": "compressionMouldingPress" } }
                     ]
                   },
                   {
                     "name": "Finishing / Assembly",
                     "children": [
-                      { "name": "Operator Time",     "type": "time_labour",      "inputs": { "minutesPerUnit": 5.4 } },
-                      { "name": "Adhesive Material", "type": "material",         "inputs": { "quantity": 0.045, "unit": "kg",  "priceKey": "adhesive_perKg" } }
+                      { "name": "Operator Time", "type": "time_labour", "inputs": { "minutesPerUnit": 5.4 } },
+                      { "name": "Adhesive Material", "type": "material", "inputs": { "quantity": 0.045, "unit": "kg", "priceKey": "adhesive_perKg" } }
                     ]
                   }
                 ]
@@ -129,32 +156,49 @@
                 "name": "Upper Material",
                 "children": [
                   {
-                    "name": "Engineered Mesh",
+                    "name": "Polyester Mesh",
                     "children": [
-                      { "name": "Mesh Fabric",       "type": "material",         "inputs": { "quantity": 0.26, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
-                      { "name": "Knitting / Weaving","type": "time_machine",     "inputs": { "minutesPerUnit": 2.4 } },
-                      { "name": "Dyeing / Finishing","type": "time_machine",     "inputs": { "minutesPerUnit": 1.4 } }
+                      { "name": "Fibre Production", "children": [
+                        { "name": "rPET Pellets", "type": "material", "inputs": { "quantity": 0.075, "unit": "kg", "priceKey": "rPETPellet_perKg" } },
+                        { "name": "Melt Spinning", "type": "time_machine", "inputs": { "minutesPerUnit": 0.8, "machineKey": "knittingMachine" } }
+                      ]},
+                      { "name": "Yarn Formation", "children": [
+                        { "name": "Texturising", "type": "time_machine", "inputs": { "minutesPerUnit": 0.5, "machineKey": "knittingMachine" } },
+                        { "name": "Yarn Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 0.6 } }
+                      ]},
+                      { "name": "Knitting / Weaving", "children": [
+                        { "name": "Circular Knit Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 2.4, "machineKey": "knittingMachine" } },
+                        { "name": "Knitting Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 1.2 } }
+                      ]},
+                      { "name": "Dyeing / Finishing", "children": [
+                        { "name": "Dye Chemicals", "type": "material", "inputs": { "quantity": 0.01, "unit": "kg", "priceKey": "adhesive_perKg" } },
+                        { "name": "Dyeing Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 1.4, "machineKey": "knittingMachine" } }
+                      ]},
+                      { "name": "Fabric Finishing", "children": [
+                        { "name": "Heat Setting", "type": "time_machine", "inputs": { "minutesPerUnit": 0.6, "machineKey": "knittingMachine" } },
+                        { "name": "Calendering", "type": "time_machine", "inputs": { "minutesPerUnit": 0.4, "machineKey": "knittingMachine" } }
+                      ]}
                     ]
                   },
                   {
                     "name": "PWRTAPE Reinforcement",
                     "children": [
-                      { "name": "TPU Film",          "type": "material",         "inputs": { "quantity": 0.059, "unit": "sqm", "priceKey": "tpuFilm_perSqm" } },
-                      { "name": "Heat Press Time",   "type": "time_machine",     "inputs": { "minutesPerUnit": 2.8 } }
+                      { "name": "TPU Film", "type": "material", "inputs": { "quantity": 0.059, "unit": "sqm", "priceKey": "tpuFilm_perSqm" } },
+                      { "name": "Heat Press Time", "type": "time_machine", "inputs": { "minutesPerUnit": 2.8, "machineKey": "compressionMouldingPress" } }
                     ]
                   },
                   {
                     "name": "Lining",
                     "children": [
-                      { "name": "Lining Fabric",     "type": "material",         "inputs": { "quantity": 0.175, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
-                      { "name": "Cutting Labour",    "type": "time_labour",      "inputs": { "minutesPerUnit": 3.5 } }
+                      { "name": "Lining Fabric", "type": "material", "inputs": { "quantity": 0.175, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
+                      { "name": "Cutting Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 3.5 } }
                     ]
                   },
                   {
                     "name": "Cutting & Prep",
                     "children": [
-                      { "name": "Cutting Operator",  "type": "time_labour",      "inputs": { "minutesPerUnit": 6.1 } },
-                      { "name": "Cutting Machine",   "type": "time_machine",     "inputs": { "minutesPerUnit": 2.6 } }
+                      { "name": "Cutting Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 6.1 } },
+                      { "name": "Cutting Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 2.6, "machineKey": "knittingMachine" } }
                     ]
                   }
                 ]
@@ -165,22 +209,22 @@
                   {
                     "name": "EVA Sockliner",
                     "children": [
-                      { "name": "EVA Sheet",         "type": "material",         "inputs": { "quantity": 0.12, "unit": "kg",  "priceKey": "evaResin_perKg" } },
-                      { "name": "Moulding / Cutting","type": "time_machine",     "inputs": { "minutesPerUnit": 2.5 } }
+                      { "name": "EVA Sheet", "type": "material", "inputs": { "quantity": 0.12, "unit": "kg", "priceKey": "evaResin_perKg" } },
+                      { "name": "Moulding / Cutting", "type": "time_machine", "inputs": { "minutesPerUnit": 2.5, "machineKey": "compressionMouldingPress" } }
                     ]
                   },
                   {
                     "name": "Fabric Top Cover",
                     "children": [
-                      { "name": "Knitted Fabric",    "type": "material",         "inputs": { "quantity": 0.05, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
-                      { "name": "Lamination",        "type": "time_machine",     "inputs": { "minutesPerUnit": 1.6 } }
+                      { "name": "Knitted Fabric", "type": "material", "inputs": { "quantity": 0.05, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
+                      { "name": "Lamination", "type": "time_machine", "inputs": { "minutesPerUnit": 1.6, "machineKey": "compressionMouldingPress" } }
                     ]
                   },
                   {
                     "name": "Printing / Branding",
                     "children": [
-                      { "name": "Ink / Transfer",    "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
-                      { "name": "Application Labour","type": "time_labour",      "inputs": { "minutesPerUnit": 1.7 } }
+                      { "name": "Ink / Transfer", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
+                      { "name": "Application Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.7 } }
                     ]
                   }
                 ]
@@ -191,23 +235,23 @@
                   {
                     "name": "Laces",
                     "children": [
-                      { "name": "Polyester Yarn",    "type": "material",         "inputs": { "quantity": 0.022, "unit": "kg",  "priceKey": "polyesterYarn_perKg" } },
-                      { "name": "Braiding",          "type": "time_machine",     "inputs": { "minutesPerUnit": 1.3 } }
+                      { "name": "Polyester Yarn", "type": "material", "inputs": { "quantity": 0.022, "unit": "kg", "priceKey": "polyesterYarn_perKg" } },
+                      { "name": "Braiding", "type": "time_machine", "inputs": { "minutesPerUnit": 1.3, "machineKey": "knittingMachine" } }
                     ]
                   },
                   {
                     "name": "Eyelets / Hardware",
                     "children": [
-                      { "name": "Metal Component",   "type": "material",         "inputs": { "quantity": 0.011, "unit": "kg",  "priceKey": "evaResin_perKg" } },
-                      { "name": "Insertion Labour",  "type": "time_labour",      "inputs": { "minutesPerUnit": 1.4 } }
+                      { "name": "Metal Component", "type": "material", "inputs": { "quantity": 0.011, "unit": "kg", "priceKey": "evaResin_perKg" } },
+                      { "name": "Insertion Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.4 } }
                     ]
                   },
                   {
                     "name": "Branding / Labels",
                     "children": [
-                      { "name": "Woven Labels",      "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
-                      { "name": "Heat Transfers",    "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
-                      { "name": "Application Labour","type": "time_labour",      "inputs": { "minutesPerUnit": 1.4 } }
+                      { "name": "Woven Labels", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
+                      { "name": "Heat Transfers", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
+                      { "name": "Application Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.4 } }
                     ]
                   }
                 ]
@@ -218,23 +262,23 @@
                   {
                     "name": "Shoebox",
                     "children": [
-                      { "name": "Cardboard",         "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
-                      { "name": "Printing",          "type": "time_machine",     "inputs": { "minutesPerUnit": 0.9 } },
-                      { "name": "Assembly",          "type": "time_labour",      "inputs": { "minutesPerUnit": 1.6 } }
+                      { "name": "Cardboard", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
+                      { "name": "Printing", "type": "time_machine", "inputs": { "minutesPerUnit": 0.9, "machineKey": "sewingMachine" } },
+                      { "name": "Assembly", "type": "time_labour", "inputs": { "minutesPerUnit": 1.6 } }
                     ]
                   },
                   {
                     "name": "Polybag",
                     "children": [
-                      { "name": "LDPE Film",         "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } },
-                      { "name": "Printing",          "type": "time_machine",     "inputs": { "minutesPerUnit": 0.4 } }
+                      { "name": "LDPE Film", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } },
+                      { "name": "Printing", "type": "time_machine", "inputs": { "minutesPerUnit": 0.4, "machineKey": "sewingMachine" } }
                     ]
                   },
                   {
                     "name": "Hangtag / Tissue",
                     "children": [
-                      { "name": "Paper / Card",      "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "hangtag_perUnit" } },
-                      { "name": "Attachment Labour", "type": "time_labour",      "inputs": { "minutesPerUnit": 0.8 } }
+                      { "name": "Paper / Card", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "hangtag_perUnit" } },
+                      { "name": "Attachment Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 0.8 } }
                     ]
                   }
                 ]
@@ -247,31 +291,57 @@
               {
                 "name": "Cutting",
                 "children": [
-                  { "name": "Operator Time",       "type": "time_labour",      "inputs": { "minutesPerUnit": 6.7 } },
-                  { "name": "Machine Depreciation", "type": "time_machine",    "inputs": { "minutesPerUnit": 6.7 } }
+                  { "name": "Operator Time", "children": [
+                    { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                    { "name": "Cycle Time", "children": [
+                      { "name": "Cutting Cycle", "type": "time_labour", "inputs": { "minutesPerUnit": 6.7 } }
+                    ]}
+                  ]},
+                  { "name": "Machine Depreciation", "children": [
+                    { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "knittingMachine" } },
+                    { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 6.7, "machineKey": "knittingMachine" } }
+                  ]}
                 ]
               },
               {
                 "name": "Stitching",
                 "children": [
-                  { "name": "Operator Time",       "type": "time_labour",      "inputs": { "minutesPerUnit": 21.6 } },
-                  { "name": "Thread",              "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
-                  { "name": "Machine Depreciation", "type": "time_machine",    "inputs": { "minutesPerUnit": 21.6 } }
+                  { "name": "Operator Time", "children": [
+                    { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                    { "name": "Cycle Time", "children": [
+                      { "name": "Main Seams", "type": "time_labour", "inputs": { "minutesPerUnit": 14.0 } },
+                      { "name": "Collar / Cuff", "type": "time_labour", "inputs": { "minutesPerUnit": 7.6 } }
+                    ]}
+                  ]},
+                  { "name": "Thread", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
+                  { "name": "Machine Depreciation", "children": [
+                    { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "sewingMachine" } },
+                    { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 21.6, "machineKey": "sewingMachine" } }
+                  ]}
                 ]
               },
               {
                 "name": "Assembly",
                 "children": [
-                  { "name": "Operator Time",       "type": "time_labour",      "inputs": { "minutesPerUnit": 26.4 } },
-                  { "name": "Cementing Material",  "type": "material",         "inputs": { "quantity": 0.02, "unit": "kg", "priceKey": "adhesive_perKg" } },
-                  { "name": "Press Machinery",     "type": "time_machine",     "inputs": { "minutesPerUnit": 8.0 } }
+                  { "name": "Operator Time", "children": [
+                    { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                    { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 26.4 } }
+                  ]},
+                  { "name": "Cementing Material", "type": "material", "inputs": { "quantity": 0.02, "unit": "kg", "priceKey": "adhesive_perKg" } },
+                  { "name": "Press Machinery", "children": [
+                    { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "compressionMouldingPress" } },
+                    { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 8.0, "machineKey": "compressionMouldingPress" } }
+                  ]}
                 ]
               },
               {
                 "name": "Finishing",
                 "children": [
-                  { "name": "Operator Time",       "type": "time_labour",      "inputs": { "minutesPerUnit": 8.4 } },
-                  { "name": "Packing Labour",      "type": "time_labour",      "inputs": { "minutesPerUnit": 3.6 } }
+                  { "name": "Operator Time", "children": [
+                    { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                    { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 8.4 } }
+                  ]},
+                  { "name": "Packing Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 3.6 } }
                 ]
               }
             ]
@@ -282,23 +352,23 @@
               {
                 "name": "Factory Overhead",
                 "children": [
-                  { "name": "Rent & Utilities",    "type": "time_machine",     "inputs": { "minutesPerUnit": 90 } },
-                  { "name": "Equipment Depreciation","type": "time_machine",   "inputs": { "minutesPerUnit": 60 } },
-                  { "name": "Indirect Labour",     "type": "time_labour",      "inputs": { "minutesPerUnit": 30 } }
+                  { "name": "Rent & Utilities", "type": "overhead", "inputs": { "minutesPerUnit": 90 } },
+                  { "name": "Equipment Depreciation", "type": "time_machine", "inputs": { "minutesPerUnit": 60, "machineKey": "knittingMachine" } },
+                  { "name": "Indirect Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 30 } }
                 ]
               },
               {
                 "name": "Quality Control",
                 "children": [
-                  { "name": "QC Labour",           "type": "time_labour",      "inputs": { "minutesPerUnit": 3.2 } },
-                  { "name": "Testing Equipment",   "type": "time_machine",     "inputs": { "minutesPerUnit": 1.8 } }
+                  { "name": "QC Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 3.2 } },
+                  { "name": "Testing Equipment", "type": "time_machine", "inputs": { "minutesPerUnit": 1.8, "machineKey": "sewingMachine" } }
                 ]
               },
               {
                 "name": "Management",
                 "children": [
-                  { "name": "Supervisor Time",     "type": "time_labour",      "inputs": { "minutesPerUnit": 4.8 } },
-                  { "name": "Admin / Compliance",  "type": "time_labour",      "inputs": { "minutesPerUnit": 2.4 } }
+                  { "name": "Supervisor Time", "type": "time_labour", "inputs": { "minutesPerUnit": 4.8 } },
+                  { "name": "Admin / Compliance", "type": "time_labour", "inputs": { "minutesPerUnit": 2.4 } }
                 ]
               }
             ]
@@ -317,8 +387,9 @@
       "name": "PUMA Future 9 Match FG/AG",
       "category": "Football Boot",
       "retailPrice": 75.00,
+      "supplierTier": "tier2",
       "moq": {
-        "current": 5000, "min": 1000, "max": 40000, "step": 500, "unit": "pairs",
+        "current": 5000, "min": 500, "max": 40000, "step": 500, "unit": "pairs",
         "fixedCostPool": 32000,
         "fixedItems": [
           { "name": "Injection moulds (outsole plate, studs)", "cost": 14000 },
@@ -339,25 +410,33 @@
                 "name": "Upper Material",
                 "children": [
                   {
-                    "name": "Mesh Upper",
+                    "name": "Polyester Mesh",
                     "children": [
-                      { "name": "Polyester Mesh",    "type": "material",         "inputs": { "quantity": 0.21, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
-                      { "name": "3D Grip Printing",  "type": "time_machine",     "inputs": { "minutesPerUnit": 3.2 } },
-                      { "name": "Cutting Labour",    "type": "time_labour",      "inputs": { "minutesPerUnit": 4.8 } }
+                      { "name": "rPET Pellets", "type": "material", "inputs": { "quantity": 0.061, "unit": "kg", "priceKey": "rPETPellet_perKg" } },
+                      { "name": "Melt Spinning", "type": "time_machine", "inputs": { "minutesPerUnit": 0.7, "machineKey": "knittingMachine" } },
+                      { "name": "Knitting", "type": "time_machine", "inputs": { "minutesPerUnit": 2.1, "machineKey": "knittingMachine" } },
+                      { "name": "Dyeing", "type": "time_machine", "inputs": { "minutesPerUnit": 1.1, "machineKey": "knittingMachine" } }
+                    ]
+                  },
+                  {
+                    "name": "3D Grip Printing",
+                    "children": [
+                      { "name": "TPU Material", "type": "material", "inputs": { "quantity": 0.018, "unit": "kg", "priceKey": "evaResin_perKg" } },
+                      { "name": "Print Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 3.2, "machineKey": "compressionMouldingPress" } }
                     ]
                   },
                   {
                     "name": "Heel Counter",
                     "children": [
-                      { "name": "TPU Component",     "type": "material",         "inputs": { "quantity": 0.031, "unit": "kg",  "priceKey": "evaResin_perKg" } },
-                      { "name": "Moulding Time",     "type": "time_machine",     "inputs": { "minutesPerUnit": 3.2 } }
+                      { "name": "TPU Component", "type": "material", "inputs": { "quantity": 0.031, "unit": "kg", "priceKey": "evaResin_perKg" } },
+                      { "name": "Moulding Time", "type": "time_machine", "inputs": { "minutesPerUnit": 3.2, "machineKey": "injectionMouldingMachine" } }
                     ]
                   },
                   {
                     "name": "Lining",
                     "children": [
-                      { "name": "Textile Lining",    "type": "material",         "inputs": { "quantity": 0.16, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
-                      { "name": "Stitching Labour",  "type": "time_labour",      "inputs": { "minutesPerUnit": 6.0 } }
+                      { "name": "Textile Lining", "type": "material", "inputs": { "quantity": 0.16, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
+                      { "name": "Stitching Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 6.0 } }
                     ]
                   }
                 ]
@@ -368,15 +447,15 @@
                   {
                     "name": "EVA Foam",
                     "children": [
-                      { "name": "EVA Resin",         "type": "material",         "inputs": { "quantity": 0.257, "unit": "kg",  "priceKey": "evaResin_perKg" } },
-                      { "name": "Moulding Time",     "type": "time_machine",     "inputs": { "minutesPerUnit": 5.4 } }
+                      { "name": "EVA Resin", "type": "material", "inputs": { "quantity": 0.257, "unit": "kg", "priceKey": "evaResin_perKg" } },
+                      { "name": "Moulding Time", "type": "time_machine", "inputs": { "minutesPerUnit": 5.4, "machineKey": "compressionMouldingPress" } }
                     ]
                   },
                   {
                     "name": "Cushioning Insert",
                     "children": [
-                      { "name": "EVA / PU Material", "type": "material",         "inputs": { "quantity": 0.157, "unit": "kg",  "priceKey": "evaResin_perKg" } },
-                      { "name": "Assembly Labour",   "type": "time_labour",      "inputs": { "minutesPerUnit": 4.2 } }
+                      { "name": "EVA / PU Material", "type": "material", "inputs": { "quantity": 0.157, "unit": "kg", "priceKey": "evaResin_perKg" } },
+                      { "name": "Assembly Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 4.2 } }
                     ]
                   }
                 ]
@@ -387,23 +466,23 @@
                   {
                     "name": "Outsole Plate",
                     "children": [
-                      { "name": "Rubber Compound",   "type": "material",         "inputs": { "quantity": 0.219, "unit": "kg",  "priceKey": "rawRubber_perKg" } },
-                      { "name": "Stud Formation",    "type": "time_machine",     "inputs": { "minutesPerUnit": 4.8 } },
-                      { "name": "Finishing",         "type": "time_labour",      "inputs": { "minutesPerUnit": 4.2 } }
+                      { "name": "Rubber Compound", "type": "material", "inputs": { "quantity": 0.219, "unit": "kg", "priceKey": "rawRubber_perKg" } },
+                      { "name": "Stud Formation", "type": "time_machine", "inputs": { "minutesPerUnit": 4.8, "machineKey": "injectionMouldingMachine" } },
+                      { "name": "Finishing", "type": "time_labour", "inputs": { "minutesPerUnit": 4.2 } }
                     ]
                   },
                   {
                     "name": "Studs",
                     "children": [
-                      { "name": "TPU / Nylon",       "type": "material",         "inputs": { "quantity": 0.026, "unit": "kg",  "priceKey": "evaResin_perKg" } },
-                      { "name": "Injection Moulding","type": "time_machine",     "inputs": { "minutesPerUnit": 5.2 } }
+                      { "name": "TPU / Nylon", "type": "material", "inputs": { "quantity": 0.026, "unit": "kg", "priceKey": "evaResin_perKg" } },
+                      { "name": "Injection Moulding", "type": "time_machine", "inputs": { "minutesPerUnit": 5.2, "machineKey": "injectionMouldingMachine" } }
                     ]
                   },
                   {
                     "name": "Adhesive & Bonding",
                     "children": [
-                      { "name": "PU Adhesive",       "type": "material",         "inputs": { "quantity": 0.063, "unit": "kg",  "priceKey": "adhesive_perKg" } },
-                      { "name": "Bonding Labour",    "type": "time_labour",      "inputs": { "minutesPerUnit": 3.6 } }
+                      { "name": "PU Adhesive", "type": "material", "inputs": { "quantity": 0.063, "unit": "kg", "priceKey": "adhesive_perKg" } },
+                      { "name": "Bonding Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 3.6 } }
                     ]
                   }
                 ]
@@ -414,15 +493,15 @@
                   {
                     "name": "Sockliner Base",
                     "children": [
-                      { "name": "EVA Material",      "type": "material",         "inputs": { "quantity": 0.105, "unit": "kg",  "priceKey": "evaResin_perKg" } },
-                      { "name": "Die-Cutting",       "type": "time_machine",     "inputs": { "minutesPerUnit": 2.3 } }
+                      { "name": "EVA Material", "type": "material", "inputs": { "quantity": 0.105, "unit": "kg", "priceKey": "evaResin_perKg" } },
+                      { "name": "Die-Cutting", "type": "time_machine", "inputs": { "minutesPerUnit": 2.3, "machineKey": "sewingMachine" } }
                     ]
                   },
                   {
                     "name": "Top Cover",
                     "children": [
-                      { "name": "Grip Fabric",       "type": "material",         "inputs": { "quantity": 0.047, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
-                      { "name": "Lamination",        "type": "time_machine",     "inputs": { "minutesPerUnit": 1.9 } }
+                      { "name": "Grip Fabric", "type": "material", "inputs": { "quantity": 0.047, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
+                      { "name": "Lamination", "type": "time_machine", "inputs": { "minutesPerUnit": 1.9, "machineKey": "compressionMouldingPress" } }
                     ]
                   }
                 ]
@@ -433,16 +512,16 @@
                   {
                     "name": "Laces",
                     "children": [
-                      { "name": "Polyester Yarn",    "type": "material",         "inputs": { "quantity": 0.024, "unit": "kg",  "priceKey": "polyesterYarn_perKg" } },
-                      { "name": "Braiding Time",     "type": "time_machine",     "inputs": { "minutesPerUnit": 1.8 } }
+                      { "name": "Polyester Yarn", "type": "material", "inputs": { "quantity": 0.024, "unit": "kg", "priceKey": "polyesterYarn_perKg" } },
+                      { "name": "Braiding Time", "type": "time_machine", "inputs": { "minutesPerUnit": 1.8, "machineKey": "knittingMachine" } }
                     ]
                   },
                   {
                     "name": "Branding",
                     "children": [
-                      { "name": "Heat Transfer",     "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
-                      { "name": "Label Material",    "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
-                      { "name": "Application Labour","type": "time_labour",      "inputs": { "minutesPerUnit": 2.3 } }
+                      { "name": "Heat Transfer", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
+                      { "name": "Label Material", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
+                      { "name": "Application Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.3 } }
                     ]
                   }
                 ]
@@ -453,14 +532,14 @@
                   {
                     "name": "Shoebox",
                     "children": [
-                      { "name": "Cardboard",         "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
-                      { "name": "Assembly Labour",   "type": "time_labour",      "inputs": { "minutesPerUnit": 1.4 } }
+                      { "name": "Cardboard", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
+                      { "name": "Assembly Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.4 } }
                     ]
                   },
                   {
                     "name": "Polybag",
                     "children": [
-                      { "name": "LDPE Film",         "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } }
+                      { "name": "LDPE Film", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } }
                     ]
                   }
                 ]
@@ -470,23 +549,44 @@
           {
             "name": "Labour (CMT)",
             "children": [
-              { "name": "Cutting",  "children": [
-                  { "name": "Operator Time",       "type": "time_labour",      "inputs": { "minutesPerUnit": 6.0 } },
-                  { "name": "Machine Depreciation", "type": "time_machine",    "inputs": { "minutesPerUnit": 6.0 } }
+              { "name": "Cutting", "children": [
+                { "name": "Operator Time", "children": [
+                  { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                  { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 6.0 } }
+                ]},
+                { "name": "Machine Depreciation", "children": [
+                  { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "knittingMachine" } },
+                  { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 6.0, "machineKey": "knittingMachine" } }
+                ]}
               ]},
               { "name": "Stitching", "children": [
-                  { "name": "Operator Time",       "type": "time_labour",      "inputs": { "minutesPerUnit": 18.0 } },
-                  { "name": "Thread",              "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
-                  { "name": "Machine Depreciation","type": "time_machine",     "inputs": { "minutesPerUnit": 18.0 } }
+                { "name": "Operator Time", "children": [
+                  { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                  { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 18.0 } }
+                ]},
+                { "name": "Thread", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
+                { "name": "Machine Depreciation", "children": [
+                  { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "sewingMachine" } },
+                  { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 18.0, "machineKey": "sewingMachine" } }
+                ]}
               ]},
-              { "name": "Assembly",  "children": [
-                  { "name": "Operator Time",       "type": "time_labour",      "inputs": { "minutesPerUnit": 23.5 } },
-                  { "name": "Bonding Materials",   "type": "material",         "inputs": { "quantity": 0.03, "unit": "kg", "priceKey": "adhesive_perKg" } },
-                  { "name": "Press Machinery",     "type": "time_machine",     "inputs": { "minutesPerUnit": 7.0 } }
+              { "name": "Assembly", "children": [
+                { "name": "Operator Time", "children": [
+                  { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                  { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 23.5 } }
+                ]},
+                { "name": "Bonding Materials", "type": "material", "inputs": { "quantity": 0.03, "unit": "kg", "priceKey": "adhesive_perKg" } },
+                { "name": "Press Machinery", "children": [
+                  { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "compressionMouldingPress" } },
+                  { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 7.0, "machineKey": "compressionMouldingPress" } }
+                ]}
               ]},
               { "name": "Finishing", "children": [
-                  { "name": "Operator Time",       "type": "time_labour",      "inputs": { "minutesPerUnit": 6.8 } },
-                  { "name": "Packing Labour",      "type": "time_labour",      "inputs": { "minutesPerUnit": 2.9 } }
+                { "name": "Operator Time", "children": [
+                  { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                  { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 6.8 } }
+                ]},
+                { "name": "Packing Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.9 } }
               ]}
             ]
           },
@@ -494,25 +594,21 @@
             "name": "Overheads",
             "children": [
               { "name": "Factory Overhead", "children": [
-                  { "name": "Rent & Utilities",    "type": "time_machine",     "inputs": { "minutesPerUnit": 75 } },
-                  { "name": "Depreciation",        "type": "time_machine",     "inputs": { "minutesPerUnit": 45 } },
-                  { "name": "Indirect Labour",     "type": "time_labour",      "inputs": { "minutesPerUnit": 25 } }
+                { "name": "Rent & Utilities", "type": "overhead", "inputs": { "minutesPerUnit": 75 } },
+                { "name": "Depreciation", "type": "time_machine", "inputs": { "minutesPerUnit": 45, "machineKey": "knittingMachine" } },
+                { "name": "Indirect Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 25 } }
               ]},
               { "name": "Quality Control", "children": [
-                  { "name": "QC Labour",           "type": "time_labour",      "inputs": { "minutesPerUnit": 2.8 } },
-                  { "name": "Testing Equipment",   "type": "time_machine",     "inputs": { "minutesPerUnit": 1.4 } }
+                { "name": "QC Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.8 } },
+                { "name": "Testing Equipment", "type": "time_machine", "inputs": { "minutesPerUnit": 1.4, "machineKey": "sewingMachine" } }
               ]},
               { "name": "Management", "children": [
-                  { "name": "Supervisor Time",     "type": "time_labour",      "inputs": { "minutesPerUnit": 3.8 } },
-                  { "name": "Admin / Compliance",  "type": "time_labour",      "inputs": { "minutesPerUnit": 2.2 } }
+                { "name": "Supervisor Time", "type": "time_labour", "inputs": { "minutesPerUnit": 3.8 } },
+                { "name": "Admin / Compliance", "type": "time_labour", "inputs": { "minutesPerUnit": 2.2 } }
               ]}
             ]
           },
-          {
-            "name": "Factory Margin",
-            "type": "percent_of_subtotal",
-            "inputs": { "percent": 9 }
-          }
+          { "name": "Factory Margin", "type": "percent_of_subtotal", "inputs": { "percent": 9 } }
         ]
       }
     },
@@ -522,6 +618,7 @@
       "name": "PUMA Training Tee",
       "category": "Sports Shirt",
       "retailPrice": 35.00,
+      "supplierTier": "tier2",
       "moq": {
         "current": 3000, "min": 500, "max": 20000, "step": 250, "unit": "units",
         "fixedCostPool": 3900,
@@ -545,22 +642,22 @@
                   {
                     "name": "Recycled Polyester Yarn",
                     "children": [
-                      { "name": "rPET Pellets",    "type": "material",         "inputs": { "quantity": 0.144, "unit": "kg",  "priceKey": "polyesterYarn_perKg" } },
-                      { "name": "Yarn Spinning",   "type": "time_machine",     "inputs": { "minutesPerUnit": 2.5 } }
+                      { "name": "rPET Pellets", "type": "material", "inputs": { "quantity": 0.144, "unit": "kg", "priceKey": "rPETPellet_perKg" } },
+                      { "name": "Yarn Spinning", "type": "time_machine", "inputs": { "minutesPerUnit": 2.5, "machineKey": "knittingMachine" } }
                     ]
                   },
                   {
                     "name": "Knitting",
                     "children": [
-                      { "name": "Machine Time",    "type": "time_machine",     "inputs": { "minutesPerUnit": 4.8 } },
-                      { "name": "Knitting Energy", "type": "time_machine",     "inputs": { "minutesPerUnit": 2.4 } }
+                      { "name": "Machine Time", "type": "time_machine", "inputs": { "minutesPerUnit": 4.8, "machineKey": "knittingMachine" } },
+                      { "name": "Knitting Energy", "type": "time_machine", "inputs": { "minutesPerUnit": 2.4, "machineKey": "knittingMachine" } }
                     ]
                   },
                   {
                     "name": "Dyeing & Finishing",
                     "children": [
-                      { "name": "Dye Chemicals",   "type": "material",         "inputs": { "quantity": 0.02, "unit": "kg", "priceKey": "adhesive_perKg" } },
-                      { "name": "Water & Energy",  "type": "time_machine",     "inputs": { "minutesPerUnit": 4.0 } }
+                      { "name": "Dye Chemicals", "type": "material", "inputs": { "quantity": 0.02, "unit": "kg", "priceKey": "adhesive_perKg" } },
+                      { "name": "Water & Energy", "type": "time_machine", "inputs": { "minutesPerUnit": 4.0, "machineKey": "knittingMachine" } }
                     ]
                   }
                 ]
@@ -568,33 +665,33 @@
               {
                 "name": "Sleeve Fabric",
                 "children": [
-                  { "name": "Polyester Yarn",      "type": "material",         "inputs": { "quantity": 0.067, "unit": "kg",  "priceKey": "polyesterYarn_perKg" } },
-                  { "name": "Cutting Labour",      "type": "time_labour",      "inputs": { "minutesPerUnit": 2.8 } }
+                  { "name": "Polyester Yarn", "type": "material", "inputs": { "quantity": 0.067, "unit": "kg", "priceKey": "polyesterYarn_perKg" } },
+                  { "name": "Cutting Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.8 } }
                 ]
               },
               {
                 "name": "Rib (Collar & Cuffs)",
                 "children": [
-                  { "name": "Elastane Blend",      "type": "material",         "inputs": { "quantity": 0.029, "unit": "kg",  "priceKey": "polyesterYarn_perKg" } },
-                  { "name": "Knitting Time",       "type": "time_machine",     "inputs": { "minutesPerUnit": 1.4 } },
-                  { "name": "Dyeing",              "type": "time_machine",     "inputs": { "minutesPerUnit": 0.8 } },
-                  { "name": "Attachment Labour",   "type": "time_labour",      "inputs": { "minutesPerUnit": 2.3 } }
+                  { "name": "Elastane Blend", "type": "material", "inputs": { "quantity": 0.029, "unit": "kg", "priceKey": "polyesterYarn_perKg" } },
+                  { "name": "Knitting Time", "type": "time_machine", "inputs": { "minutesPerUnit": 1.4, "machineKey": "knittingMachine" } },
+                  { "name": "Dyeing", "type": "time_machine", "inputs": { "minutesPerUnit": 0.8, "machineKey": "knittingMachine" } },
+                  { "name": "Attachment Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.3 } }
                 ]
               },
               {
                 "name": "Trims",
                 "children": [
-                  { "name": "Sewing Thread",       "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
-                  { "name": "Labels & Tags",       "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
-                  { "name": "Heat Transfers",      "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } }
+                  { "name": "Sewing Thread", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
+                  { "name": "Labels & Tags", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
+                  { "name": "Heat Transfers", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } }
                 ]
               },
               {
                 "name": "Packaging",
                 "children": [
-                  { "name": "Polybag",             "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } },
-                  { "name": "Hangtag",             "type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "hangtag_perUnit" } },
-                  { "name": "Attachment Labour",   "type": "time_labour",      "inputs": { "minutesPerUnit": 1.3 } }
+                  { "name": "Polybag", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } },
+                  { "name": "Hangtag", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "hangtag_perUnit" } },
+                  { "name": "Attachment Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.3 } }
                 ]
               }
             ]
@@ -603,17 +700,29 @@
             "name": "Labour (CMT)",
             "children": [
               { "name": "Cutting", "children": [
-                  { "name": "Operator Time",       "type": "time_labour",      "inputs": { "minutesPerUnit": 3.0 } },
-                  { "name": "Machine Time",        "type": "time_machine",     "inputs": { "minutesPerUnit": 1.6 } }
+                { "name": "Operator Time", "children": [
+                  { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                  { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 3.0 } }
+                ]},
+                { "name": "Machine Time", "children": [
+                  { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "knittingMachine" } },
+                  { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 1.6, "machineKey": "knittingMachine" } }
+                ]}
               ]},
               { "name": "Sewing", "children": [
-                  { "name": "Main Seams",          "type": "time_labour",      "inputs": { "minutesPerUnit": 8.5 } },
-                  { "name": "Collar / Cuffs",      "type": "time_labour",      "inputs": { "minutesPerUnit": 3.6 } },
-                  { "name": "Thread & Consumables","type": "material",         "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } }
+                { "name": "Main Seams", "children": [
+                  { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                  { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 8.5 } }
+                ]},
+                { "name": "Collar / Cuffs", "children": [
+                  { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
+                  { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 3.6 } }
+                ]},
+                { "name": "Thread & Consumables", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } }
               ]},
               { "name": "Finishing", "children": [
-                  { "name": "Trimming & Pressing", "type": "time_labour",      "inputs": { "minutesPerUnit": 2.6 } },
-                  { "name": "Packing Labour",      "type": "time_labour",      "inputs": { "minutesPerUnit": 1.8 } }
+                { "name": "Trimming & Pressing", "type": "time_labour", "inputs": { "minutesPerUnit": 2.6 } },
+                { "name": "Packing Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.8 } }
               ]}
             ]
           },
@@ -621,25 +730,21 @@
             "name": "Overheads",
             "children": [
               { "name": "Factory Overhead", "children": [
-                  { "name": "Rent & Utilities",    "type": "time_machine",     "inputs": { "minutesPerUnit": 40 } },
-                  { "name": "Depreciation",        "type": "time_machine",     "inputs": { "minutesPerUnit": 22 } },
-                  { "name": "Indirect Labour",     "type": "time_labour",      "inputs": { "minutesPerUnit": 18 } }
+                { "name": "Rent & Utilities", "type": "overhead", "inputs": { "minutesPerUnit": 40 } },
+                { "name": "Depreciation", "type": "time_machine", "inputs": { "minutesPerUnit": 22, "machineKey": "knittingMachine" } },
+                { "name": "Indirect Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 18 } }
               ]},
               { "name": "Quality Control", "children": [
-                  { "name": "QC Labour",           "type": "time_labour",      "inputs": { "minutesPerUnit": 1.8 } },
-                  { "name": "Testing",             "type": "time_machine",     "inputs": { "minutesPerUnit": 0.9 } }
+                { "name": "QC Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.8 } },
+                { "name": "Testing", "type": "time_machine", "inputs": { "minutesPerUnit": 0.9, "machineKey": "sewingMachine" } }
               ]},
               { "name": "Management", "children": [
-                  { "name": "Supervisor",          "type": "time_labour",      "inputs": { "minutesPerUnit": 2.2 } },
-                  { "name": "Admin",               "type": "time_labour",      "inputs": { "minutesPerUnit": 1.6 } }
+                { "name": "Supervisor", "type": "time_labour", "inputs": { "minutesPerUnit": 2.2 } },
+                { "name": "Admin", "type": "time_labour", "inputs": { "minutesPerUnit": 1.6 } }
               ]}
             ]
           },
-          {
-            "name": "Factory Margin",
-            "type": "percent_of_subtotal",
-            "inputs": { "percent": 8 }
-          }
+          { "name": "Factory Margin", "type": "percent_of_subtotal", "inputs": { "percent": 8 } }
         ]
       }
     }
