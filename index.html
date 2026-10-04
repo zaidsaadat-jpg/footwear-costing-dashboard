@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMA Should-Cost Dashboard v4.1</title>
+<title>PUMA Should-Cost Dashboard v5</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
@@ -13,7 +13,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
 .header h1 { font-size: 22px; }
 .header .sub { font-size: 12px; color: #aaa; margin-top: 4px; }
-.tabs { display: flex; gap: 4px; margin-top: 15px; }
+.tabs { display: flex; gap: 4px; margin-top: 15px; flex-wrap: wrap; }
 .tab { padding: 10px 22px; background: #2a2a2a; color: #aaa; border: none; cursor: pointer; border-radius: 8px 8px 0 0; font-size: 14px; font-weight: 500; }
 .tab.active { background: #f5f5f5; color: #111; }
 .container { max-width: 1600px; margin: 0 auto; padding: 25px 20px; }
@@ -82,6 +82,32 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .dirty-warning { background: #fff3cd; color: #856404; padding: 8px 14px; border-radius: 6px; font-size: 12px; margin-top: 10px; display: none; }
 .dirty-warning.on { display: inline-block; }
 .tier-select { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; font-size: 14px; }
+.forecast-header { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.forecast-header h3 { margin-bottom: 10px; }
+.forecast-header p { font-size: 13px; color: #555; line-height: 1.6; }
+.forecast-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 25px; margin-bottom: 25px; }
+.forecast-card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.forecast-card h4 { font-size: 15px; margin-bottom: 6px; }
+.forecast-card .cat { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 15px; }
+.forecast-chart-wrap { height: 260px; margin-bottom: 15px; position: relative; }
+.forecast-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+.forecast-summary .stat { background: #f8fafc; border-radius: 8px; padding: 10px; text-align: center; }
+.forecast-summary .stat .lbl { font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: .5px; }
+.forecast-summary .stat .val { font-size: 16px; font-weight: 700; margin-top: 3px; }
+.forecast-summary .stat .delta { font-size: 11px; margin-top: 2px; }
+.delta-up { color: #dc2626; } .delta-down { color: #059669; }
+.driver-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+.driver-table th { font-size: 10px; text-transform: uppercase; color: #666; background: #f9fafb; padding: 6px 8px; text-align: left; }
+.driver-table td { font-size: 12px; padding: 7px 8px; border-bottom: 1px solid #eee; }
+.driver-table .src { font-size: 10px; color: #999; font-style: italic; }
+.src-link { color: #2e7d32; text-decoration: none; font-size: 10px; margin-left: 4px; }
+.src-link:hover { text-decoration: underline; }
+.driver-table .q-change { text-align: right; color: #555; font-family: monospace; }
+.scenario-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 18px; margin-top: 20px; }
+.scenario-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 12px; align-items: center; padding: 6px 0; border-bottom: 1px solid #eee; }
+.scenario-row:last-child { border-bottom: none; }
+.scenario-row input { padding: 6px 8px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; width: 100%; }
+.scenario-row .note { font-size: 11px; color: #999; }
 </style>
 </head>
 <body>
@@ -89,7 +115,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 <div class="header">
   <div class="header-top">
     <div>
-      <h1>PUMA Should-Cost Dashboard v4.1</h1>
+      <h1>PUMA Should-Cost Dashboard v5</h1>
       <div class="sub" id="updated">Loading…</div>
       <div class="dirty-warning" id="dirtyWarning">⚠️ Assumptions modified from defaults</div>
     </div>
@@ -111,6 +137,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tabs">
     <button class="tab active" onclick="showTab('dashboard', this)">📊 Dashboard</button>
     <button class="tab" onclick="showTab('assumptions', this)">⚙️ Assumptions & Sources</button>
+    <button class="tab" onclick="showTab('forecast', this)">📈 Budgeting & Forecasting</button>
   </div>
 </div>
 
@@ -121,7 +148,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
       <h3 id="drillTitle"></h3>
       <div id="locBanner" style="background:#e8f5e9; padding:10px 15px; border-radius:8px; margin-bottom:20px; font-size:13.5px;"></div>
       <div class="chartbox"><canvas id="chart"></canvas></div>
-
       <div class="section">
         <h3 style="margin-bottom:15px;">MOQ — Volume Sensitivity</h3>
         <div class="moq-box">
@@ -139,7 +165,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
           <canvas id="moqChart"></canvas>
         </div>
       </div>
-
       <div class="section">
         <h3 style="margin-bottom:8px;">Cost Driver Tree — % of Total Cost</h3>
         <div class="tree-hint">💡 Click any segment to expand its children. Click again to collapse.</div>
@@ -150,7 +175,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
         </div>
         <div id="treeChart"></div>
       </div>
-
       <div class="section">
         <h3 style="margin-bottom:15px;">Cost Tree Table — filter each column like Excel</h3>
         <div class="tbl-wrap"><table id="table"></table></div>
@@ -164,40 +188,56 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
       <button class="btn-warn" onclick="resetAssumptions()">↺ Reset</button>
       <button class="btn-secondary" onclick="exportAssumptions()">↓ Export JSON</button>
     </div>
-
     <div class="assumption-group">
       <h3>🌍 Location Rates</h3>
       <div class="loc-tabs" id="locTabs"></div>
       <div id="locEditor"></div>
     </div>
-
     <div class="assumption-group">
       <h3>💵 Material Prices</h3>
       <div id="materialEditor"></div>
     </div>
-
     <div class="assumption-group">
       <h3>🏭 Machine Assumptions</h3>
       <div id="machineEditor"></div>
     </div>
   </div>
+
+  <div class="tab-panel" id="tab-forecast">
+    <div class="forecast-header">
+      <h3>📈 18-Month Budgeting & Forecasting</h3>
+      <p>Projected cost evolution for each product from <strong id="fcBase">Oct 2026</strong> to <strong id="fcEnd">Mar 2028</strong>. Each projection is built from driver-level forecasts cited from industry sources. Adjust the scenario inputs below to stress-test.</p>
+    </div>
+    <div class="forecast-grid" id="forecastGrid"></div>
+    <div class="forecast-card">
+      <h4>🔧 Scenario Adjustment</h4>
+      <div class="cat">Change any quarterly driver rate and re-run</div>
+      <div class="scenario-box" id="scenarioBox"></div>
+      <button class="btn-primary" style="margin-top:15px;" onclick="runForecast()">↻ Re-run Forecast</button>
+      <button class="btn-secondary" style="margin-top:15px;" onclick="resetForecast()">↺ Reset to Research Defaults</button>
+    </div>
+    <div class="forecast-card" style="margin-top:25px;">
+      <h4>📚 Forecast Drivers & Sources</h4>
+      <div class="cat">All underlying forecasts that feed the projections above</div>
+      <table class="driver-table" id="driverTable"></table>
+    </div>
+  </div>
 </div>
 
-<div class="footer">Estimates based on industry benchmarks. Not actual PUMA supplier data.</div>
+<div class="footer">Estimates based on industry benchmarks and published forecasts. Not actual PUMA supplier data.</div>
 
 <script>
 const STORAGE_KEY = 'puma_should_cost_v4';
-let data = null, originalAssumptions = null;
+const FC_STORAGE = 'puma_forecast_overrides_v5';
+let data = null, originalAssumptions = null, originalForecasts = null;
 let selected = null, chart = null, moqChart = null;
 let currentLocation = null, currentTier = 'tier2';
 let currentChartType = 'icicle', currentMOQ = null;
 let sortState = { column: 'cost', dir: 'desc' };
 let editingLocId = null;
 let colFilters = {};
-
-// Tracks which nodes are expanded in the tree chart
-// Key = full path string (e.g. "Factory Cost (FOB)/Materials")
 let expandedNodes = {};
+let forecastOverrides = {};
 
 const fmt = n => '€' + (isFinite(n) ? n.toFixed(2) : '0.00');
 const pct = n => (isFinite(n) ? n.toFixed(1) : '0.0') + '%';
@@ -206,8 +246,11 @@ async function load() {
   const r = await fetch('cost_data.json');
   data = await r.json();
   originalAssumptions = JSON.parse(JSON.stringify(data.assumptions));
+  if (data.forecasts) originalForecasts = JSON.parse(JSON.stringify(data.forecasts));
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) { try { data.assumptions = JSON.parse(saved); document.getElementById('dirtyWarning').classList.add('on'); } catch(e){} }
+  const savedFc = localStorage.getItem(FC_STORAGE);
+  if (savedFc) { try { forecastOverrides = JSON.parse(savedFc); } catch(e){} }
 
   const sel = document.getElementById('locationSelect');
   sel.innerHTML = '';
@@ -221,6 +264,8 @@ async function load() {
   document.getElementById('updated').textContent = 'Last updated: ' + (data.last_updated || '—') + ' · v' + (data.version || '');
   renderCards();
   renderAssumptionEditors();
+  if (data.forecasts) renderForecastTab();
+  else document.getElementById('tab-forecast').innerHTML = '<div class="forecast-header"><h3>No forecast data</h3><p>Add the <code>forecasts</code> block to cost_data.json to enable this tab.</p></div>';
 }
 
 function showTab(name, btn) {
@@ -230,7 +275,6 @@ function showTab(name, btn) {
   document.getElementById('tab-' + name).classList.add('active');
 }
 
-// ---------- TIER + MACHINE HELPERS ----------
 function getTierMultipliers() {
   const tier = data.assumptions.supplierTiers[currentTier];
   return tier || { laborMultiplier: 1, machineMultiplier: 1, overheadMultiplier: 1, moqMultiplier: 1, marginPercent: 9 };
@@ -242,8 +286,6 @@ function machineRatePerHr(machineKey) {
   const maintenance = depreciation * (m.maintenancePercentOfDep / 100);
   return (depreciation + maintenance + m.powerCostPerHr) * getTierMultipliers().machineMultiplier;
 }
-
-// ---------- COST EVALUATION ----------
 function evaluateNode(node, loc, matPrices) {
   if (node.children && node.children.length > 0 && !node.type) {
     return node.children.reduce((s, c) => s + evaluateNode(c, loc, matPrices), 0);
@@ -285,22 +327,22 @@ function totalOf(node) {
   if (typeof node.cost === 'number') return node.cost;
   return (node.children || []).reduce((s, c) => s + totalOf(c), 0);
 }
-function calc(p) {
-  if (!currentLocation) currentLocation = data.assumptions.locations[0];
-  const tree = evaluateTree(p.costTree, currentLocation, data.assumptions.materialPrices, '');
+function calc(p, locOverride, matOverride) {
+  const loc = locOverride || currentLocation || data.assumptions.locations[0];
+  const mats = matOverride || data.assumptions.materialPrices;
+  const tree = evaluateTree(p.costTree, loc, mats, '');
   const fob = tree.cost;
   const findTop = n => tree.children.find(c => c.name === n);
   const mat = findTop('Materials')?.cost || 0;
   const lab = findTop('Labour (CMT)')?.cost || 0;
   const ovh = findTop('Overheads')?.cost || 0;
   const margin = findTop('Factory Margin')?.cost || 0;
-  const freight = currentLocation.freightPerUnit;
-  const dutyRate = currentLocation.dutyRatePercent;
+  const freight = loc.freightPerUnit;
+  const dutyRate = loc.dutyRatePercent;
   const duty = fob * (dutyRate / 100);
   return { tree, fob, mat, lab, ovh, margin, freight, duty, dutyRate, landed: fob + freight + duty };
 }
 
-// ---------- CARDS ----------
 function renderCards() {
   const g = document.getElementById('cards'); g.innerHTML = '';
   data.products.forEach(p => {
@@ -333,7 +375,6 @@ function renderCards() {
 function selectProduct(id) {
   selected = data.products.find(p => p.id === id);
   document.getElementById('drill').classList.add('on');
-  // Default expansions: show root + top-level categories
   expandedNodes = {};
   const rootPath = 'Factory Cost (FOB)';
   expandedNodes[rootPath] = true;
@@ -350,7 +391,7 @@ function renderDrilldown() {
   document.getElementById('drillTitle').textContent = selected.name + ' — Cost Breakdown';
   const tier = data.assumptions.supplierTiers[currentTier];
   document.getElementById('locBanner').innerHTML =
-    `<strong>📍 ${currentLocation.name}</strong> · ${tier.name} · Labour €${currentLocation.laborRatePerHr}/hr · Machine rate varies by equipment · Freight €${currentLocation.freightPerUnit} · Duty ${currentLocation.dutyRatePercent}%`;
+    `<strong>📍 ${currentLocation.name}</strong> · ${tier.name} · Labour €${currentLocation.laborRatePerHr}/hr · Freight €${currentLocation.freightPerUnit} · Duty ${currentLocation.dutyRatePercent}%`;
 
   if (chart) chart.destroy();
   chart = new Chart(document.getElementById('chart'), {
@@ -359,7 +400,6 @@ function renderDrilldown() {
       datasets: [{ data: [c.mat, c.lab, c.ovh, c.margin], backgroundColor: ['#111','#555','#999','#ddd'], borderWidth: 0 }] },
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
-
   if (selected.moq) {
     currentMOQ = selected.moq.current;
     const s = document.getElementById('moqSlider');
@@ -367,92 +407,47 @@ function renderDrilldown() {
     s.value = selected.moq.current;
     updateMOQDisplay();
   }
-
   drawTreeChart(c.tree);
   renderTreeTable(c.tree, c.fob);
 }
 
-// ---------- TREE CHART (COLLAPSIBLE) ----------
 function drawTreeChart(root) {
   const ids = [], labels = [], parents = [], values = [], colors = [];
   const palette = ['#1a1a1a','#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2','#b7e4c7'];
-  const rootTotal = totalOf(root);
-
   function walk(n, pid, depth) {
     const id = n._path;
-    const val = totalOf(n);
-    ids.push(id);
-    labels.push(n.name);
-    parents.push(pid || '');
-    values.push(val);
+    ids.push(id); labels.push(n.name); parents.push(pid || '');
+    values.push(totalOf(n));
     colors.push(palette[Math.min(depth, palette.length - 1)]);
-
     const hasChildren = n.children && n.children.length > 0;
     const isExpanded = expandedNodes[id] === true;
-
-    // Only include children if this node is expanded
-    if (hasChildren && isExpanded) {
-      n.children.forEach(c => walk(c, id, depth + 1));
-    }
+    if (hasChildren && isExpanded) n.children.forEach(c => walk(c, id, depth + 1));
   }
   walk(root, '', 0);
-
-  const layout = {
-    margin: { l: 0, r: 0, t: 10, b: 10 },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    font: { size: 11 }
-  };
-
+  const layout = { margin: { l: 0, r: 0, t: 10, b: 10 }, paper_bgcolor: 'rgba(0,0,0,0)', font: { size: 11 } };
   let trace;
-  if (currentChartType === 'icicle') {
-    trace = { type: 'icicle', ids, labels, parents, values, branchvalues: 'total',
-      textinfo: 'label+percent root', hoverinfo: 'label+value+percent parent',
-      marker: { colors }, tiling: { orientation: 'v' } };
-  } else if (currentChartType === 'treemap') {
-    trace = { type: 'treemap', ids, labels, parents, values, branchvalues: 'total',
-      textinfo: 'label+percent root', hoverinfo: 'label+value+percent parent',
-      marker: { colors } };
-  } else {
-    trace = { type: 'sunburst', ids, labels, parents, values, branchvalues: 'total',
-      textinfo: 'label+percent root', hoverinfo: 'label+value+percent parent',
-      marker: { colors } };
-  }
-
-  const config = { responsive: true, displayModeBar: false };
-  Plotly.react('treeChart', [trace], layout, config);
-
-  // Remove old listeners to avoid stacking
+  if (currentChartType === 'icicle') trace = { type: 'icicle', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent root', hoverinfo: 'label+value+percent parent', marker: { colors }, tiling: { orientation: 'v' } };
+  else if (currentChartType === 'treemap') trace = { type: 'treemap', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent root', hoverinfo: 'label+value+percent parent', marker: { colors } };
+  else trace = { type: 'sunburst', ids, labels, parents, values, branchvalues: 'total', textinfo: 'label+percent root', hoverinfo: 'label+value+percent parent', marker: { colors } };
+  Plotly.react('treeChart', [trace], layout, { responsive: true, displayModeBar: false });
   const plotDiv = document.getElementById('treeChart');
   if (plotDiv.removeAllListeners) plotDiv.removeAllListeners('plotly_click');
   else if (plotDiv._ev) plotDiv._ev = {};
-
   plotDiv.on('plotly_click', function(evt) {
     if (!evt.points || !evt.points[0]) return;
     const clickedId = evt.points[0].id;
     if (!clickedId) return;
-
-    // Toggle expansion
-    if (expandedNodes[clickedId]) {
-      delete expandedNodes[clickedId];
-    } else {
-      expandedNodes[clickedId] = true;
-    }
-
-    // Re-render tree chart and table (both share state)
-    if (selected) {
-      const c = calc(selected);
-      drawTreeChart(c.tree);
-    }
+    if (expandedNodes[clickedId]) delete expandedNodes[clickedId];
+    else expandedNodes[clickedId] = true;
+    if (selected) { const c = calc(selected); drawTreeChart(c.tree); }
   });
 }
-
 function setChartType(type) {
   currentChartType = type;
   document.querySelectorAll('.chart-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
   if (selected) drawTreeChart(calc(selected).tree);
 }
 
-// ---------- TABLE (HIERARCHICAL COLUMNS + EXCEL FILTERS) ----------
 function flattenLeaves(node, parentTotal, path, fob) {
   const rows = [];
   const cost = totalOf(node);
@@ -460,38 +455,25 @@ function flattenLeaves(node, parentTotal, path, fob) {
   if (node.children && node.children.length > 0 && !node.type) {
     node.children.forEach(c => rows.push(...flattenLeaves(c, cost, newPath, fob)));
   } else {
-    rows.push({
-      path: newPath,
-      cost,
-      parentCost: parentTotal,
+    rows.push({ path: newPath, cost, parentCost: parentTotal,
       pctOfParent: parentTotal ? (cost / parentTotal) * 100 : 100,
-      pctOfFob: fob ? (cost / fob) * 100 : 0,
-      type: node.type
-    });
+      pctOfFob: fob ? (cost / fob) * 100 : 0, type: node.type });
   }
   return rows;
 }
-
 function getUniqueColumnValues(rows, colIdx) {
   const s = new Set();
   rows.forEach(r => { if (r.path[colIdx]) s.add(r.path[colIdx]); });
   return [...s].sort();
 }
-
 function applyColFilter(colIdx, val) {
-  if (val) colFilters[colIdx] = val;
-  else delete colFilters[colIdx];
+  if (val) colFilters[colIdx] = val; else delete colFilters[colIdx];
   if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); }
 }
-
 function renderTreeTable(tree, fob) {
   const allRows = flattenLeaves(tree, null, [], fob);
-
-  // Determine max depth for columns
   const maxCols = Math.max(...allRows.map(r => r.path.length));
-  const colCount = Math.max(maxCols, 5); // at least 5 columns
-
-  // Apply column filters
+  const colCount = Math.max(maxCols, 5);
   let rows = allRows.filter(r => {
     for (const [col, val] of Object.entries(colFilters)) {
       if (!val) continue;
@@ -499,8 +481,6 @@ function renderTreeTable(tree, fob) {
     }
     return true;
   });
-
-  // Sort
   if (sortState.column) {
     rows.sort((a, b) => {
       const d = sortState.dir === 'asc' ? 1 : -1;
@@ -510,21 +490,13 @@ function renderTreeTable(tree, fob) {
       return 0;
     });
   }
-
   const arrow = c => sortState.column === c ? (sortState.dir === 'asc' ? ' ↑' : ' ↓') : ' ⇅';
-
-  // Header row 1 (column names + sort)
   let h = '<thead><tr>';
-  for (let i = 0; i < colCount; i++) {
-    h += `<th style="min-width:110px;">L${i + 1}</th>`;
-  }
+  for (let i = 0; i < colCount; i++) h += `<th style="min-width:110px;">L${i + 1}</th>`;
   h += `<th class="sortable num" style="min-width:80px;" onclick="sortBy('cost')">Cost${arrow('cost')}</th>`;
   h += `<th class="sortable pct" onclick="sortBy('parent')">% Parent${arrow('parent')}</th>`;
   h += `<th class="sortable pct" onclick="sortBy('fob')">% of Total${arrow('fob')}</th>`;
-  h += '</tr>';
-
-  // Header row 2 (Excel-style filters)
-  h += '<tr class="filter-row">';
+  h += '</tr><tr class="filter-row">';
   for (let i = 0; i < colCount; i++) {
     const uniq = getUniqueColumnValues(allRows, i);
     const currentVal = colFilters[i] || '';
@@ -537,46 +509,35 @@ function renderTreeTable(tree, fob) {
     });
     h += '</select></th>';
   }
-  h += '<th></th><th></th><th></th>';
-  h += '</tr></thead><tbody>';
-
-  // Data rows
+  h += '<th></th><th></th><th></th></tr></thead><tbody>';
   if (rows.length === 0) {
     h += `<tr><td colspan="${colCount + 3}" style="text-align:center; padding:20px; color:#999;">No rows match the current filters.</td></tr>`;
   } else {
     for (const r of rows) {
       h += '<tr>';
-      for (let i = 0; i < colCount; i++) {
-        const v = r.path[i] || '';
-        h += `<td class="lvl L${Math.min(i + 1, 10)}">${v}</td>`;
-      }
-      h += `<td class="num">${fmt(r.cost)}</td>`;
-      h += `<td class="pct">${pct(r.pctOfParent)}</td>`;
-      h += `<td class="pct">${pct(r.pctOfFob)}</td>`;
-      h += '</tr>';
+      for (let i = 0; i < colCount; i++) h += `<td class="lvl L${Math.min(i + 1, 10)}">${r.path[i] || ''}</td>`;
+      h += `<td class="num">${fmt(r.cost)}</td><td class="pct">${pct(r.pctOfParent)}</td><td class="pct">${pct(r.pctOfFob)}</td></tr>`;
     }
   }
   h += '</tbody>';
   document.getElementById('table').innerHTML = h;
 }
-
 function sortBy(col) {
   if (sortState.column === col) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
   else { sortState.column = col; sortState.dir = col === 'name' ? 'asc' : 'desc'; }
   if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); }
 }
-
-// ---------- LOCATION / TIER / MOQ ----------
 function onLocationChange() {
   currentLocation = data.assumptions.locations.find(l => l.id === document.getElementById('locationSelect').value);
   renderCards(); if (selected) renderDrilldown();
+  if (data.forecasts) renderForecastTab();
 }
 function onTierChange() {
   currentTier = document.getElementById('tierSelect').value;
   renderCards(); if (selected) renderDrilldown();
+  if (data.forecasts) renderForecastTab();
 }
 function onMOQChange() { currentMOQ = parseInt(document.getElementById('moqSlider').value); updateMOQDisplay(); }
-
 function updateMOQDisplay() {
   if (!selected || !selected.moq) return;
   const moq = selected.moq;
@@ -585,13 +546,11 @@ function updateMOQDisplay() {
   const variableCost = calc(selected).fob;
   const fixedPool = moq.fixedCostPool;
   const fixedPerUnit = fixedPool / effectiveMOQ;
-
   document.getElementById('moqValue').textContent = Math.round(effectiveMOQ).toLocaleString() + ' ' + moq.unit;
   document.getElementById('mVariable').textContent = fmt(variableCost);
   document.getElementById('mPool').textContent = '€' + fixedPool.toLocaleString();
   document.getElementById('mFixedPerUnit').textContent = fmt(fixedPerUnit);
   document.getElementById('mTotal').textContent = fmt(variableCost + fixedPerUnit);
-
   const quantities = [], fixedCurve = [], totalCurve = [];
   for (let i = 0; i <= 60; i++) {
     const q = (moq.min + (moq.max - moq.min) * i / 60) * tier.moqMultiplier;
@@ -610,8 +569,6 @@ function updateMOQDisplay() {
       scales: { x: { title: { display: true, text: 'Effective Order Quantity' }, ticks: { maxTicksLimit: 10 } }, y: { title: { display: true, text: '€ per unit' } } } }
   });
 }
-
-// ---------- ASSUMPTIONS EDITOR ----------
 function renderAssumptionEditors() {
   const tabs = document.getElementById('locTabs'); tabs.innerHTML = '';
   data.assumptions.locations.forEach(loc => {
@@ -626,10 +583,10 @@ function renderAssumptionEditors() {
   const locEd = document.getElementById('locEditor'); locEd.innerHTML = '';
   const fields = [
     { key: 'laborRatePerHr', label: 'Labour rate / hr (€)', note: loc.source || '' },
-    { key: 'machineRatePerHr', label: 'Machine rate / hr (€)', note: 'Base — overridden by machine-specific rates' },
-    { key: 'overheadRatePerHr', label: 'Overhead rate / hr (€)', note: 'Indirect factory cost' },
-    { key: 'freightPerUnit', label: 'Freight per unit (€)', note: 'Shipping to destination' },
-    { key: 'dutyRatePercent', label: 'Duty rate (%)', note: 'Import tariff' }
+    { key: 'machineRatePerHr', label: 'Machine rate / hr (€)', note: 'Base' },
+    { key: 'overheadRatePerHr', label: 'Overhead rate / hr (€)', note: 'Indirect' },
+    { key: 'freightPerUnit', label: 'Freight per unit (€)', note: 'Shipping' },
+    { key: 'dutyRatePercent', label: 'Duty rate (%)', note: 'Tariff' }
   ];
   fields.forEach(f => {
     const row = document.createElement('div'); row.className = 'assumption-row';
@@ -638,7 +595,6 @@ function renderAssumptionEditors() {
       <div class="note">${f.note}</div>`;
     locEd.appendChild(row);
   });
-
   const matEd = document.getElementById('materialEditor'); matEd.innerHTML = '';
   Object.entries(data.assumptions.materialPrices).forEach(([key, entry]) => {
     const val = typeof entry === 'number' ? entry : entry.price;
@@ -649,30 +605,29 @@ function renderAssumptionEditors() {
       <div class="note">${src}</div>`;
     matEd.appendChild(row);
   });
-
   const machEd = document.getElementById('machineEditor'); machEd.innerHTML = '';
   Object.entries(data.assumptions.machineAssumptions).forEach(([key, m]) => {
     const rate = (m.capitalCost / (m.lifeYears * m.operatingHoursPerYear)) + m.powerCostPerHr;
     const row = document.createElement('div'); row.className = 'assumption-row';
     row.innerHTML = `<div class="key">${key}<div class="id">machineAssumptions.${key}</div></div>
       <input type="number" step="0.01" value="${m.capitalCost}" onchange="updateMachine('${key}','capitalCost', this.value)">
-      <div class="note">Capital €${m.capitalCost.toLocaleString()} · ${m.lifeYears}yr life · ${m.operatingHoursPerYear}hr/yr → €${rate.toFixed(2)}/hr <br>${m.source || ''}</div>`;
+      <div class="note">Capital €${m.capitalCost.toLocaleString()} · ${m.lifeYears}yr · ${m.operatingHoursPerYear}hr/yr → €${rate.toFixed(2)}/hr <br>${m.source || ''}</div>`;
     machEd.appendChild(row);
   });
 }
-
 function updateLocField(locId, key, val) {
   const loc = data.assumptions.locations.find(l => l.id === locId);
   loc[key] = parseFloat(val); markDirty(); renderCards(); if (selected) renderDrilldown();
+  if (data.forecasts) renderForecastTab();
 }
 function updateMaterial(key, val) {
   if (typeof data.assumptions.materialPrices[key] === 'object') data.assumptions.materialPrices[key].price = parseFloat(val);
   else data.assumptions.materialPrices[key] = parseFloat(val);
   markDirty(); renderCards(); if (selected) renderDrilldown();
+  if (data.forecasts) renderForecastTab();
 }
 function updateMachine(key, field, val) {
-  data.assumptions.machineAssumptions[key][field] = parseFloat(val);
-  markDirty();
+  data.assumptions.machineAssumptions[key][field] = parseFloat(val); markDirty();
 }
 function markDirty() { document.getElementById('dirtyWarning').classList.add('on'); }
 function saveAssumptions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data.assumptions)); alert('✅ Saved.'); }
@@ -683,11 +638,164 @@ function resetAssumptions() {
   document.getElementById('dirtyWarning').classList.remove('on');
   editingLocId = data.assumptions.locations[0].id;
   renderAssumptionEditors(); renderCards(); if (selected) renderDrilldown();
+  if (data.forecasts) renderForecastTab();
 }
 function exportAssumptions() {
   const blob = new Blob([JSON.stringify(data.assumptions, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'assumptions_v4.json'; a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement('a'); a.href = url; a.download = 'assumptions_v5.json'; a.click(); URL.revokeObjectURL(url);
+}
+
+function getEffectiveForecastRate(driverId, qIdx) {
+  const driver = data.forecasts.drivers.find(d => d.id === driverId);
+  if (!driver) return 0;
+  if (forecastOverrides[driverId] && forecastOverrides[driverId][qIdx] !== undefined) {
+    return forecastOverrides[driverId][qIdx];
+  }
+  return driver.quarterlyChange[qIdx];
+}
+function buildProjection(product) {
+  const baseLoc = currentLocation;
+  const quarterLabels = data.forecasts.quarterLabels;
+  const projections = [];
+  const baseCost = calc(product, baseLoc, data.assumptions.materialPrices).fob;
+  for (let q = 0; q < 6; q++) {
+    const matCopy = {};
+    Object.entries(data.assumptions.materialPrices).forEach(([k, v]) => {
+      const price = typeof v === 'object' ? v.price : v;
+      let multiplier = 1;
+      data.forecasts.drivers.forEach(d => {
+        if (d.affects.type === 'material' && d.affects.key === k) {
+          for (let qq = 0; qq <= q; qq++) multiplier *= (1 + getEffectiveForecastRate(d.id, qq) / 100);
+        }
+      });
+      matCopy[k] = { price: price * multiplier, source: typeof v === 'object' ? v.source : '' };
+    });
+    const locCopy = { ...baseLoc };
+    let freightMultiplier = 1;
+    let labourMultiplier = 1;
+    data.forecasts.drivers.forEach(d => {
+      if (d.affects.type === 'labour' && d.affects.key === baseLoc.id) {
+        for (let qq = 0; qq <= q; qq++) labourMultiplier *= (1 + getEffectiveForecastRate(d.id, qq) / 100);
+      }
+      if (d.affects.type === 'freight') {
+        for (let qq = 0; qq <= q; qq++) freightMultiplier *= (1 + getEffectiveForecastRate(d.id, qq) / 100);
+      }
+    });
+    locCopy.laborRatePerHr = baseLoc.laborRatePerHr * labourMultiplier;
+    locCopy.freightPerUnit = baseLoc.freightPerUnit * freightMultiplier;
+    const c = calc(product, locCopy, matCopy);
+    projections.push({ label: quarterLabels[q], fob: c.fob, materials: c.mat, labour: c.lab, overheads: c.ovh, margin: c.margin, landed: c.landed, total: c.fob });
+  }
+  const finalFob = projections[projections.length - 1].fob;
+  const delta = baseCost ? ((finalFob - baseCost) / baseCost) * 100 : 0;
+  return { baseCost, projections, delta, finalFob };
+}
+function renderForecastTab() {
+  const fc = data.forecasts;
+  document.getElementById('fcBase').textContent = fc.quarterLabels[0];
+  document.getElementById('fcEnd').textContent = fc.quarterLabels[fc.quarterLabels.length - 1];
+  const grid = document.getElementById('forecastGrid');
+  grid.innerHTML = '';
+  if (window._fcCharts) window._fcCharts.forEach(c => c.destroy());
+  window._fcCharts = [];
+  data.products.forEach(p => {
+    const proj = buildProjection(p);
+    const card = document.createElement('div');
+    card.className = 'forecast-card';
+    const deltaPct = proj.delta;
+    const deltaClass = deltaPct > 0 ? 'delta-up' : 'delta-down';
+    const deltaSign = deltaPct > 0 ? '+' : '';
+    card.innerHTML = `
+      <h4>${p.name}</h4>
+      <div class="cat">${p.category} · ${currentLocation.name}</div>
+      <div class="forecast-summary">
+        <div class="stat"><div class="lbl">Base FOB</div><div class="val">${fmt(proj.baseCost)}</div></div>
+        <div class="stat"><div class="lbl">Projected Q1 2028</div><div class="val">${fmt(proj.finalFob)}</div></div>
+        <div class="stat"><div class="lbl">18-Month Δ</div><div class="val ${deltaClass}">${deltaSign}${deltaPct.toFixed(1)}%</div></div>
+      </div>
+      <div class="forecast-chart-wrap"><canvas id="fc-${p.id}"></canvas></div>
+    `;
+    grid.appendChild(card);
+    setTimeout(() => {
+      const ctx = document.getElementById('fc-' + p.id);
+      if (!ctx) return;
+      const c = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: proj.projections.map(x => x.label),
+          datasets: [
+            { label: 'Total FOB', data: proj.projections.map(x => x.fob), borderColor: '#111', backgroundColor: 'rgba(17,17,17,0.06)', borderWidth: 2.5, tension: 0.3, fill: true, pointRadius: 4 },
+            { label: 'Materials', data: proj.projections.map(x => x.materials), borderColor: '#2d6a4f', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
+            { label: 'Labour', data: proj.projections.map(x => x.labour), borderColor: '#f57c00', borderWidth: 1.5, tension: 0.3, pointRadius: 2 },
+            { label: 'Overheads', data: proj.projections.map(x => x.overheads), borderColor: '#999', borderWidth: 1.5, tension: 0.3, pointRadius: 2 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
+          scales: { y: { title: { display: true, text: '€ per unit' } } }
+        }
+      });
+      window._fcCharts.push(c);
+    }, 50);
+  });
+  renderScenarioBox();
+  renderDriverTable();
+}
+function renderScenarioBox() {
+  const box = document.getElementById('scenarioBox');
+  box.innerHTML = '';
+  data.forecasts.drivers.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'scenario-row';
+    const currentRate = getEffectiveForecastRate(d.id, 0);
+    row.innerHTML = `
+      <div>${d.name}<div class="note">${d.source}</div></div>
+      <input type="number" step="0.1" value="${currentRate}" onchange="updateForecastOverride('${d.id}', this.value)">
+      <div class="note">% change per quarter (applied to all quarters)</div>
+    `;
+    box.appendChild(row);
+  });
+}
+function updateForecastOverride(driverId, val) {
+  const v = parseFloat(val);
+  forecastOverrides[driverId] = [v, v, v, v, v, v];
+  localStorage.setItem(FC_STORAGE, JSON.stringify(forecastOverrides));
+  runForecast();
+}
+function runForecast() { renderForecastTab(); }
+function resetForecast() {
+  if (!confirm('Reset all forecast rates to research defaults?')) return;
+  forecastOverrides = {};
+  localStorage.removeItem(FC_STORAGE);
+  renderForecastTab();
+}
+function renderDriverTable() {
+  const t = document.getElementById('driverTable');
+  let h = `<thead><tr>
+    <th style="width:15%;">Driver</th>
+    <th style="width:12%;">Affects</th>
+    <th style="width:15%;">Source</th>
+    <th>Forecast Basis</th>
+    <th class="q-change">Q1</th><th class="q-change">Q2</th><th class="q-change">Q3</th><th class="q-change">Q4</th><th class="q-change">Q5</th><th class="q-change">Q6</th>
+  </tr></thead><tbody>`;
+  data.forecasts.drivers.forEach(d => {
+    const qCells = [0,1,2,3,4,5].map(q => {
+      const v = getEffectiveForecastRate(d.id, q);
+      const cls = v > 0 ? 'delta-up' : (v < 0 ? 'delta-down' : '');
+      return `<td class="q-change ${cls}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</td>`;
+    }).join('');
+    h += `<tr>
+      <td><strong>${d.name}</strong></td>
+      <td><span style="font-size:10px;color:#888;">${d.affects.type}:${d.affects.key}</span></td>
+      <td>${d.source}<a href="${d.url}" target="_blank" class="src-link">↗</a></td>
+      <td class="src">${d.citation}</td>
+      ${qCells}
+    </tr>`;
+  });
+  h += '</tbody>';
+  t.innerHTML = h;
 }
 
 load();
