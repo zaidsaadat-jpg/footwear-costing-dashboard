@@ -930,4 +930,78 @@ function renderProductComparisons(comparisons) {
     </div>`;
     h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;">
       <div style="font-weight:700; margin-bottom:10px;">${cmp.competitor.brand}</div>
-      <div class="metric-line"><span>Retail price</span><span>${fmt(cmp.competitor.ret
+      <div class="metric-line"><span>Retail price</span><span>${fmt(cmp.competitor.retailPrice)}</span></div>
+      <div class="metric-line"><span>Total FOB</span><span>${fmt(cmp.competitor.fob)}</span></div>
+      <div class="metric-line"><span>FOB as % of retail</span><span>${cmp.competitor.costPctOfRetail}%</span></div>
+    </div>`;
+    h += `</div>`;
+    h += `<table class="gap-table"><thead><tr>
+      <th style="width:20%;">Cost Element</th>
+      <th style="text-align:right;">PUMA</th>
+      <th style="text-align:right;">${cmp.competitor.brand}</th>
+      <th style="text-align:right;">Delta</th>
+      <th style="width:15%;">Status</th>
+      <th>Why</th>
+    </tr></thead><tbody>`;
+    cmp.gapAnalysis.forEach(g => {
+      const deltaStr = (g.delta > 0 ? '+' : '') + g.delta.toFixed(2);
+      const badge = g.status === 'better' ? '<span class="badge badge-better">PUMA better</span>'
+                  : g.status === 'worse' ? '<span class="badge badge-worse">PUMA worse</span>'
+                  : '<span class="badge badge-neutral">Neutral</span>';
+      const deltaCls = g.status === 'better' ? 'better' : g.status === 'worse' ? 'worse' : 'neutral';
+      h += `<tr>
+        <td><strong>${g.area}</strong></td>
+        <td class="num">${fmt(g.pumaCost)}</td>
+        <td class="num">${fmt(g.compCost)}</td>
+        <td class="delta ${deltaCls}">${deltaStr}</td>
+        <td>${badge}</td>
+        <td class="note">${g.note}</td>
+      </tr>`;
+    });
+    h += `</tbody></table>`;
+    section.innerHTML = h;
+    container.appendChild(section);
+  });
+}
+function renderCostCompareChart(cmp) {
+  const ctx = document.getElementById('costCompareChart');
+  if (!ctx || !cmp) return;
+  if (compCharts.costCompare) compCharts.costCompare.destroy();
+  compCharts.costCompare = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Materials', 'Labour', 'Overheads', 'Factory margin', 'Total FOB'],
+      datasets: [
+        { label: 'PUMA ' + cmp.puma.name, data: [cmp.puma.materials, cmp.puma.labour, cmp.puma.overheads, cmp.puma.margin, cmp.puma.fob], backgroundColor: '#111', borderWidth: 0 },
+        { label: cmp.competitor.brand + ' ' + cmp.competitor.name, data: [cmp.competitor.materials, cmp.competitor.labour, cmp.competitor.overheads, cmp.competitor.margin, cmp.competitor.fob], backgroundColor: '#2d6a4f', borderWidth: 0 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: { y: { title: { display: true, text: '€ per unit' }, beginAtZero: true } }
+    }
+  });
+}
+function renderPriorities(priorities) {
+  const list = document.getElementById('priorityList');
+  list.innerHTML = '';
+  priorities.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'priority-card';
+    card.innerHTML = `
+      <div><span class="rank">${p.rank}</span><span class="area">${p.area}</span></div>
+      <div class="why">${p.why}</div>
+      <div class="action"><strong>Action:</strong> ${p.action}</div>
+      <div class="meta">
+        <span><strong>Impact:</strong> ${p.impact}</span>
+        <span><strong>Effort:</strong> ${p.effort}</span>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+load();
+</script>
+</body>
+</html>
