@@ -1,28 +1,18 @@
 /* ============================================================
-   DESIGN-TO-COST / VALUE ENGINEERING TAB  (v5 — Sculpted 3D)
+   DESIGN-TO-COST / VALUE ENGINEERING TAB  (v7 — GLB upload + progress)
    ============================================================ */
 
 const DTC_STORAGE = 'puma_dtc_scenario_v1';
 
 const DTC_LEVERS = [
-  {
-    id: 'designComplexity',
-    name: 'Design Complexity',
-    owner: 'Design',
-    desc: 'Number of panels, seams, decorative elements',
-    appliesTo: 'materialsAndLabour',
+  { id: 'designComplexity', name: 'Design Complexity', owner: 'Design', desc: 'Number of panels, seams, decorative elements', appliesTo: 'materialsAndLabour',
     options: [
       { id: 'simple',   label: 'Simple',   costMultiplier: 0.85, valueMultiplier: 0.90, costHint: '−15%' },
       { id: 'standard', label: 'Standard', costMultiplier: 1.00, valueMultiplier: 1.00, costHint: 'base' },
       { id: 'complex',  label: 'Complex',  costMultiplier: 1.20, valueMultiplier: 1.25, costHint: '+20%' }
     ]
   },
-  {
-    id: 'materialSubstitution',
-    name: 'Material Substitution',
-    owner: 'Design + Procurement',
-    desc: 'Raw material source and type',
-    appliesTo: 'materials',
+  { id: 'materialSubstitution', name: 'Material Substitution', owner: 'Design + Procurement', desc: 'Raw material source and type', appliesTo: 'materials',
     options: [
       { id: 'premium',  label: 'Premium virgin', costMultiplier: 1.15, valueMultiplier: 1.10, costHint: '+15%' },
       { id: 'standard', label: 'Standard',        costMultiplier: 1.00, valueMultiplier: 1.00, costHint: 'base' },
@@ -30,24 +20,14 @@ const DTC_LEVERS = [
       { id: 'bio',      label: 'Bio-based',       costMultiplier: 1.10, valueMultiplier: 1.30, costHint: '+10%' }
     ]
   },
-  {
-    id: 'automation',
-    name: 'Operations Automation',
-    owner: 'Engineering + Ops',
-    desc: 'Level of automated cutting, stitching, assembly',
-    appliesTo: 'labour',
+  { id: 'automation', name: 'Operations Automation', owner: 'Engineering + Ops', desc: 'Level of automated cutting, stitching, assembly', appliesTo: 'labour',
     options: [
-      { id: 'manual', label: 'Manual',       costMultiplier: 1.20, valueMultiplier: 0.95, costHint: '+20%' },
-      { id: 'semi',   label: 'Semi-auto',    costMultiplier: 1.00, valueMultiplier: 1.00, costHint: 'base' },
-      { id: 'full',   label: 'Fully auto',   costMultiplier: 0.88, valueMultiplier: 1.05, costHint: '−12%' }
+      { id: 'manual', label: 'Manual',     costMultiplier: 1.20, valueMultiplier: 0.95, costHint: '+20%' },
+      { id: 'semi',   label: 'Semi-auto',  costMultiplier: 1.00, valueMultiplier: 1.00, costHint: 'base' },
+      { id: 'full',   label: 'Fully auto', costMultiplier: 0.88, valueMultiplier: 1.05, costHint: '−12%' }
     ]
   },
-  {
-    id: 'volume',
-    name: 'Order Volume (per SKU)',
-    owner: 'Procurement + Finance',
-    desc: 'Annual order quantity, affects fixed cost amortisation',
-    appliesTo: 'volume',
+  { id: 'volume', name: 'Order Volume (per SKU)', owner: 'Procurement + Finance', desc: 'Annual order quantity, affects fixed cost amortisation', appliesTo: 'volume',
     options: [
       { id: 'low',  label: '1,000',   volumeMultiplier: 0.2,  costHint: '0.2×' },
       { id: 'mid',  label: '5,000',   volumeMultiplier: 1.0,  costHint: '1×' },
@@ -55,20 +35,21 @@ const DTC_LEVERS = [
       { id: 'mass', label: '100,000', volumeMultiplier: 20.0, costHint: '20×' }
     ]
   },
-  {
-    id: 'marginTarget',
-    name: 'Factory Margin Target',
-    owner: 'Finance + Procurement',
-    desc: 'Margin the factory earns on FOB',
-    appliesTo: 'margin',
+  { id: 'marginTarget', name: 'Factory Margin Target', owner: 'Finance + Procurement', desc: 'Margin the factory earns on FOB', appliesTo: 'margin',
     options: [
-      { id: 'lean',    label: '6% (lean)',      margin: 6,  costHint: '−3pp' },
-      { id: 'base',    label: '9% (base)',      margin: 9,  costHint: 'base' },
-      { id: 'premium', label: '12% (premium)',  margin: 12, costHint: '+3pp' },
-      { id: 'high',    label: '15% (high)',     margin: 15, costHint: '+6pp' }
+      { id: 'lean',    label: '6% (lean)',     margin: 6,  costHint: '−3pp' },
+      { id: 'base',    label: '9% (base)',     margin: 9,  costHint: 'base' },
+      { id: 'premium', label: '12% (premium)', margin: 12, costHint: '+3pp' },
+      { id: 'high',    label: '15% (high)',    margin: 15, costHint: '+6pp' }
     ]
   }
 ];
+
+const BUILTIN_GLB = {
+  shoe:  'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb',
+  boot:  null,
+  shirt: null
+};
 
 let dtcState = {};
 let dtcProduct = null;
@@ -84,12 +65,14 @@ let cad = {
   baseColor: '#2d6a4f',
   initialized: false,
   animating: false,
-  lastW: 0, lastH: 0
+  lastW: 0, lastH: 0,
+  currentModel: null,
+  loadedGLBs: {},
+  customGLB: null
 };
 
 // ---------- HELPERS ----------
 function interp(t, table) {
-  // table is [[t0, v0], [t1, v1], ...] sorted by t
   if (t <= table[0][0]) return table[0][1];
   if (t >= table[table.length - 1][0]) return table[table.length - 1][1];
   for (let i = 0; i < table.length - 1; i++) {
@@ -97,58 +80,26 @@ function interp(t, table) {
     const [t1, v1] = table[i + 1];
     if (t >= t0 && t <= t1) {
       const u = (t - t0) / (t1 - t0);
-      const s = u * u * (3 - 2 * u);  // smoothstep
+      const s = u * u * (3 - 2 * u);
       return v0 + (v1 - v0) * s;
     }
   }
   return table[table.length - 1][1];
 }
 
-// Sculpt an extruded geometry so it tapers along its length
-function sculptGeometry(geo, opts) {
-  const pos = geo.attributes.position;
-  const minX = opts.minX, maxX = opts.maxX;
-  const length = maxX - minX;
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
 
-  // Find Y range first
-  let minY = Infinity, maxY = -Infinity;
-  for (let i = 0; i < pos.count; i++) {
-    const y = pos.getY(i);
-    if (y < minY) minY = y;
-    if (y > maxY) maxY = y;
-  }
-  const yRange = maxY - minY;
-
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const y = pos.getY(i);
-    const z = pos.getZ(i);
-
-    const t = Math.max(0, Math.min(1, (x - minX) / length));
-
-    const widthFactor = interp(t, opts.widthTable);
-    const heightFactor = interp(t, opts.heightTable);
-    const topShift = interp(t, opts.topShiftTable || [[0,0],[1,0]]);
-    const soleShift = interp(t, opts.soleShiftTable || [[0,0],[1,0]]);
-
-    // Normalised position between sole and top
-    const yNorm = (y - minY) / yRange;
-
-    // Compress height from sole upward
-    const yScaled = minY + yRange * yNorm * heightFactor;
-
-    // Apply top-shift (only affects the upper portion) and sole-shift
-    // Top shift magnitude scales with yNorm, sole shift scales with (1 - yNorm)
-    const yFinal = yScaled + topShift * yNorm + soleShift * (1 - yNorm);
-
-    const zScaled = z * widthFactor;
-
-    pos.setX(i, x);
-    pos.setY(i, yFinal);
-    pos.setZ(i, zScaled);
-  }
-  geo.computeVertexNormals();
-  return geo;
+function formatTime(seconds) {
+  if (!isFinite(seconds) || seconds < 0) return '';
+  if (seconds < 1) return '< 1s';
+  if (seconds < 60) return Math.ceil(seconds) + 's';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.ceil(seconds % 60);
+  return mins + 'm ' + secs + 's';
 }
 
 // ---------- STATE ----------
@@ -366,7 +317,7 @@ function renderScenarioCompare() {
 }
 
 /* ============================================================
-   CAD-STYLE 3D VIEWER — SCULPTED MODELS
+   3D VIEWER
    ============================================================ */
 
 function getMaterialPreset(name) {
@@ -380,392 +331,199 @@ function getMaterialPreset(name) {
   }
 }
 
-// ---------- RUNNING SHOE ----------
-function buildShoeModel() {
+// ---------- PROCEDURAL FALLBACKS ----------
+function buildProceduralShoe() {
   const group = new THREE.Group();
-
-  // Sole shape (flat, extends full length)
   const soleShape = new THREE.Shape();
   soleShape.moveTo(-1.50, -0.05);
   soleShape.bezierCurveTo(-1.55, 0.05, -1.55, 0.15, -1.50, 0.20);
-  soleShape.bezierCurveTo(-1.20, 0.22, -0.60, 0.22,  0.00, 0.22);
-  soleShape.bezierCurveTo( 0.60, 0.22,  1.20, 0.22,  1.55, 0.20);
-  soleShape.bezierCurveTo( 1.62, 0.15,  1.62, 0.05,  1.58, -0.05);
-  soleShape.bezierCurveTo( 1.30, -0.10,  0.60, -0.12,  0.00, -0.12);
+  soleShape.bezierCurveTo(-1.20, 0.22, -0.60, 0.22, 0.00, 0.22);
+  soleShape.bezierCurveTo(0.60, 0.22, 1.20, 0.22, 1.55, 0.20);
+  soleShape.bezierCurveTo(1.62, 0.15, 1.62, 0.05, 1.58, -0.05);
+  soleShape.bezierCurveTo(1.30, -0.10, 0.60, -0.12, 0.00, -0.12);
   soleShape.bezierCurveTo(-0.60, -0.12, -1.20, -0.10, -1.50, -0.05);
-
-  // Upper silhouette
   const upperShape = new THREE.Shape();
   upperShape.moveTo(-1.45, -0.10);
   upperShape.bezierCurveTo(-1.52, 0.15, -1.52, 0.45, -1.45, 0.70);
   upperShape.bezierCurveTo(-1.38, 0.88, -1.20, 0.98, -0.95, 0.98);
   upperShape.bezierCurveTo(-0.72, 0.98, -0.55, 0.85, -0.42, 0.82);
-  upperShape.bezierCurveTo(-0.25, 0.80, -0.05, 0.78,  0.15, 0.72);
-  upperShape.bezierCurveTo( 0.42, 0.62,  0.68, 0.48,  0.92, 0.36);
-  upperShape.bezierCurveTo( 1.18, 0.24,  1.38, 0.12,  1.50, 0.00);
-  upperShape.bezierCurveTo( 1.58,-0.10,  1.58,-0.22,  1.52,-0.30);
-  upperShape.bezierCurveTo( 1.42,-0.36,  1.20,-0.38,  0.90,-0.40);
-  upperShape.bezierCurveTo( 0.45,-0.42,  0.00,-0.42, -0.45,-0.42);
-  upperShape.bezierCurveTo(-0.90,-0.42, -1.30,-0.40, -1.45,-0.10);
-
-  // --- OUTSOLE (bottom rubber) ---
-  const outGeo = new THREE.ExtrudeGeometry(soleShape, {
-    steps: 1, depth: 0.88, curveSegments: 48,
-    bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 5
-  });
+  upperShape.bezierCurveTo(-0.25, 0.80, -0.05, 0.78, 0.15, 0.72);
+  upperShape.bezierCurveTo(0.42, 0.62, 0.68, 0.48, 0.92, 0.36);
+  upperShape.bezierCurveTo(1.18, 0.24, 1.38, 0.12, 1.50, 0.00);
+  upperShape.bezierCurveTo(1.58, -0.10, 1.58, -0.22, 1.52, -0.30);
+  upperShape.bezierCurveTo(1.42, -0.36, 1.20, -0.38, 0.90, -0.40);
+  upperShape.bezierCurveTo(0.45, -0.42, 0.00, -0.42, -0.45, -0.42);
+  upperShape.bezierCurveTo(-0.90, -0.42, -1.30, -0.40, -1.45, -0.10);
+  const outGeo = new THREE.ExtrudeGeometry(soleShape, { steps: 1, depth: 0.88, curveSegments: 48, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 5 });
   outGeo.translate(0, -0.55, -0.44);
-  sculptGeometry(outGeo, {
-    minX: -1.60, maxX: 1.62,
-    widthTable: [
-      [0.00, 0.92], [0.18, 0.98], [0.40, 0.86], [0.65, 0.98],
-      [0.85, 0.72], [0.95, 0.50], [1.00, 0.20]
-    ],
-    heightTable: [
-      [0.00, 1.00], [0.30, 0.95], [0.60, 0.90], [0.85, 0.85], [1.00, 0.85]
-    ],
-    soleShiftTable: [
-      [0.00, -0.05], [0.30, 0.00], [0.70, 0.05], [1.00, 0.18]
-    ]
-  });
-  const outMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.92, metalness: 0.02 });
-  const outsole = new THREE.Mesh(outGeo, outMat);
-  outsole.castShadow = true;
-  group.add(outsole);
-
-  // --- MIDSOLE (foam layer) ---
-  const midGeo = new THREE.ExtrudeGeometry(soleShape, {
-    steps: 1, depth: 0.90, curveSegments: 48,
-    bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 6
-  });
+  sculptGeometry(outGeo, { minX: -1.60, maxX: 1.62, widthTable: [[0, 0.92], [0.18, 0.98], [0.40, 0.86], [0.65, 0.98], [0.85, 0.72], [0.95, 0.50], [1, 0.20]], heightTable: [[0, 1], [0.3, 0.95], [0.6, 0.9], [0.85, 0.85], [1, 0.85]], soleShiftTable: [[0, -0.05], [0.3, 0], [0.7, 0.05], [1, 0.18]] });
+  group.add(new THREE.Mesh(outGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.92 })));
+  const midGeo = new THREE.ExtrudeGeometry(soleShape, { steps: 1, depth: 0.90, curveSegments: 48, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 6 });
   midGeo.translate(0, -0.22, -0.45);
-  sculptGeometry(midGeo, {
-    minX: -1.60, maxX: 1.62,
-    widthTable: [
-      [0.00, 0.94], [0.18, 1.00], [0.40, 0.88], [0.65, 1.00],
-      [0.85, 0.74], [1.00, 0.30]
-    ],
-    heightTable: [
-      [0.00, 1.05], [0.25, 1.00], [0.55, 0.95], [0.85, 0.85], [1.00, 0.75]
-    ],
-    soleShiftTable: [
-      [0.00, -0.03], [0.30, 0.00], [0.70, 0.05], [1.00, 0.15]
-    ],
-    topShiftTable: [
-      [0.00, 0.00], [0.50, 0.00], [0.80, -0.02], [1.00, -0.05]
-    ]
-  });
-  const midMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.65, metalness: 0.02 });
-  const midsole = new THREE.Mesh(midGeo, midMat);
-  midsole.castShadow = true;
-  group.add(midsole);
-
-  // --- UPPER ---
-  const upperGeo = new THREE.ExtrudeGeometry(upperShape, {
-    steps: 1, depth: 0.85, curveSegments: 48,
-    bevelEnabled: true, bevelThickness: 0.07, bevelSize: 0.07, bevelSegments: 8
-  });
+  sculptGeometry(midGeo, { minX: -1.60, maxX: 1.62, widthTable: [[0, 0.94], [0.18, 1], [0.4, 0.88], [0.65, 1], [0.85, 0.74], [1, 0.3]], heightTable: [[0, 1.05], [0.25, 1], [0.55, 0.95], [0.85, 0.85], [1, 0.75]], soleShiftTable: [[0, -0.03], [0.3, 0], [0.7, 0.05], [1, 0.15]], topShiftTable: [[0, 0], [0.5, 0], [0.8, -0.02], [1, -0.05]] });
+  group.add(new THREE.Mesh(midGeo, new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.65 })));
+  const upperGeo = new THREE.ExtrudeGeometry(upperShape, { steps: 1, depth: 0.85, curveSegments: 48, bevelEnabled: true, bevelThickness: 0.07, bevelSize: 0.07, bevelSegments: 8 });
   upperGeo.translate(0, 0.22, -0.425);
-  sculptGeometry(upperGeo, {
-    minX: -1.55, maxX: 1.58,
-    widthTable: [
-      [0.00, 0.92], [0.15, 0.98], [0.40, 0.82], [0.62, 0.94],
-      [0.80, 0.72], [0.95, 0.42], [1.00, 0.18]
-    ],
-    heightTable: [
-      [0.00, 1.00], [0.15, 1.02], [0.30, 0.92], [0.50, 0.88],
-      [0.75, 0.80], [0.92, 0.62], [1.00, 0.42]
-    ],
-    topShiftTable: [
-      [0.00, 0.00], [0.25, 0.02], [0.55, -0.05], [0.80, -0.15], [1.00, -0.25]
-    ],
-    soleShiftTable: [
-      [0.00, 0.00], [0.60, 0.00], [0.85, 0.04], [1.00, 0.10]
-    ]
-  });
-  const upperMat = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.72, metalness: 0.05 });
-  const upper = new THREE.Mesh(upperGeo, upperMat);
+  sculptGeometry(upperGeo, { minX: -1.55, maxX: 1.58, widthTable: [[0, 0.92], [0.15, 0.98], [0.4, 0.82], [0.62, 0.94], [0.8, 0.72], [0.95, 0.42], [1, 0.18]], heightTable: [[0, 1], [0.15, 1.02], [0.3, 0.92], [0.5, 0.88], [0.75, 0.8], [0.92, 0.62], [1, 0.42]], topShiftTable: [[0, 0], [0.25, 0.02], [0.55, -0.05], [0.8, -0.15], [1, -0.25]], soleShiftTable: [[0, 0], [0.6, 0], [0.85, 0.04], [1, 0.10]] });
+  const upper = new THREE.Mesh(upperGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.72 }));
   upper.userData.isMainSurface = true;
-  upper.castShadow = true;
   group.add(upper);
-
-  // --- LACES (across the tongue) ---
-  for (let i = 0; i < 4; i++) {
-    const laceGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.55, 8);
-    const lace = new THREE.Mesh(laceGeo, new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.9 }));
-    lace.rotation.x = Math.PI / 2;
-    const tx = 0.05 + i * 0.22;
-    lace.position.set(tx, 0.68 - i * 0.06, 0);
-    group.add(lace);
-  }
-
-  // --- HEEL TAB (small accent at the back) ---
-  const heelTabGeo = new THREE.BoxGeometry(0.10, 0.28, 0.42, 4, 6, 8);
-  const heelTab = new THREE.Mesh(heelTabGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.5 }));
-  heelTab.position.set(-1.40, 0.55, 0);
-  group.add(heelTab);
-
   group.position.set(0, 0.05, 0);
   return group;
 }
-
-// ---------- FOOTBALL BOOT ----------
-function buildBootModel() {
+function buildProceduralBoot() { return buildProceduralShoe(); }
+function buildProceduralShirt() {
   const group = new THREE.Group();
-
-  // Sole shape
-  const soleShape = new THREE.Shape();
-  soleShape.moveTo(-1.48, -0.05);
-  soleShape.bezierCurveTo(-1.52, 0.05, -1.52, 0.15, -1.48, 0.20);
-  soleShape.bezierCurveTo(-1.20, 0.22, -0.60, 0.22,  0.00, 0.22);
-  soleShape.bezierCurveTo( 0.60, 0.22,  1.20, 0.22,  1.55, 0.18);
-  soleShape.bezierCurveTo( 1.62, 0.12,  1.62, 0.02,  1.55,-0.08);
-  soleShape.bezierCurveTo( 1.30,-0.12,  0.60,-0.14,  0.00,-0.14);
-  soleShape.bezierCurveTo(-0.60,-0.14, -1.20,-0.12, -1.48,-0.05);
-
-  // Upper silhouette (with taller sock collar)
-  const upperShape = new THREE.Shape();
-  upperShape.moveTo(-1.42, -0.10);
-  upperShape.bezierCurveTo(-1.50, 0.20, -1.52, 0.55, -1.48, 0.90);
-  upperShape.bezierCurveTo(-1.44, 1.10, -1.28, 1.20, -1.05, 1.22);
-  upperShape.bezierCurveTo(-0.85, 1.24, -0.68, 1.14, -0.55, 1.08);
-  upperShape.bezierCurveTo(-0.35, 1.00, -0.10, 0.90,  0.10, 0.80);
-  upperShape.bezierCurveTo( 0.38, 0.68,  0.65, 0.52,  0.90, 0.38);
-  upperShape.bezierCurveTo( 1.15, 0.26,  1.38, 0.14,  1.52, 0.02);
-  upperShape.bezierCurveTo( 1.60,-0.08,  1.60,-0.22,  1.52,-0.32);
-  upperShape.bezierCurveTo( 1.42,-0.40,  1.18,-0.42,  0.85,-0.44);
-  upperShape.bezierCurveTo( 0.40,-0.46,  0.00,-0.46, -0.42,-0.46);
-  upperShape.bezierCurveTo(-0.85,-0.46, -1.25,-0.42, -1.42,-0.10);
-
-  // --- Outsole ---
-  const outGeo = new THREE.ExtrudeGeometry(soleShape, {
-    steps: 1, depth: 0.82, curveSegments: 48,
-    bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 5
-  });
-  outGeo.translate(0, -0.55, -0.41);
-  sculptGeometry(outGeo, {
-    minX: -1.55, maxX: 1.62,
-    widthTable: [
-      [0.00, 0.90], [0.20, 0.96], [0.45, 0.84], [0.65, 0.96],
-      [0.85, 0.70], [1.00, 0.22]
-    ],
-    heightTable: [[0, 1], [0.5, 1], [1, 0.85]],
-    soleShiftTable: [[0, -0.03], [0.7, 0.04], [1, 0.15]]
-  });
-  const outsole = new THREE.Mesh(outGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.92 }));
-  outsole.castShadow = true;
-  group.add(outsole);
-
-  // --- Studs ---
-  const studPositions = [
-    [-1.00, -0.68, -0.24], [-1.00, -0.68, 0.24],
-    [-0.40, -0.70, -0.28], [-0.40, -0.70, 0.28],
-    [ 0.20, -0.70, -0.28], [ 0.20, -0.70, 0.28],
-    [ 0.75, -0.66, -0.28], [ 0.75, -0.66, 0.28],
-    [ 1.25, -0.56, -0.20], [ 1.25, -0.56, 0.20]
-  ];
-  studPositions.forEach(([x, y, z]) => {
-    const studGeo = new THREE.CylinderGeometry(0.055, 0.075, 0.14, 8);
-    const stud = new THREE.Mesh(studGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.7 }));
-    stud.position.set(x, y, z);
-    group.add(stud);
-  });
-
-  // --- Upper ---
-  const upperGeo = new THREE.ExtrudeGeometry(upperShape, {
-    steps: 1, depth: 0.80, curveSegments: 48,
-    bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 8
-  });
-  upperGeo.translate(0, 0.22, -0.40);
-  sculptGeometry(upperGeo, {
-    minX: -1.52, maxX: 1.60,
-    widthTable: [
-      [0.00, 0.90], [0.18, 0.98], [0.45, 0.82], [0.65, 0.95],
-      [0.85, 0.70], [1.00, 0.20]
-    ],
-    heightTable: [
-      [0.00, 1.00], [0.20, 1.02], [0.50, 0.90], [0.75, 0.78], [1.00, 0.55]
-    ],
-    topShiftTable: [
-      [0.00, 0.00], [0.30, 0.00], [0.60, -0.05], [0.85, -0.14], [1.00, -0.22]
-    ],
-    soleShiftTable: [
-      [0.00, 0.00], [0.65, 0.00], [1.00, 0.12]
-    ]
-  });
-  const upperMat = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.62, metalness: 0.05 });
-  const upper = new THREE.Mesh(upperGeo, upperMat);
-  upper.userData.isMainSurface = true;
-  upper.castShadow = true;
-  group.add(upper);
-
-  // --- Grip texture bands ---
-  for (let i = 0; i < 4; i++) {
-    const bandGeo = new THREE.BoxGeometry(0.42, 0.04, 0.72, 4, 3, 6);
-    const band = new THREE.Mesh(bandGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.45 }));
-    band.position.set(-0.85 + i * 0.55, 0.60 - i * 0.10, 0);
-    group.add(band);
-  }
-
-  group.position.set(0, 0.10, 0);
-  return group;
-}
-
-// ---------- SPORTS SHIRT ----------
-function buildShirtModel() {
-  const group = new THREE.Group();
-
-  // T-shirt front silhouette
   const bodyShape = new THREE.Shape();
-  bodyShape.moveTo(-0.85,  1.30);
+  bodyShape.moveTo(-0.85, 1.30);
   bodyShape.bezierCurveTo(-1.05, 1.22, -1.35, 1.00, -1.50, 0.68);
   bodyShape.bezierCurveTo(-1.62, 0.38, -1.55, 0.05, -1.42, -0.10);
   bodyShape.bezierCurveTo(-1.30, -0.22, -1.18, -0.15, -1.15, 0.02);
   bodyShape.bezierCurveTo(-1.10, -0.42, -1.08, -0.85, -1.10, -1.25);
   bodyShape.bezierCurveTo(-1.12, -1.36, -1.00, -1.42, -0.85, -1.42);
-  bodyShape.bezierCurveTo(-0.35, -1.46,  0.35, -1.46,  0.85, -1.42);
-  bodyShape.bezierCurveTo( 1.00, -1.42,  1.12, -1.36,  1.10, -1.25);
-  bodyShape.bezierCurveTo( 1.08, -0.85,  1.10, -0.42,  1.15,  0.02);
-  bodyShape.bezierCurveTo( 1.18, -0.15,  1.30, -0.22,  1.42, -0.10);
-  bodyShape.bezierCurveTo( 1.55,  0.05,  1.62,  0.38,  1.50,  0.68);
-  bodyShape.bezierCurveTo( 1.35,  1.00,  1.05,  1.22,  0.85,  1.30);
-  bodyShape.bezierCurveTo( 0.55,  1.24,  0.28,  1.00,  0.00,  1.00);
-  bodyShape.bezierCurveTo(-0.28,  1.00, -0.55,  1.24, -0.85,  1.30);
-  bodyShape.bezierCurveTo(-0.90,  1.31, -0.87,  1.31, -0.85,  1.30);
-
-  const bodyGeo = new THREE.ExtrudeGeometry(bodyShape, {
-    steps: 1, depth: 0.38, curveSegments: 40,
-    bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 6
-  });
+  bodyShape.bezierCurveTo(-0.35, -1.46, 0.35, -1.46, 0.85, -1.42);
+  bodyShape.bezierCurveTo(1.00, -1.42, 1.12, -1.36, 1.10, -1.25);
+  bodyShape.bezierCurveTo(1.08, -0.85, 1.10, -0.42, 1.15, 0.02);
+  bodyShape.bezierCurveTo(1.18, -0.15, 1.30, -0.22, 1.42, -0.10);
+  bodyShape.bezierCurveTo(1.55, 0.05, 1.62, 0.38, 1.50, 0.68);
+  bodyShape.bezierCurveTo(1.35, 1.00, 1.05, 1.22, 0.85, 1.30);
+  bodyShape.bezierCurveTo(0.55, 1.24, 0.28, 1.00, 0.00, 1.00);
+  bodyShape.bezierCurveTo(-0.28, 1.00, -0.55, 1.24, -0.85, 1.30);
+  const bodyGeo = new THREE.ExtrudeGeometry(bodyShape, { steps: 1, depth: 0.38, curveSegments: 40, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 6 });
   bodyGeo.translate(0, 0, -0.19);
-
-  // Sculpt the shirt: shoulders wider, waist narrower, slight chest bulge
   const pos = bodyGeo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const y = pos.getY(i);
-    const z = pos.getZ(i);
-
-    // Width taper: shoulders wide, waist slightly narrower, hem medium
-    const t = Math.max(0, Math.min(1, (1.2 - y) / 2.6));  // 0 at top, 1 at bottom
-    const widthFactor = interp(t, [
-      [0.00, 1.02], [0.20, 1.00], [0.45, 0.94], [0.70, 0.96], [1.00, 0.98]
-    ]);
-
-    // Chest bulge: front/back bulge at chest level (y ≈ 0.3)
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+    const t = Math.max(0, Math.min(1, (1.2 - y) / 2.6));
+    const widthFactor = interp(t, [[0, 1.02], [0.20, 1], [0.45, 0.94], [0.70, 0.96], [1, 0.98]]);
     const chestBulge = Math.exp(-Math.pow((y - 0.30) / 0.55, 2)) * 0.14;
-
     pos.setX(i, x * widthFactor);
     pos.setZ(i, z + Math.sign(z) * chestBulge);
   }
   bodyGeo.computeVertexNormals();
-
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.92, metalness: 0.02 });
-  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  const body = new THREE.Mesh(bodyGeo, new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.92 }));
   body.userData.isMainSurface = true;
-  body.castShadow = true;
   group.add(body);
-
-  // Collar
-  const collarGeo = new THREE.TorusGeometry(0.40, 0.06, 10, 32, Math.PI);
-  const collar = new THREE.Mesh(collarGeo, new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.85 }));
-  collar.position.set(0, 1.00, 0.06);
-  collar.rotation.x = Math.PI / 2;
-  collar.rotation.z = Math.PI;
-  group.add(collar);
-
   group.scale.set(0.82, 0.82, 0.82);
   group.position.set(0, 0.10, 0);
   return group;
 }
-
-// ---------- SCENE ----------
-function initCadViewer() {
-  const container = document.getElementById('viewer3d');
-  if (!container) return;
-
-  if (!window.THREE) {
-    container.innerHTML = '<p style="padding:20px;color:#c62828;font-size:13px;">Three.js failed to load.</p>';
-    return;
+function sculptGeometry(geo, opts) {
+  const pos = geo.attributes.position;
+  let minY = Infinity, maxY = -Infinity;
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i);
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
   }
-
-  const w = container.clientWidth;
-  const h = container.clientHeight;
-  if (w < 10 || h < 10) { setTimeout(initCadViewer, 200); return; }
-
-  if (cad.initialized) {
-    cad.renderer.setSize(w, h);
-    cad.camera.aspect = w / h;
-    cad.camera.updateProjectionMatrix();
-    cad.lastW = w; cad.lastH = h;
-    return;
+  const yRange = maxY - minY;
+  const length = opts.maxX - opts.minX;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+    const t = Math.max(0, Math.min(1, (x - opts.minX) / length));
+    const widthFactor = interp(t, opts.widthTable);
+    const heightFactor = interp(t, opts.heightTable);
+    const topShift = interp(t, opts.topShiftTable || [[0,0],[1,0]]);
+    const soleShift = interp(t, opts.soleShiftTable || [[0,0],[1,0]]);
+    const yNorm = (y - minY) / yRange;
+    const yScaled = minY + yRange * yNorm * heightFactor;
+    const yFinal = yScaled + topShift * yNorm + soleShift * (1 - yNorm);
+    pos.setZ(i, z * widthFactor);
+    pos.setY(i, yFinal);
   }
-
-  cad.scene = new THREE.Scene();
-  cad.scene.background = new THREE.Color(0xf1f5f9);
-
-  cad.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-  cad.camera.position.set(3.5, 2.2, 4.5);
-  cad.camera.lookAt(0, 0.2, 0);
-
-  cad.renderer = new THREE.WebGLRenderer({ antialias: true });
-  cad.renderer.setSize(w, h);
-  cad.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  if (cad.renderer.shadowMap) {
-    cad.renderer.shadowMap.enabled = true;
-    cad.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  }
-  container.innerHTML = '';
-  container.appendChild(cad.renderer.domElement);
-
-  cad.scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.55));
-  const key = new THREE.DirectionalLight(0xffffff, 0.95);
-  key.position.set(4, 6, 5);
-  key.castShadow = true;
-  cad.scene.add(key);
-  const rim = new THREE.DirectionalLight(0xc7d2fe, 0.45);
-  rim.position.set(-5, 2, -4);
-  cad.scene.add(rim);
-  const fill = new THREE.DirectionalLight(0xffffff, 0.35);
-  fill.position.set(2, -2, 3);
-  cad.scene.add(fill);
-
-  if (THREE.GridHelper) {
-    const grid = new THREE.GridHelper(10, 20, 0xcbd5e1, 0xe2e8f0);
-    grid.position.y = -1.6;
-    cad.scene.add(grid);
-  }
-
-  cad.group = new THREE.Group();
-  cad.scene.add(cad.group);
-
-  rebuildCadModel();
-
-  if (typeof THREE.OrbitControls === 'function') {
-    cad.controls = new THREE.OrbitControls(cad.camera, cad.renderer.domElement);
-    cad.controls.enableDamping = true;
-    cad.controls.dampingFactor = 0.08;
-    cad.controls.enablePan = true;
-    cad.controls.minDistance = 2.5;
-    cad.controls.maxDistance = 12;
-    cad.controls.target.set(0, 0.2, 0);
-    cad.controls.update();
-  }
-
-  cad.initialized = true;
-  cad.lastW = w;
-  cad.lastH = h;
-
-  if (!cad.animating) { cad.animating = true; animateCad(); }
+  geo.computeVertexNormals();
+  return geo;
 }
 
-function rebuildCadModel() {
+// ---------- GLB LOADING ----------
+function loadGLBModel(url, archetype) {
+  return new Promise((resolve, reject) => {
+    if (!THREE.GLTFLoader) { reject(new Error('GLTFLoader not loaded')); return; }
+    const loader = new THREE.GLTFLoader();
+    loader.load(url,
+      gltf => {
+        const scene = gltf.scene;
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const targetLength = 3.2;
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = targetLength / maxDim;
+        scene.scale.setScalar(scale);
+        scene.position.sub(center.multiplyScalar(scale));
+        scene.position.y += 0.1;
+        scene.traverse(child => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            if (child.material) child.material.side = THREE.DoubleSide;
+          }
+        });
+        cad.loadedGLBs[archetype] = scene;
+        resolve(scene);
+      },
+      undefined,
+      err => { console.warn('GLB load failed for', archetype, ':', err); reject(err); }
+    );
+  });
+}
+
+function applyMaterialPresetToModel(model) {
+  const preset = getMaterialPreset(cad.materialPreset);
+  model.traverse(child => {
+    if (child.isMesh && child.material) {
+      child.material.roughness = preset.roughness;
+      child.material.metalness = preset.metalness;
+      child.material.wireframe = (cad.viewMode === 'wireframe');
+      if (cad.texture && child.userData.isMainSurface) {
+        child.material.map = cad.texture;
+        child.material.color.set(0xffffff);
+      }
+      child.material.needsUpdate = true;
+    }
+  });
+}
+
+async function rebuildCadModel() {
   if (!cad.group) return;
   while (cad.group.children.length) cad.group.remove(cad.group.children[0]);
+  cad.edgeLines = null;
+
+  if (cad.customGLB) {
+    applyMaterialPresetToModel(cad.customGLB);
+    cad.group.add(cad.customGLB);
+    cad.currentModel = cad.customGLB;
+    updateEdgeOverlay(cad.customGLB);
+    return;
+  }
+
+  const glbUrl = BUILTIN_GLB[cad.archetype];
+
+  if (glbUrl) {
+    if (cad.loadedGLBs[cad.archetype]) {
+      const model = cad.loadedGLBs[cad.archetype];
+      applyMaterialPresetToModel(model);
+      cad.group.add(model);
+      cad.currentModel = model;
+      updateEdgeOverlay(model);
+      return;
+    }
+    try {
+      const model = await loadGLBModel(glbUrl, cad.archetype);
+      applyMaterialPresetToModel(model);
+      cad.group.add(model);
+      cad.currentModel = model;
+      updateEdgeOverlay(model);
+      return;
+    } catch (err) {
+      console.warn('Falling back to procedural model for', cad.archetype);
+    }
+  }
 
   let model;
-  if (cad.archetype === 'boot')       model = buildBootModel();
-  else if (cad.archetype === 'shirt') model = buildShirtModel();
-  else                                model = buildShoeModel();
+  if (cad.archetype === 'boot')       model = buildProceduralBoot();
+  else if (cad.archetype === 'shirt') model = buildProceduralShirt();
+  else                                model = buildProceduralShoe();
 
   const preset = getMaterialPreset(cad.materialPreset);
   model.traverse(child => {
@@ -786,25 +544,104 @@ function rebuildCadModel() {
   });
 
   cad.group.add(model);
+  cad.currentModel = model;
   updateEdgeOverlay(model);
 }
 
 function updateEdgeOverlay(model) {
+  if (!model) return;
   if (cad.edgeLines) { cad.group.remove(cad.edgeLines); cad.edgeLines = null; }
   if (cad.viewMode !== 'technical' || !THREE.EdgesGeometry) return;
   const edgesGroup = new THREE.Group();
   model.traverse(child => {
     if (child.isMesh) {
-      const edges = new THREE.EdgesGeometry(child.geometry, 25);
-      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x1a237e }));
-      line.position.copy(child.position);
-      line.rotation.copy(child.rotation);
-      line.scale.copy(child.scale);
-      edgesGroup.add(line);
+      try {
+        const edges = new THREE.EdgesGeometry(child.geometry, 30);
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x1a237e }));
+        line.position.copy(child.position);
+        line.rotation.copy(child.rotation);
+        line.scale.copy(child.scale);
+        edgesGroup.add(line);
+      } catch (e) {}
     }
   });
   cad.edgeLines = edgesGroup;
   cad.group.add(cad.edgeLines);
+}
+
+// ---------- SCENE ----------
+function initCadViewer() {
+  const container = document.getElementById('viewer3d');
+  if (!container) return;
+  if (!window.THREE) {
+    container.innerHTML = '<p style="padding:20px;color:#c62828;font-size:13px;">Three.js failed to load.</p>';
+    return;
+  }
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  if (w < 10 || h < 10) { setTimeout(initCadViewer, 200); return; }
+  if (cad.initialized) {
+    cad.renderer.setSize(w, h);
+    cad.camera.aspect = w / h;
+    cad.camera.updateProjectionMatrix();
+    cad.lastW = w; cad.lastH = h;
+    return;
+  }
+
+  cad.scene = new THREE.Scene();
+  cad.scene.background = new THREE.Color(0xf1f5f9);
+  cad.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
+  cad.camera.position.set(3.5, 2.2, 4.5);
+  cad.camera.lookAt(0, 0.2, 0);
+
+  cad.renderer = new THREE.WebGLRenderer({ antialias: true });
+  cad.renderer.setSize(w, h);
+  cad.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  if (cad.renderer.shadowMap) {
+    cad.renderer.shadowMap.enabled = true;
+    cad.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  }
+  container.innerHTML = '';
+  container.appendChild(cad.renderer.domElement);
+
+  cad.scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.65));
+  const key = new THREE.DirectionalLight(0xffffff, 0.95);
+  key.position.set(4, 6, 5);
+  key.castShadow = true;
+  cad.scene.add(key);
+  const rim = new THREE.DirectionalLight(0xc7d2fe, 0.45);
+  rim.position.set(-5, 2, -4);
+  cad.scene.add(rim);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.35);
+  fill.position.set(2, -2, 3);
+  cad.scene.add(fill);
+
+  if (THREE.GridHelper) {
+    const grid = new THREE.GridHelper(10, 20, 0xcbd5e1, 0xe2e8f0);
+    grid.position.y = -1.6;
+    cad.scene.add(grid);
+  }
+
+  cad.group = new THREE.Group();
+  cad.scene.add(cad.group);
+
+  rebuildCadModel().catch(err => console.error('Initial model build failed:', err));
+
+  if (typeof THREE.OrbitControls === 'function') {
+    cad.controls = new THREE.OrbitControls(cad.camera, cad.renderer.domElement);
+    cad.controls.enableDamping = true;
+    cad.controls.dampingFactor = 0.08;
+    cad.controls.enablePan = true;
+    cad.controls.minDistance = 2.5;
+    cad.controls.maxDistance = 12;
+    cad.controls.target.set(0, 0.2, 0);
+    cad.controls.update();
+  }
+
+  cad.initialized = true;
+  cad.lastW = w;
+  cad.lastH = h;
+  if (!cad.animating) { cad.animating = true; animateCad(); }
 }
 
 function animateCad() {
@@ -828,6 +665,7 @@ function animateCad() {
 // ---------- VIEW CONTROLS ----------
 function setArchetype(type) {
   cad.archetype = type;
+  cad.customGLB = null;
   rebuildCadModel();
   setActiveChip('archetypeChips', type);
 }
@@ -836,7 +674,7 @@ function setViewMode(mode) {
   cad.group.traverse(c => {
     if (c.isMesh) { c.material.wireframe = (mode === 'wireframe'); c.material.needsUpdate = true; }
   });
-  const model = cad.group.children.find(c => c.type === 'Group' && c !== cad.edgeLines);
+  const model = cad.currentModel;
   if (model) updateEdgeOverlay(model);
   setActiveChip('viewChips', mode);
 }
@@ -848,7 +686,6 @@ function setProjection(proj) {
   const aspect = w / h;
   const target = cad.controls ? cad.controls.target.clone() : new THREE.Vector3(0, 0.2, 0);
   const oldPos = cad.camera.position.clone();
-
   if (proj === 'orthographic') {
     const size = 3.5;
     cad.camera = new THREE.OrthographicCamera(-size * aspect, size * aspect, size, -size, 0.1, 1000);
@@ -857,7 +694,6 @@ function setProjection(proj) {
   }
   cad.camera.position.copy(oldPos);
   cad.camera.lookAt(target);
-
   if (typeof THREE.OrbitControls === 'function') {
     if (cad.controls) cad.controls.dispose();
     cad.controls = new THREE.OrbitControls(cad.camera, cad.renderer.domElement);
@@ -882,7 +718,7 @@ function setViewPreset(view) {
 }
 function setMaterialPreset(preset) {
   cad.materialPreset = preset;
-  rebuildCadModel();
+  applyMaterialPresetToModel(cad.currentModel);
   setActiveChip('materialChips', preset);
 }
 function setBaseColor(hex) {
@@ -902,43 +738,234 @@ function setActiveChip(containerId, activeId) {
     chip.classList.toggle('active', chip.dataset.id === activeId);
   });
 }
-
-// ---------- IMAGE UPLOAD ----------
-document.addEventListener('DOMContentLoaded', () => {
-  const fileInput = document.getElementById('dtcImage');
-  if (!fileInput) return;
-  fileInput.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = new Image();
-      img.onload = () => {
-        try {
-          if (!cad.initialized) setTimeout(() => applyTexture(img), 300);
-          else applyTexture(img);
-        } catch (err) { console.error('Texture error:', err); }
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-});
-
-function applyTexture(img) {
-  if (cad.texture) cad.texture.dispose();
-  cad.texture = new THREE.Texture(img);
-  cad.texture.needsUpdate = true;
-  if (THREE.SRGBColorSpace) cad.texture.colorSpace = THREE.SRGBColorSpace;
-  cad.texture.wrapS = THREE.ClampToEdgeWrapping;
-  cad.texture.wrapT = THREE.ClampToEdgeWrapping;
-  rebuildCadModel();
+function resetToBuiltIn() {
+  cad.customGLB = null;
   const hint = document.getElementById('viewerHint');
   if (hint) {
-    hint.textContent = '✅ Photo applied. Rotate to view. Change archetype if the shape is wrong.';
-    hint.style.color = '#4a148c';
+    hint.textContent = '🖱️ Drag to rotate · Scroll to zoom · Right-click drag to pan';
+    hint.style.color = '#999';
   }
+  rebuildCadModel();
 }
+
+// ============================================================
+// GLB UPLOAD WITH PROGRESS TRACKER
+// ============================================================
+
+function initUploadZone() {
+  const zone = document.getElementById('glbUploadZone');
+  const input = document.getElementById('glbInput');
+  if (!zone || !input) return;
+
+  // Prevent duplicate listeners
+  if (zone.dataset.wired === '1') return;
+  zone.dataset.wired = '1';
+
+  zone.addEventListener('click', e => {
+    if (e.target === input) return;
+    input.click();
+  });
+
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    zone.classList.add('dragover');
+  });
+  zone.addEventListener('dragleave', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    zone.classList.remove('dragover');
+  });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    zone.classList.remove('dragover');
+    if (e.dataTransfer.files && e.dataTransfer.files.length) {
+      handleGLBFile(e.dataTransfer.files[0]);
+    }
+  });
+
+  input.addEventListener('change', e => {
+    if (e.target.files && e.target.files.length) {
+      handleGLBFile(e.target.files[0]);
+    }
+    e.target.value = ''; // allow re-uploading the same file
+  });
+}
+
+function setProgressState({ percent, status, eta, state }) {
+  const progress = document.getElementById('uploadProgress');
+  const fill = document.getElementById('uploadProgressFill');
+  const text = document.getElementById('uploadProgressText');
+  const etaEl = document.getElementById('uploadProgressEta');
+  if (!progress || !fill || !text || !etaEl) return;
+
+  progress.style.display = 'block';
+  if (percent != null) fill.style.width = percent + '%';
+  if (status != null) text.textContent = status;
+  if (eta != null) etaEl.textContent = eta;
+  if (state === 'error') fill.classList.add('error');
+  else fill.classList.remove('error');
+  if (state === 'success') fill.classList.add('success');
+  else fill.classList.remove('success');
+}
+
+function hideProgress(delay = 2500) {
+  setTimeout(() => {
+    const progress = document.getElementById('uploadProgress');
+    if (progress) progress.style.display = 'none';
+    const fill = document.getElementById('uploadProgressFill');
+    if (fill) { fill.style.width = '0%'; fill.classList.remove('error', 'success'); }
+    const zone = document.getElementById('glbUploadZone');
+    if (zone) zone.classList.remove('uploading');
+  }, delay);
+}
+
+function handleGLBFile(file) {
+  const zone = document.getElementById('glbUploadZone');
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.glb') && !file.name.toLowerCase().endsWith('.gltf')) {
+    setProgressState({ percent: 100, status: '❌ Not a valid .glb or .gltf file', state: 'error' });
+    hideProgress(3500);
+    return;
+  }
+
+  if (zone) zone.classList.add('uploading');
+
+  const fileSize = file.size;
+  const sizeText = formatBytes(fileSize);
+
+  setProgressState({
+    percent: 0,
+    status: `Reading ${file.name} (${sizeText})…`,
+    eta: '',
+    state: 'normal'
+  });
+
+  const startTime = Date.now();
+  const reader = new FileReader();
+
+  reader.onprogress = e => {
+    if (e.lengthComputable) {
+      const percent = Math.min(99, (e.loaded / e.total) * 100);
+      const elapsed = (Date.now() - startTime) / 1000;
+      const rate = e.loaded / Math.max(elapsed, 0.1); // bytes/sec
+      const remaining = (e.total - e.loaded) / Math.max(rate, 1);
+      setProgressState({
+        percent,
+        status: `Reading file… ${percent.toFixed(0)}% · ${formatBytes(e.loaded)} / ${sizeText}`,
+        eta: remaining > 0.5 ? `~${formatTime(remaining)} left` : 'almost done',
+        state: 'normal'
+      });
+    }
+  };
+
+  reader.onload = e => {
+    const arrayBuffer = e.target.result;
+    setProgressState({
+      percent: 100,
+      status: '✅ File read. Parsing 3D model…',
+      eta: 'this may take a moment',
+      state: 'normal'
+    });
+
+    const parseStart = Date.now();
+    const parseTimer = setInterval(() => {
+      const elapsed = ((Date.now() - parseStart) / 1000).toFixed(1);
+      setProgressState({
+        status: `Parsing 3D model… ${elapsed}s`,
+        eta: fileSize > 5 * 1024 * 1024 ? 'large file — please wait' : '',
+        state: 'normal'
+      });
+    }, 200);
+
+    if (!THREE.GLTFLoader) {
+      clearInterval(parseTimer);
+      setProgressState({ status: '❌ GLTFLoader not available', state: 'error' });
+      hideProgress(3500);
+      if (zone) zone.classList.remove('uploading');
+      return;
+    }
+
+    const loader = new THREE.GLTFLoader();
+    try {
+      loader.parse(arrayBuffer, '', gltf => {
+        clearInterval(parseTimer);
+        const scene = gltf.scene;
+
+        // Auto-scale to fit viewer
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 3.2 / maxDim;
+        scene.scale.setScalar(scale);
+        scene.position.sub(center.multiplyScalar(scale));
+        scene.position.y += 0.1;
+        scene.traverse(child => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            if (child.material) child.material.side = THREE.DoubleSide;
+          }
+        });
+
+        cad.customGLB = scene;
+        applyMaterialPresetToModel(scene);
+        while (cad.group.children.length) cad.group.remove(cad.group.children[0]);
+        cad.group.add(scene);
+        cad.currentModel = scene;
+        updateEdgeOverlay(scene);
+
+        const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+        setProgressState({
+          percent: 100,
+          status: `✅ ${file.name} loaded in ${totalTime}s`,
+          eta: '',
+          state: 'success'
+        });
+        hideProgress(3000);
+
+        const hint = document.getElementById('viewerHint');
+        if (hint) {
+          hint.textContent = `✅ Loaded: ${file.name} (${sizeText}) · Drag to rotate`;
+          hint.style.color = '#2d6a4f';
+        }
+      }, err => {
+        clearInterval(parseTimer);
+        console.error('GLTF parse error:', err);
+        setProgressState({
+          status: '❌ Failed to parse. The file may be corrupted or in an unsupported format.',
+          state: 'error'
+        });
+        hideProgress(5000);
+        if (zone) zone.classList.remove('uploading');
+      });
+    } catch (err) {
+      clearInterval(parseTimer);
+      console.error('Loader exception:', err);
+      setProgressState({ status: '❌ Unexpected error: ' + err.message, state: 'error' });
+      hideProgress(5000);
+      if (zone) zone.classList.remove('uploading');
+    }
+  };
+
+  reader.onerror = () => {
+    setProgressState({ status: '❌ Failed to read the file', state: 'error' });
+    hideProgress(3500);
+    if (zone) zone.classList.remove('uploading');
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  initUploadZone();
+});
 
 // ---------- MAIN RENDER ----------
 function renderDtcTab() {
@@ -951,6 +978,7 @@ function renderDtcTab() {
   renderValueMatrix();
   renderActionBoard();
   renderScenarioCompare();
+  initUploadZone();
   setTimeout(() => {
     try { initCadViewer(); } catch (err) { console.error('CAD init failed:', err); }
   }, 250);
