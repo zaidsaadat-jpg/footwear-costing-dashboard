@@ -211,6 +211,10 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 
 <div class="container">
   <div class="tab-panel active" id="tab-dashboard">
+    <div style="background: #e8f5e9; border-left: 4px solid #2d6a4f; padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; color: #333; display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 18px;">💡</span>
+      <span><strong>Click any product card</strong> to see its full cost breakdown — including the interactive cost driver tree, MOQ sensitivity analysis, and detailed cost table.</span>
+    </div>
     <div class="grid" id="cards"></div>
     <div class="drill" id="drill">
       <h3 id="drillTitle"></h3>
@@ -342,10 +346,20 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
       <div class="dtc-viewer-card">
         <h4>CAD-Style Product Viewer</h4>
 
-        <div class="dtc-upload-zone" onclick="document.getElementById('dtcImage').click()">
-          <div class="icon">📸</div>
-          <p><strong>Upload product image</strong> to texture the model</p>
-          <input type="file" id="dtcImage" accept="image/*" style="display:none">
+        <div class="dtc-upload-zone" id="glbUploadZone">
+          <div class="icon">📦</div>
+          <p><strong>Upload 3D model</strong> (.glb file)</p>
+          <p style="font-size:11px;">Drag &amp; drop the file here, or click to browse</p>
+          <input type="file" id="glbInput" style="display:none">
+          <div class="upload-progress" id="uploadProgress" style="display:none;">
+            <div class="progress-track">
+              <div class="progress-fill" id="uploadProgressFill"></div>
+            </div>
+            <div class="progress-text">
+              <span id="uploadProgressText">Preparing…</span>
+              <span class="eta" id="uploadProgressEta"></span>
+            </div>
+          </div>
         </div>
 
         <div id="viewer3d" class="viewer3d"></div>
@@ -406,9 +420,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 
           <div class="cad-control-group">
             <span class="cad-label">Custom model:</span>
-            <button class="cad-chip" onclick="document.getElementById('glbInput').click()">📁 Upload GLB</button>
-            <input type="file" id="glbInput" style="display:none">
-            <button class="cad-chip" onclick="resetToBuiltIn()">↺ Use Built-in</button>
+            <button class="cad-chip" onclick="resetToBuiltIn()">↺ Reset to built-in</button>
           </div>
         </div>
 
