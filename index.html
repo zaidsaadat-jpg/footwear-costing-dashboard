@@ -636,6 +636,7 @@ let forecastOverrides = {};
 let compCharts = {};
 let retailChart = null;
 window._fcCharts = [];
+let _forecastRafId = null;
 
 const fmt = n => '€' + (isFinite(n) && n != null ? Number(n).toFixed(2) : '0.00');
 const pct = n => (isFinite(n) && n != null ? Number(n).toFixed(1) : '0.0') + '%';
@@ -808,9 +809,6 @@ function snapshotState(name) {
   };
 }
 
-/* Computes FOBs for a scenario using ITS OWN assumptions, not the live ones.
-   Temporarily swaps `data.assumptions` so shared helpers resolve against the
-   snapshot, then restores in a finally block. */
 function computeScenarioFobs(snap) {
   const savedAssumptions = data.assumptions;
   const savedTier = currentTier;
@@ -1100,11 +1098,9 @@ function populateCompareDropdowns(list) {
   selB.innerHTML = '<option value="">— pick a scenario —</option>' + opts;
   if (list.find(s => s.id === prevA)) selA.value = prevA;
   if (list.find(s => s.id === prevB)) selB.value = prevB;
-  // Sensible defaults: compare the two most recent scenarios
   if (list.length >= 1 && !selA.value) selA.value = list[Math.max(0, list.length - 2)].id;
   if (list.length >= 1 && !selB.value) selB.value = list[list.length - 1].id;
 
-  // Re-bind listeners (innerHTML wipes them)
   if (selA.dataset.wired !== '1') {
     selA.addEventListener('change', renderScenarioCompare);
     selB.addEventListener('change', renderScenarioCompare);
@@ -1159,8 +1155,6 @@ function renderScenarioCompare() {
       out.innerHTML = '<div class="sc-error">Failed to compute scenario B "' + escapeHtml(b.name) + '": ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
       return;
     }
-    console.log('[renderScenarioCompare] fobsA =', fobsA);
-    console.log('[renderScenarioCompare] fobsB =', fobsB);
 
     const locA = a.assumptions.locations.find(l => l.id === a.locationId);
     const locB = b.assumptions.locations.find(l => l.id === b.locationId);
@@ -1779,9 +1773,22 @@ function renderForecastTab() {
   if (!data.forecasts) return;
   const sub = document.getElementById('forecastSubtitle');
   if (sub) sub.textContent = `Projected cost evolution from ${data.forecasts.quarterLabels[0]} to ${data.forecasts.quarterLabels[data.forecasts.quarterLabels.length-1]}.`;
-  if (window._fcCharts && window._fcCharts.length) window._fcCharts.forEach(c => { try { c.destroy(); } catch(e){} });
+
+  // Cancel any pending rAF-driven chart build so multiple rapid calls
+  // (showTab + applyUrlState + onLocationChange) don't pile up.
+  if (_forecastRafId) {
+    cancelAnimationFrame(_forecastRafId);
+    _forecastRafId = null;
+  }
+
+  // Destroy every previously-tracked forecast chart instance
+  if (window._fcCharts && window._fcCharts.length) {
+    window._fcCharts.forEach(c => { try { c.destroy(); } catch(e){} });
+  }
   window._fcCharts = [];
-  const grid = document.getElementById('forecastGrid'); if (!grid) return;
+
+  const grid = document.getElementById('forecastGrid');
+  if (!grid) return;
   grid.innerHTML = '';
   data.products.forEach(p => {
     const proj = buildProjection(p); if (!proj) return;
@@ -1801,12 +1808,18 @@ function renderForecastTab() {
       <div class="forecast-chart-wrap"><canvas id="fc-${p.id}"></canvas></div>`;
     grid.appendChild(card);
   });
-  requestAnimationFrame(() => {
+
+  _forecastRafId = requestAnimationFrame(() => {
+    _forecastRafId = null;
     data.products.forEach(p => {
       const proj = buildProjection(p); if (!proj) return;
-      const ctx = document.getElementById('fc-' + p.id); if (!ctx) return;
+      const canvas = document.getElementById('fc-' + p.id);
+      if (!canvas) return;
+      // Defensive: if a chart is already bound to this exact canvas, destroy it
+      const existing = (typeof Chart.getChart === 'function') ? Chart.getChart(canvas) : null;
+      if (existing) { try { existing.destroy(); } catch(e){} }
       try {
-        const c = new Chart(ctx, {
+        const c = new Chart(canvas, {
           type: 'line',
           data: { labels: proj.projections.map(x => x.label), datasets: [
             { label: 'Total FOB', data: proj.projections.map(x => x.fob), borderColor: '#111', backgroundColor: 'rgba(17,17,17,0.06)', borderWidth: 2.5, tension: 0.3, fill: true, pointRadius: 4 },
@@ -1822,6 +1835,7 @@ function renderForecastTab() {
       } catch (err) { console.error('Chart error:', err); }
     });
   });
+
   renderScenarioBox();
   renderDriverTable();
 }
