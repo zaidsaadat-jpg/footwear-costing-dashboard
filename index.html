@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#111111">
-<meta name="description" content="Open source-cited should-cost dashboard for footwear: MOQ sensitivity, cost driver trees, landed cost matrices, and 18-month forecasting.">
+<meta name="description" content="Open source-cited should-cost dashboard for footwear: MOQ sensitivity, cost driver trees, landed cost matrices, tariff simulator, and negotiation briefs.">
 <title>Footwear Costing Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
@@ -276,6 +276,40 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .sc-summary .sc-tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; background: #e5e7eb; color: #333; margin: 0 4px; }
 .sc-error { background: #fee2e2; border-left: 4px solid #c62828; padding: 14px; border-radius: 6px; color: #991b1b; font-size: 13px; }
 
+/* NEGOTIATION TAB */
+.neg-header { background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%); color: #fff; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
+.neg-header h3 { font-size: 20px; margin-bottom: 10px; }
+.neg-header p { font-size: 13px; line-height: 1.6; opacity: 0.9; }
+.neg-actions { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.neg-table-wrap { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow-x: auto; }
+.neg-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.neg-table th { font-size: 10px; text-transform: uppercase; color: #666; background: #f9fafb; padding: 10px 8px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+.neg-table td { padding: 12px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
+.neg-table tr:last-child td { border-bottom: none; }
+.neg-table .neg-prod { font-weight: 600; color: #111; }
+.neg-table .neg-sub { font-size: 11px; color: #888; margin-top: 2px; }
+.neg-table .num { text-align: right; font-family: ui-monospace, monospace; font-size: 13px; }
+.neg-table input.neg-quote-input { padding: 6px 10px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; width: 100px; text-align: right; font-family: ui-monospace, monospace; }
+.neg-table input.neg-quote-input:focus { outline: 2px solid #6a1b9a; outline-offset: 1px; border-color: #6a1b9a; }
+.neg-status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.neg-status-ok    { background: #d1fae5; color: #065f46; }
+.neg-status-negot { background: #fef3c7; color: #92400e; }
+.neg-status-high  { background: #fee2e2; color: #991b1b; }
+.neg-status-below { background: #dbeafe; color: #1e40af; }
+.neg-delta-up   { color: #dc2626; }
+.neg-delta-down { color: #059669; }
+.neg-delta-zero { color: #888; }
+.neg-brief-btn { padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; background: #4a148c; color: #fff; }
+.neg-brief-btn:hover { background: #6a1b9a; }
+.neg-brief-wrap { background: #fff; border-radius: 12px; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 25px; overflow: hidden; border: 1px solid #e5e7eb; }
+.neg-brief-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px; background: #f8fafc; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
+.neg-brief-header h4 { font-size: 15px; color: #111; }
+.neg-brief-header .neg-brief-actions { display: flex; gap: 8px; }
+.neg-brief-header button { padding: 7px 14px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
+.neg-brief-copy { background: #4a148c; color: #fff; }
+.neg-brief-close { background: #e5e5e5; color: #333; }
+.neg-brief-text { margin: 0; padding: 22px; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 12px; line-height: 1.65; color: #222; white-space: pre; overflow-x: auto; background: #fff; }
+
 /* ---- Accessibility: visible keyboard focus ---- */
 :focus-visible { outline: 2px solid #4a148c; outline-offset: 2px; border-radius: 4px; }
 .card:focus-visible { border-color: #4a148c; }
@@ -319,6 +353,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     <button class="tab active" onclick="showTab('dashboard', this)">📊 Dashboard</button>
     <button class="tab" onclick="showTab('assumptions', this)">⚙️ Assumptions & Sources</button>
     <button class="tab" onclick="showTab('scenarios', this)">📂 Scenarios</button>
+    <button class="tab" onclick="showTab('negotiation', this)">💰 Negotiation</button>
     <button class="tab" onclick="showTab('forecast', this)">📈 Budgeting & Forecasting</button>
     <button class="tab" onclick="showTab('competitive', this)">🏆 Competitive Intelligence</button>
     <button class="tab" onclick="showTab('e2e', this)">🌐 End-to-End</button>
@@ -407,6 +442,33 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     </div>
   </div>
 
+  <div class="tab-panel" id="tab-negotiation">
+    <div class="neg-header">
+      <h3>💰 Negotiation &amp; Should-Cost</h3>
+      <p>Enter the factory's quoted FOB for each product. The model compares it against a bottom-up should-cost and produces a one-page negotiation brief you can paste into an email. Quotes are stored locally and reflect the current location, tier, and material assumptions.</p>
+    </div>
+
+    <div class="neg-actions">
+      <button class="btn-primary" onclick="openAllBriefs()">📄 Generate brief for all products</button>
+      <button class="btn-secondary" onclick="resetQuotes()">↺ Clear all quotes</button>
+    </div>
+
+    <div class="neg-table-wrap">
+      <table class="neg-table" id="negTable"></table>
+    </div>
+
+    <div class="neg-brief-wrap" id="negBriefWrap" style="display:none;">
+      <div class="neg-brief-header">
+        <h4 id="negBriefTitle">Negotiation brief</h4>
+        <div class="neg-brief-actions">
+          <button class="neg-brief-copy" onclick="copyNegotiationBrief()">📋 Copy to clipboard</button>
+          <button class="neg-brief-close" onclick="closeNegotiationBrief()">✕ Close</button>
+        </div>
+      </div>
+      <pre class="neg-brief-text" id="negBriefText"></pre>
+    </div>
+  </div>
+
   <div class="tab-panel" id="tab-forecast">
     <div class="forecast-header">
       <h3>📈 18-Month Budgeting & Forecasting</h3>
@@ -450,7 +512,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tab-panel" id="tab-e2e">
     <div class="e2e-header">
       <h3>🌐 End-to-End Landed Cost — Factory to Consumer</h3>
-      <p>Full cost journey from source country factory gate through freight, insurance, tariffs, customs, inland distribution, wholesale markup, and retail VAT. FOB is now computed per source country from its actual labour and machine rates. Drag a tariff slider below to see the matrix, waterfall, and retail prices reflow live.</p>
+      <p>Full cost journey from source country factory gate through freight, insurance, tariffs, customs, inland distribution, wholesale markup, and retail VAT. FOB is computed per source country from its actual labour and machine rates. Drag a tariff slider below to see the matrix, waterfall, and retail prices reflow live.</p>
     </div>
     <h3 style="margin-bottom:12px;">Source Countries</h3>
     <div class="source-legend" id="sourceLegend"></div>
@@ -644,6 +706,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 const STORAGE_KEY = 'footwear_cost_assumptions_v1';
 const FC_STORAGE = 'footwear_cost_forecast_overrides_v1';
 const SCENARIOS_KEY = 'footwear_scenarios_v1';
+const QUOTES_KEY = 'footwear_quotes_v1';
 const DTC_LS_KEY = 'puma_dtc_scenario_v1';
 
 let data = null, originalAssumptions = null, originalTradeRules = null;
@@ -658,6 +721,8 @@ let expandedNodes = {};
 let forecastOverrides = {};
 let compCharts = {};
 let retailChart = null;
+let quotedFobs = {};
+let currentBriefProduct = null;
 window._fcCharts = [];
 let _forecastRafId = null;
 
@@ -669,12 +734,366 @@ function safeRender(name, fn) {
 }
 
 /* ============================================================
+   QUOTES (factory FOB asks)
+   ============================================================ */
+
+function loadQuotes() {
+  try { quotedFobs = JSON.parse(localStorage.getItem(QUOTES_KEY) || '{}') || {}; }
+  catch(e) { quotedFobs = {}; }
+}
+function saveQuotes() {
+  try { localStorage.setItem(QUOTES_KEY, JSON.stringify(quotedFobs)); } catch(e) {}
+}
+function getQuotedFob(product) {
+  const q = quotedFobs[product.id];
+  return (typeof q === 'number' && isFinite(q)) ? q : null;
+}
+
+/* ============================================================
+   NEGOTIATION TAB
+   ============================================================ */
+
+function renderNegotiationTab() {
+  const t = document.getElementById('negTable');
+  if (!t || !data || !data.products) return;
+
+  let h = '<thead><tr>'
+        + '<th style="width:26%;">Product</th>'
+        + '<th class="num">Should-cost FOB</th>'
+        + '<th class="num">Quoted FOB</th>'
+        + '<th class="num">Δ €</th>'
+        + '<th class="num">Δ %</th>'
+        + '<th style="width:14%;">Status</th>'
+        + '<th>Brief</th>'
+        + '</tr></thead><tbody>';
+
+  for (const p of data.products) {
+    const c = calc(p);
+    const shouldCost = c.fob;
+    const quoted = getQuotedFob(p);
+    const effective = quoted != null ? quoted : shouldCost;
+    const gap = effective - shouldCost;
+    const gapPct = shouldCost ? (gap / shouldCost) * 100 : 0;
+    const cls = classifyGap(gapPct);
+    const tag = gapTag(cls);
+
+    h += '<tr>'
+      + '<td>'
+      +   '<div class="neg-prod">' + escapeHtml(p.name) + '</div>'
+      +   '<div class="neg-sub">' + escapeHtml((p.brand || '') + ' · ' + (p.category || '') + ' · ' + (currentLocation ? currentLocation.name : '')) + '</div>'
+      + '</td>'
+      + '<td class="num">' + fmt(shouldCost) + '</td>'
+      + '<td class="num">'
+      +   '<input type="number" step="0.05" class="neg-quote-input" '
+      +          'value="' + effective.toFixed(2) + '" '
+      +          'data-product="' + p.id + '" '
+      +          'aria-label="Quoted FOB for ' + escapeHtml(p.name) + '" '
+      +          'oninput="onQuoteChange(this)" '
+      +          'onchange="onQuoteChange(this)">'
+      + '</td>'
+      + '<td class="num ' + (gap > 0.005 ? 'neg-delta-up' : (gap < -0.005 ? 'neg-delta-down' : 'neg-delta-zero')) + '" data-gap-for="' + p.id + '">'
+      +   (gap > 0.005 ? '+' : '') + fmt(gap)
+      + '</td>'
+      + '<td class="num ' + (gap > 0.005 ? 'neg-delta-up' : (gap < -0.005 ? 'neg-delta-down' : 'neg-delta-zero')) + '" data-gappct-for="' + p.id + '">'
+      +   (gap > 0.005 ? '+' : '') + gapPct.toFixed(1) + '%'
+      + '</td>'
+      + '<td><span class="neg-status ' + tag.cls + '" data-status-for="' + p.id + '">' + tag.label + '</span></td>'
+      + '<td><button class="neg-brief-btn" onclick="openNegotiationBrief(\'' + p.id + '\')">📄 Generate</button></td>'
+      + '</tr>';
+  }
+  h += '</tbody>';
+  t.innerHTML = h;
+}
+
+function classifyGap(gapPct) {
+  if (gapPct <= 0.5 && gapPct >= -0.5) return 'ok';
+  if (gapPct < -0.5) return 'below';
+  if (gapPct <= 5) return 'ok';
+  if (gapPct <= 15) return 'negot';
+  return 'high';
+}
+function gapTag(cls) {
+  switch (cls) {
+    case 'below': return { cls: 'neg-status-below', label: 'Below model' };
+    case 'ok':    return { cls: 'neg-status-ok',    label: 'In range' };
+    case 'negot': return { cls: 'neg-status-negot', label: 'Negotiable' };
+    case 'high':  return { cls: 'neg-status-high',  label: 'High gap' };
+    default:      return { cls: 'neg-status-ok',    label: '—' };
+  }
+}
+
+function onQuoteChange(input) {
+  const pid = input.dataset.product;
+  const raw = input.value;
+  const v = parseFloat(raw);
+  if (raw === '' || !isFinite(v)) {
+    delete quotedFobs[pid];
+  } else {
+    quotedFobs[pid] = v;
+  }
+  saveQuotes();
+  // Update just the gap cells for this row (avoid a full re-render which would
+  // steal focus from the input the user is typing in)
+  updateNegRow(pid);
+  // If a brief is open for this product, refresh it
+  if (currentBriefProduct === pid) renderNegotiationBrief(pid);
+}
+
+function updateNegRow(pid) {
+  const p = data.products.find(x => x.id === pid);
+  if (!p) return;
+  const c = calc(p);
+  const shouldCost = c.fob;
+  const quoted = getQuotedFob(p);
+  const effective = quoted != null ? quoted : shouldCost;
+  const gap = effective - shouldCost;
+  const gapPct = shouldCost ? (gap / shouldCost) * 100 : 0;
+  const cls = classifyGap(gapPct);
+  const tag = gapTag(cls);
+
+  const gapEl = document.querySelector('[data-gap-for="' + pid + '"]');
+  const pctEl = document.querySelector('[data-gappct-for="' + pid + '"]');
+  const statEl = document.querySelector('[data-status-for="' + pid + '"]');
+
+  const gapClass = gap > 0.005 ? 'neg-delta-up' : (gap < -0.005 ? 'neg-delta-down' : 'neg-delta-zero');
+  if (gapEl) {
+    gapEl.textContent = (gap > 0.005 ? '+' : '') + fmt(gap);
+    gapEl.className = 'num ' + gapClass;
+  }
+  if (pctEl) {
+    pctEl.textContent = (gap > 0.005 ? '+' : '') + gapPct.toFixed(1) + '%';
+    pctEl.className = 'num ' + gapClass;
+  }
+  if (statEl) {
+    statEl.textContent = tag.label;
+    statEl.className = 'neg-status ' + tag.cls;
+  }
+}
+
+function resetQuotes() {
+  if (!confirm('Clear all entered quotes? Should-cost values will still be shown.')) return;
+  quotedFobs = {};
+  saveQuotes();
+  renderNegotiationTab();
+  closeNegotiationBrief();
+}
+
+/* ============================================================
+   NEGOTIATION BRIEF GENERATION
+   ============================================================ */
+
+function openNegotiationBrief(productId) {
+  currentBriefProduct = productId;
+  renderNegotiationBrief(productId);
+}
+
+function openAllBriefs() {
+  // Concatenate briefs for every product into one big text block
+  const parts = [];
+  for (const p of data.products) {
+    parts.push(buildNegotiationBrief(p.id));
+  }
+  const text = parts.join('\n\n' + '─'.repeat(72) + '\n\n');
+  const wrap = document.getElementById('negBriefWrap');
+  const titleEl = document.getElementById('negBriefTitle');
+  const textEl = document.getElementById('negBriefText');
+  titleEl.textContent = 'Negotiation briefs — all products';
+  textEl.textContent = text;
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+}
+
+function renderNegotiationBrief(productId) {
+  const wrap = document.getElementById('negBriefWrap');
+  const titleEl = document.getElementById('negBriefTitle');
+  const textEl = document.getElementById('negBriefText');
+  const p = data.products.find(x => x.id === productId);
+  if (!p) return;
+  titleEl.textContent = 'Negotiation brief — ' + p.name;
+  textEl.textContent = buildNegotiationBrief(productId);
+  wrap.style.display = 'block';
+}
+
+function closeNegotiationBrief() {
+  const wrap = document.getElementById('negBriefWrap');
+  if (wrap) wrap.style.display = 'none';
+  currentBriefProduct = null;
+}
+
+function prefersReducedMotion() {
+  try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  catch(e) { return false; }
+}
+
+function padR(s, n) { return String(s).padEnd(n, ' '); }
+function padL(s, n) { return String(s).padStart(n, ' '); }
+function money(v) { return '€' + (isFinite(v) ? v.toFixed(2) : '0.00'); }
+function moneyL(v, n) { return padL('€' + (isFinite(v) ? v.toFixed(2) : '0.00'), n); }
+function pctL(v, n) { return padL((isFinite(v) ? v.toFixed(1) : '0.0') + '%', n); }
+
+function buildNegotiationBrief(productId) {
+  const p = data.products.find(x => x.id === productId);
+  if (!p) return '';
+  const c = calc(p);
+  const shouldCost = c.fob;
+  const quoted = getQuotedFob(p);
+  const effective = quoted != null ? quoted : shouldCost;
+  const gap = effective - shouldCost;
+  const gapPct = shouldCost ? (gap / shouldCost) * 100 : 0;
+  const tag = gapTag(classifyGap(gapPct));
+
+  const tier = (data.assumptions.supplierTiers || {})[currentTier] || { name: currentTier, marginPercent: 9 };
+  const loc = currentLocation || { name: '—' };
+  const fixedPool = (p.moq && p.moq.fixedCostPool) || 0;
+  const moqCurrent = p.moq ? Math.round(p.moq.current * (tier.moqMultiplier || 1)) : 0;
+  const fixedPerUnit = moqCurrent ? fixedPool / moqCurrent : 0;
+
+  const target50 = shouldCost + gap * 0.5;
+  const walkAway = shouldCost * 1.10;
+
+  // Top cost drivers
+  const drivers = getTopCostDrivers(c.tree, 5);
+
+  // Nearest competitor comparison
+  let competitorRef = null;
+  if (data.competitors && data.competitors.productComparisons) {
+    for (const cmp of data.competitors.productComparisons) {
+      if ((cmp.puma && cmp.puma.name === p.name) ||
+          (cmp.competitor && cmp.competitor.name === p.name)) {
+        competitorRef = cmp;
+        break;
+      }
+    }
+  }
+
+  const L = '─'.repeat(56);
+  const line = '';
+
+  const lines = [];
+  lines.push('═══════════ NEGOTIATION BRIEF ═══════════');
+  lines.push('');
+  lines.push('Product:      ' + p.name);
+  lines.push('Brand:        ' + (p.brand || '—') + ' · ' + (p.category || '—'));
+  lines.push('Location:     ' + loc.name + ' · ' + tier.name);
+  lines.push('Prepared:     ' + new Date().toISOString().slice(0, 16).replace('T', ' '));
+  lines.push('');
+  lines.push('── POSITION ' + L.slice(0, 44));
+  lines.push('Should-cost FOB (model):      ' + moneyL(shouldCost, 10));
+  lines.push('Quoted FOB (factory ask):     ' + moneyL(effective, 10));
+  lines.push('Gap:                          ' + padL(((gap > 0.005 ? '+' : '') + money(gap)), 10) + '  (' + ((gap > 0.005 ? '+' : '') + gapPct.toFixed(1) + '%)'));
+  lines.push('');
+  lines.push('Status: ' + tag.label.toUpperCase() + '  (' + shortStatus(tag.label) + ')');
+  lines.push('');
+  lines.push('── COST BREAKDOWN (should-cost) ' + L.slice(0, 28));
+  lines.push(padR('Materials', 34) + moneyL(c.mat, 10) + '  ' + pctL(shouldCost ? (c.mat / shouldCost) * 100 : 0, 6));
+  lines.push(padR('Labour (CMT)', 34) + moneyL(c.lab, 10) + '  ' + pctL(shouldCost ? (c.lab / shouldCost) * 100 : 0, 6));
+  lines.push(padR('Overheads', 34) + moneyL(c.ovh, 10) + '  ' + pctL(shouldCost ? (c.ovh / shouldCost) * 100 : 0, 6));
+  lines.push(padR('Factory margin (' + (tier.marginPercent != null ? tier.marginPercent.toFixed(1) : '9.0') + '%)', 34) + moneyL(c.margin, 10) + '  ' + pctL(shouldCost ? (c.margin / shouldCost) * 100 : 0, 6));
+  lines.push('');
+  lines.push(padR('Fixed cost pool (MOQ ' + moqCurrent.toLocaleString() + ')', 34) + padL('€' + fixedPool.toLocaleString(), 10));
+  lines.push(padR('Fixed cost / unit at current MOQ', 34) + moneyL(fixedPerUnit, 10));
+  lines.push('');
+  lines.push('── TARGET ' + L.slice(0, 46));
+  lines.push('Recommended target ask (50% gap close):   ' + moneyL(target50, 10));
+  lines.push('Walk-away (10% premium over should-cost): ' + moneyL(walkAway, 10));
+  lines.push('');
+  lines.push('── NEGOTIATION LEVERS ' + L.slice(0, 36));
+  lines.push('');
+  lines.push('1. MOQ absorption');
+  if (moqCurrent) {
+    const doubledMoq = moqCurrent * 2;
+    const doubledFixed = fixedPool / doubledMoq;
+    lines.push('   Doubling the order to ' + doubledMoq.toLocaleString() + ' pairs reduces fixed cost');
+    lines.push('   per unit from ' + money(fixedPerUnit) + ' to ' + money(doubledFixed) + ' — a saving of ' + money(fixedPerUnit - doubledFixed) + '/unit.');
+    lines.push('   Even splitting the gain, this justifies a substantial FOB concession.');
+  } else {
+    lines.push('   No MOQ fixed pool modelled for this SKU.');
+  }
+  lines.push('');
+  lines.push('2. Raw material index');
+  if (data.forecasts && data.forecasts.drivers) {
+    const rub = data.forecasts.drivers.find(d => d.id === 'natural_rubber');
+    const eva = data.forecasts.drivers.find(d => d.id === 'eva_resin');
+    const parts = [];
+    if (rub) parts.push('SMR-20 rubber ' + fmtPctSigned(rub.quarterlyChange[0]) + '/qtr');
+    if (eva) parts.push('EVA resin ' + fmtPctSigned(eva.quarterlyChange[0]) + '/qtr');
+    lines.push('   ' + (parts.length ? parts.join(', ') : 'See Forecast tab for current rates') + '.');
+    lines.push('   Net material pressure is mild — not a valid basis for a double-digit increase.');
+  } else {
+    lines.push('   See Forecast tab for current rates.');
+  }
+  lines.push('');
+  lines.push('3. Competitive benchmark');
+  if (competitorRef) {
+    const comp = competitorRef.competitor;
+    lines.push('   ' + comp.brand + ' ' + comp.name + ' benchmark FOB: ' + money(comp.fob) + '.');
+    lines.push('   PUMA ' + p.name + ' should-cost: ' + money(shouldCost) + '.');
+    lines.push('   Market expects roughly this cost level for this segment.');
+  } else {
+    lines.push('   See Competitive Intelligence tab for peer product FOBs.');
+  }
+  lines.push('');
+  lines.push('4. Top cost drivers (where to focus the conversation)');
+  if (drivers.length) {
+    drivers.forEach((d, i) => {
+      const label = (d.parent ? d.parent + ' → ' + d.name : d.name);
+      lines.push('   ' + (i + 1) + '. ' + padR(label.length > 44 ? label.slice(0, 42) + '…' : label, 46) + moneyL(d.cost, 9));
+    });
+  } else {
+    lines.push('   (no positive-cost leaves found)');
+  }
+  lines.push('');
+  lines.push('── NOTES ' + L.slice(0, 47));
+  lines.push('Model:   Footwear Costing Dashboard v' + (data.version || '?'));
+  lines.push('Sources: Misciano 2026 (labour) · ANRPC (rubber) · 100ppi (EVA) · UNIDO (machine).');
+  lines.push('');
+  lines.push('This brief is generated from a bottom-up should-cost model.');
+  lines.push('It is a negotiation starting point, not a contractual position.');
+
+  return lines.join('\n');
+}
+
+function shortStatus(label) {
+  switch (label) {
+    case 'In range':    return 'within 5% of model';
+    case 'Negotiable':  return '5–15% above model';
+    case 'High gap':    return 'more than 15% above model';
+    case 'Below model': return 'below should-cost';
+    default:            return '';
+  }
+}
+
+function fmtPctSigned(v) {
+  if (!isFinite(v)) return '0.0%';
+  return (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+}
+
+function getTopCostDrivers(evaluatedTree, limit) {
+  const leaves = [];
+  function walk(n, parentName) {
+    const hasChildren = n.children && n.children.length > 0 && !n.type;
+    if (hasChildren) {
+      n.children.forEach(c => walk(c, n.name));
+    } else if (typeof n.cost === 'number' && n.cost > 0) {
+      leaves.push({ name: n.name, parent: parentName || '', cost: n.cost });
+    }
+  }
+  walk(evaluatedTree, '');
+  return leaves.sort((a, b) => b.cost - a.cost).slice(0, limit || 5);
+}
+
+function copyNegotiationBrief() {
+  const textEl = document.getElementById('negBriefText');
+  if (!textEl) return;
+  copyToClipboard(textEl.textContent, 'Brief copied to clipboard.');
+}
+
+/* ============================================================
    LANDED COST MATRIX — computed from rules
    ============================================================ */
 
 function getComputedMatrix(e2e) {
   if (!e2e) return [];
-  // Fallback for older JSON that still ships a hardcoded matrix
   if (!e2e.tradeRules || !e2e.tradeRules.tariffByPair) {
     return e2e.matrix || [];
   }
@@ -779,7 +1198,6 @@ function onTariffChange(input) {
   const valueEl = input.parentElement.querySelector('.tariff-value');
   if (valueEl) valueEl.textContent = val.toFixed(1) + '%';
 
-  // Update the "changed" dot without rebuilding the whole simulator
   const labelEl = input.parentElement.querySelector('.tariff-label');
   const baseline = (originalTradeRules && originalTradeRules.tariffByPair && originalTradeRules.tariffByPair[key] != null)
                    ? originalTradeRules.tariffByPair[key]
@@ -798,7 +1216,6 @@ function onTariffChange(input) {
     }
   }
 
-  // Re-render downstream views
   const e2e = data.endToEnd;
   safeRender('matrix', () => renderMatrix(e2e));
   safeRender('waterfall', renderWaterfall);
@@ -918,6 +1335,7 @@ function applyUrlState(u) {
     safeRender('cards', renderCards);
     if (selected) safeRender('drilldown', renderDrilldown);
     safeRender('assumptions', renderAssumptionEditors);
+    safeRender('negotiation', renderNegotiationTab);
     safeRender('forecast', renderForecastTab);
     safeRender('scenarios', renderScenariosTab);
     if (data.processFlow) safeRender('process', renderProcessTab);
@@ -939,8 +1357,7 @@ function applyUrlState(u) {
     setTimeout(() => {
       const drill = document.getElementById('drill');
       if (drill) {
-        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        drill.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+        drill.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
       }
     }, 150);
   }
@@ -965,11 +1382,7 @@ function getSavedScenarios() {
   try {
     const raw = JSON.parse(localStorage.getItem(SCENARIOS_KEY) || '[]');
     if (!Array.isArray(raw)) return [];
-    const valid = raw.filter(isValidScenario);
-    if (valid.length !== raw.length) {
-      console.warn('Dropped ' + (raw.length - valid.length) + ' malformed scenario(s) from localStorage');
-    }
-    return valid;
+    return raw.filter(isValidScenario);
   } catch(e) {
     console.warn('Could not parse saved scenarios:', e);
     return [];
@@ -1080,11 +1493,13 @@ function refreshEverything() {
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
   safeRender('assumptions', renderAssumptionEditors);
+  safeRender('negotiation', renderNegotiationTab);
   safeRender('forecast', renderForecastTab);
   safeRender('scenarios', renderScenariosTab);
   if (data.processFlow) safeRender('process', renderProcessTab);
   if (typeof renderDtcTab === 'function') safeRender('dtc', renderDtcTab);
   safeRender('e2e', renderE2ETab);
+  if (currentBriefProduct) safeRender('brief', () => renderNegotiationBrief(currentBriefProduct));
   syncUrl();
 }
 
@@ -1196,7 +1611,6 @@ function promptSaveScenario() {
   renderScenariosTab();
   const tabBtn = [...document.querySelectorAll('.tab')].find(b => /showTab\('scenarios'/.test(b.getAttribute('onclick') || ''));
   if (tabBtn) showTab('scenarios', tabBtn);
-  console.log('Saved scenario:', snap.id, snap.name);
 }
 
 function promptResetScenarioToDefaults() {
@@ -1336,17 +1750,13 @@ function renderScenarioCompare() {
     }
 
     let fobsA, fobsB;
-    try {
-      fobsA = computeScenarioFobs(a);
-    } catch (err) {
-      console.error('computeScenarioFobs failed for A:', err);
+    try { fobsA = computeScenarioFobs(a); }
+    catch (err) {
       out.innerHTML = '<div class="sc-error">Failed to compute scenario A "' + escapeHtml(a.name) + '": ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
       return;
     }
-    try {
-      fobsB = computeScenarioFobs(b);
-    } catch (err) {
-      console.error('computeScenarioFobs failed for B:', err);
+    try { fobsB = computeScenarioFobs(b); }
+    catch (err) {
       out.innerHTML = '<div class="sc-error">Failed to compute scenario B "' + escapeHtml(b.name) + '": ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
       return;
     }
@@ -1481,6 +1891,7 @@ async function load() {
   if (saved) { try { data.assumptions = JSON.parse(saved); } catch(e){} }
   const savedFc = localStorage.getItem(FC_STORAGE);
   if (savedFc) { try { forecastOverrides = JSON.parse(savedFc); } catch(e){} }
+  loadQuotes();
 
   selected = null;
   editingLocId = null;
@@ -1503,6 +1914,7 @@ async function load() {
   safeRender('cards', renderCards);
   safeRender('assumptions', renderAssumptionEditors);
   safeRender('scenarios', renderScenariosTab);
+  safeRender('negotiation', renderNegotiationTab);
   safeRender('forecast', renderForecastTab);
   safeRender('competitive', renderCompetitiveTab);
   safeRender('e2e', renderE2ETab);
@@ -1519,6 +1931,7 @@ function showTab(name, btn) {
   currentTab = name;
 
   if (name === 'scenarios') safeRender('scenarios', renderScenariosTab);
+  if (name === 'negotiation') safeRender('negotiation', renderNegotiationTab);
   if (name === 'forecast') safeRender('forecast', renderForecastTab);
   if (name === 'competitive') safeRender('competitive', renderCompetitiveTab);
   if (name === 'e2e') safeRender('e2e', renderE2ETab);
@@ -1797,16 +2210,20 @@ function onLocationChange() {
   currentLocation = data.assumptions.locations.find(l => l.id === document.getElementById('locationSelect').value);
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('negotiation', renderNegotiationTab);
   safeRender('forecast', renderForecastTab);
   safeRender('process', renderProcessTab);
   safeRender('e2e', renderE2ETab);
+  if (currentBriefProduct) safeRender('brief', () => renderNegotiationBrief(currentBriefProduct));
   syncUrl();
 }
 function onTierChange() {
   currentTier = document.getElementById('tierSelect').value;
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('negotiation', renderNegotiationTab);
   safeRender('e2e', renderE2ETab);
+  if (currentBriefProduct) safeRender('brief', () => renderNegotiationBrief(currentBriefProduct));
   syncUrl();
 }
 
@@ -1901,16 +2318,20 @@ function updateLocField(locId, key, val) {
   loc[key] = parseFloat(val);
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('negotiation', renderNegotiationTab);
   safeRender('forecast', renderForecastTab);
   safeRender('e2e', renderE2ETab);
+  if (currentBriefProduct) safeRender('brief', () => renderNegotiationBrief(currentBriefProduct));
 }
 function updateMaterial(key, val) {
   if (typeof data.assumptions.materialPrices[key] === 'object') data.assumptions.materialPrices[key].price = parseFloat(val);
   else data.assumptions.materialPrices[key] = parseFloat(val);
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('negotiation', renderNegotiationTab);
   safeRender('forecast', renderForecastTab);
   safeRender('e2e', renderE2ETab);
+  if (currentBriefProduct) safeRender('brief', () => renderNegotiationBrief(currentBriefProduct));
 }
 function updateMachine(key, field, val) { data.assumptions.machineAssumptions[key][field] = parseFloat(val); }
 function saveAssumptions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data.assumptions)); alert('✅ Saved.'); }
@@ -1922,6 +2343,7 @@ function resetAssumptions() {
   safeRender('assumptions', renderAssumptionEditors);
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('negotiation', renderNegotiationTab);
   safeRender('forecast', renderForecastTab);
   safeRender('e2e', renderE2ETab);
 }
