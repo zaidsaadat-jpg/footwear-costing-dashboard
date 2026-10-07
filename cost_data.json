@@ -1,9 +1,9 @@
 {
-  "version": "8.1",
+  "version": "8.2",
   "last_updated": "2026-10-07",
   "currency": "EUR",
   "category": "footwear",
-  "notes": "Footwear costing model — PUMA, Adidas, Nike, Anta comparison. Not actual supplier data.",
+  "notes": "Footwear costing model — PUMA, Adidas, Nike, Anta comparison. Not actual supplier data. v8.2: landed-cost matrix is now computed from tradeRules.",
 
   "assumptions": {
     "sources": {
@@ -486,7 +486,7 @@
   },
 
   "endToEnd": {
-    "notes": "End-to-end landed cost from factory to consumer. Base FOB uses PUMA Velocity NITRO 4.",
+    "notes": "End-to-end landed cost from factory to consumer. FOB is computed per source country from the actual labour and machine rates in assumptions.locations. Matrix is derived from tradeRules and updated live by the tariff simulator.",
     "sourceCountries": [
       { "id": "vietnam",    "name": "Vietnam",    "shareOfProductionPct": 26, "laborRatePerHr": 2.30, "flag": "🇻🇳" },
       { "id": "china",      "name": "China",      "shareOfProductionPct": 28, "laborRatePerHr": 4.50, "flag": "🇨🇳" },
@@ -507,29 +507,71 @@
       { "id": "mexico",       "name": "Mexico",        "estimatedRevenueM": 285,  "shareOfGlobalPct": 3.9,  "vatRatePct": 16,   "vatName": "IVA",            "flag": "🇲🇽" },
       { "id": "india_market", "name": "India",         "estimatedRevenueM": 220,  "shareOfGlobalPct": 3.0,  "vatRatePct": 18,   "vatName": "GST",            "flag": "🇮🇳" }
     ],
-    "matrix": [
-      { "source": "vietnam",    "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 23.90, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.83, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.66, "vatPerUnit": 5.24, "finalRetailPrice": 66.90 },
-      { "source": "vietnam",    "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
-      { "source": "vietnam",    "destination": "china_market", "fob": 20.93, "freightPerUnit": 0.31, "insurancePerUnit": 0.11, "cif": 21.35, "tariffRatePct": 10,   "tariffPerUnit": 2.14, "customsPerUnit": 0.30, "inlandPerUnit": 0.75, "landedCost": 24.54, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 49.08, "vatPerUnit": 6.38, "finalRetailPrice": 55.46 },
-      { "source": "vietnam",    "destination": "france",       "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 10.10, "finalRetailPrice": 60.62 },
-      { "source": "vietnam",    "destination": "uk",           "fob": 20.93, "freightPerUnit": 1.34, "insurancePerUnit": 0.11, "cif": 22.38, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.80, "landedCost": 25.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.54, "vatPerUnit": 10.11, "finalRetailPrice": 60.65 },
-      { "source": "vietnam",    "destination": "italy",        "fob": 20.93, "freightPerUnit": 1.41, "insurancePerUnit": 0.11, "cif": 22.45, "tariffRatePct": 8,    "tariffPerUnit": 1.80, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.40, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.80, "vatPerUnit": 11.18, "finalRetailPrice": 61.98 },
-      { "source": "vietnam",    "destination": "japan",        "fob": 20.93, "freightPerUnit": 0.41, "insurancePerUnit": 0.11, "cif": 21.45, "tariffRatePct": 8,    "tariffPerUnit": 1.72, "customsPerUnit": 0.30, "inlandPerUnit": 0.90, "landedCost": 24.37, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 48.74, "vatPerUnit": 4.87, "finalRetailPrice": 53.61 },
-      { "source": "vietnam",    "destination": "brazil",       "fob": 20.93, "freightPerUnit": 1.46, "insurancePerUnit": 0.12, "cif": 22.51, "tariffRatePct": 35,   "tariffPerUnit": 7.88, "customsPerUnit": 0.45, "inlandPerUnit": 1.50, "landedCost": 32.34, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 64.68, "vatPerUnit": 11.00, "finalRetailPrice": 75.68 },
-      { "source": "vietnam",    "destination": "mexico",       "fob": 20.93, "freightPerUnit": 1.17, "insurancePerUnit": 0.11, "cif": 22.21, "tariffRatePct": 35,   "tariffPerUnit": 7.77, "customsPerUnit": 0.45, "inlandPerUnit": 1.20, "landedCost": 31.63, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 63.26, "vatPerUnit": 10.12, "finalRetailPrice": 73.38 },
-      { "source": "vietnam",    "destination": "india_market", "fob": 20.93, "freightPerUnit": 0.52, "insurancePerUnit": 0.11, "cif": 21.56, "tariffRatePct": 20,   "tariffPerUnit": 4.31, "customsPerUnit": 0.40, "inlandPerUnit": 1.00, "landedCost": 27.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 54.54, "vatPerUnit": 9.82, "finalRetailPrice": 64.36 },
-      { "source": "china",      "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 23.90, "tariffRatePct": 47.5, "tariffPerUnit": 11.35, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 36.80, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 73.60, "vatPerUnit": 6.26, "finalRetailPrice": 79.86 },
-      { "source": "china",      "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
-      { "source": "china",      "destination": "china_market", "fob": 20.93, "freightPerUnit": 0.31, "insurancePerUnit": 0.11, "cif": 21.35, "tariffRatePct": 10,   "tariffPerUnit": 2.14, "customsPerUnit": 0.30, "inlandPerUnit": 0.75, "landedCost": 24.54, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 49.08, "vatPerUnit": 6.38, "finalRetailPrice": 55.46 },
-      { "source": "cambodia",   "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.11, "cif": 23.89, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.82, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.64, "vatPerUnit": 5.24, "finalRetailPrice": 66.88 },
-      { "source": "cambodia",   "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
-      { "source": "bangladesh", "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.11, "cif": 23.89, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.82, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.64, "vatPerUnit": 5.24, "finalRetailPrice": 66.88 },
-      { "source": "bangladesh", "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.10, "cif": 22.31, "tariffRatePct": 8,    "tariffPerUnit": 1.78, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.24, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.48, "vatPerUnit": 9.59, "finalRetailPrice": 60.07 },
-      { "source": "indonesia",  "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.11, "cif": 23.89, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.82, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.64, "vatPerUnit": 5.24, "finalRetailPrice": 66.88 },
-      { "source": "indonesia",  "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
-      { "source": "india",      "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 23.90, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.83, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.66, "vatPerUnit": 5.24, "finalRetailPrice": 66.90 },
-      { "source": "india",      "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.12, "cif": 22.33, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.54, "vatPerUnit": 10.11, "finalRetailPrice": 60.65 }
-    ]
+    "tradeRules": {
+      "notes": "Rules to compute the landed-cost matrix live. Adding a source country needs only a matching location in assumptions.locations with the same id.",
+      "insuranceRatePct": 0.5,
+      "wholesaleMarkupPct": 50,
+      "defaultTariffPct": 12.5,
+      "tariffByPair": {
+        "vietnam>us": 22.5,
+        "vietnam>germany": 8,
+        "vietnam>china_market": 10,
+        "vietnam>france": 8,
+        "vietnam>uk": 8,
+        "vietnam>italy": 8,
+        "vietnam>japan": 8,
+        "vietnam>brazil": 35,
+        "vietnam>mexico": 35,
+        "vietnam>india_market": 20,
+        "china>us": 47.5,
+        "china>germany": 8,
+        "china>china_market": 10,
+        "cambodia>us": 22.5,
+        "bangladesh>us": 22.5,
+        "indonesia>us": 22.5,
+        "india>us": 22.5,
+        "cambodia>germany": 8,
+        "bangladesh>germany": 8,
+        "indonesia>germany": 8,
+        "india>germany": 8
+      },
+      "freightByDest": {
+        "us": 2.85,
+        "germany": 1.28,
+        "china_market": 0.31,
+        "france": 1.28,
+        "uk": 1.34,
+        "italy": 1.41,
+        "japan": 0.41,
+        "brazil": 1.46,
+        "mexico": 1.17,
+        "india_market": 0.52
+      },
+      "customsByDest": {
+        "us": 0.35,
+        "germany": 0.30,
+        "china_market": 0.30,
+        "france": 0.30,
+        "uk": 0.30,
+        "italy": 0.30,
+        "japan": 0.30,
+        "brazil": 0.45,
+        "mexico": 0.45,
+        "india_market": 0.40
+      },
+      "inlandByDest": {
+        "us": 1.20,
+        "germany": 0.85,
+        "china_market": 0.75,
+        "france": 0.85,
+        "uk": 0.80,
+        "italy": 0.85,
+        "japan": 0.90,
+        "brazil": 1.50,
+        "mexico": 1.20,
+        "india_market": 1.00
+      }
+    }
   },
 
   "processFlow": {
