@@ -1,15 +1,16 @@
 {
-  "version": "8.2",
+  "version": "8.3",
   "last_updated": "2026-10-07",
   "currency": "EUR",
   "category": "footwear",
-  "notes": "Footwear costing model — PUMA, Adidas, Nike, Anta comparison. Not actual supplier data. v8.2: landed-cost matrix is now computed from tradeRules.",
+  "notes": "Footwear costing model — PUMA, Adidas, Nike, Anta comparison. Not actual supplier data. v8.3: per-material CO2e, CBAM carbon cost, optional live-feed metadata.",
 
   "assumptions": {
     "sources": {
       "labour_rates": "Misciano Textile Atlas 2026; ILO footwear study",
       "machine_rates": "UNIDO footwear costing framework",
-      "material_prices": "ANRPC; 100ppi; OPIS; industry benchmark"
+      "material_prices": "ANRPC; 100ppi; OPIS; industry benchmark",
+      "co2e_factors": "Ecoinvent 3.10; PUMA & Nike sustainability disclosures"
     },
     "locations": [
       { "id": "vietnam",    "name": "Vietnam",        "laborRatePerHr": 2.30, "machineRatePerHr": 1.80, "overheadRatePerHr": 0.40, "freightPerUnit": 1.20, "dutyRatePercent": 12.5, "source": "Misciano 2026" },
@@ -26,25 +27,25 @@
       "tier3": { "name": "Tier 3 — Small/Niche",         "laborMultiplier": 0.85, "machineMultiplier": 0.75, "overheadMultiplier": 0.80, "moqMultiplier": 0.4, "marginPercent": 8 }
     },
     "materialPrices": {
-      "rawRubber_perKg":       { "price": 2.50,  "source": "ANRPC Apr 2026: SMR-20" },
-      "evaResin_perKg":        { "price": 2.10,  "source": "100ppi Jul 2026" },
-      "superFoam_perKg":       { "price": 4.80,  "source": "PEBA supercritical foam" },
-      "reactFoam_perKg":       { "price": 3.90,  "source": "Nike ReactX equivalent" },
-      "carbonPlate_perUnit":   { "price": 6.80,  "source": "Carbon fibre racing plate" },
-      "zoomAirUnit_perUnit":   { "price": 2.40,  "source": "Pressurised air unit" },
-      "polyesterYarn_perKg":   { "price": 4.50,  "source": "100ppi: polyester POY" },
-      "rPETPellet_perKg":      { "price": 1.10,  "source": "OPIS Apr 2026" },
-      "meshFabric_perSqm":     { "price": 3.80,  "source": "Engineered mesh" },
-      "engineeredKnit_perSqm": { "price": 5.20,  "source": "Premium engineered knit" },
-      "liningFabric_perSqm":   { "price": 2.40,  "source": "Industry benchmark" },
-      "tpuFilm_perSqm":        { "price": 8.50,  "source": "Industry benchmark" },
-      "cardboard_perUnit":     { "price": 0.55,  "source": "Recycled content box" },
-      "ldpeFilm_perUnit":      { "price": 0.12,  "source": "100ppi: LDPE" },
-      "hangtag_perUnit":       { "price": 0.20,  "source": "Industry benchmark" },
-      "adhesive_perKg":        { "price": 6.20,  "source": "Industry benchmark" },
-      "thread_perUnit":        { "price": 0.08,  "source": "Industry benchmark" },
-      "label_perUnit":         { "price": 0.09,  "source": "Industry benchmark" },
-      "heatTransfer_perUnit":  { "price": 0.15,  "source": "Industry benchmark" }
+      "rawRubber_perKg":       { "price": 2.50,  "source": "ANRPC Apr 2026: SMR-20",       "co2ePerKg": 1.9, "feed": { "url": "", "path": "", "transform": "", "notes": "Natural rubber SMR-20, cradle-to-gate." } },
+      "evaResin_perKg":        { "price": 2.10,  "source": "100ppi Jul 2026",              "co2ePerKg": 2.7, "feed": { "url": "", "path": "", "transform": "", "notes": "EVA resin, virgin." } },
+      "superFoam_perKg":       { "price": 4.80,  "source": "PEBA supercritical foam",       "co2ePerKg": 5.5, "feed": { "url": "", "path": "", "transform": "", "notes": "PEBA-based supercritical foam." } },
+      "reactFoam_perKg":       { "price": 3.90,  "source": "Nike ReactX equivalent",        "co2ePerKg": 4.2, "feed": { "url": "", "path": "", "transform": "", "notes": "ReactX-type foam, mid-range carbon intensity." } },
+      "carbonPlate_perUnit":   { "price": 6.80,  "source": "Carbon fibre racing plate",     "co2ePerKg": 2.0, "feed": { "url": "", "path": "", "transform": "", "notes": "Per-unit figure (~80 g plate × ~25 kgCO2e/kg)." } },
+      "zoomAirUnit_perUnit":   { "price": 2.40,  "source": "Pressurised air unit",          "co2ePerKg": 0.35, "feed": { "url": "", "path": "", "transform": "", "notes": "Per-unit figure, TPU + energy." } },
+      "polyesterYarn_perKg":   { "price": 4.50,  "source": "100ppi: polyester POY",          "co2ePerKg": 5.5, "feed": { "url": "", "path": "", "transform": "", "notes": "Virgin polyester POY." } },
+      "rPETPellet_perKg":      { "price": 1.10,  "source": "OPIS Apr 2026",                 "co2ePerKg": 1.2, "feed": { "url": "", "path": "", "transform": "", "notes": "Recycled PET pellets." } },
+      "meshFabric_perSqm":     { "price": 3.80,  "source": "Engineered mesh",               "co2ePerKg": 2.8, "feed": { "url": "", "path": "", "transform": "", "notes": "Per sqm, includes fibre production." } },
+      "engineeredKnit_perSqm": { "price": 5.20,  "source": "Premium engineered knit",       "co2ePerKg": 3.2, "feed": { "url": "", "path": "", "transform": "", "notes": "Per sqm, more complex construction." } },
+      "liningFabric_perSqm":   { "price": 2.40,  "source": "Industry benchmark",            "co2ePerKg": 1.6, "feed": { "url": "", "path": "", "transform": "", "notes": "Per sqm, lighter fabric." } },
+      "tpuFilm_perSqm":        { "price": 8.50,  "source": "Industry benchmark",            "co2ePerKg": 4.2, "feed": { "url": "", "path": "", "transform": "", "notes": "Per sqm." } },
+      "cardboard_perUnit":     { "price": 0.55,  "source": "Recycled content box",          "co2ePerKg": 0.4, "feed": { "url": "", "path": "", "transform": "", "notes": "Per unit (~200 g box, 2 kgCO2e/kg)." } },
+      "ldpeFilm_perUnit":      { "price": 0.12,  "source": "100ppi: LDPE",                  "co2ePerKg": 0.1, "feed": { "url": "", "path": "", "transform": "", "notes": "Per unit." } },
+      "hangtag_perUnit":       { "price": 0.20,  "source": "Industry benchmark",            "co2ePerKg": 0.05, "feed": { "url": "", "path": "", "transform": "" } },
+      "adhesive_perKg":        { "price": 6.20,  "source": "Industry benchmark",            "co2ePerKg": 2.5, "feed": { "url": "", "path": "", "transform": "" } },
+      "thread_perUnit":        { "price": 0.08,  "source": "Industry benchmark",            "co2ePerKg": 0.01, "feed": { "url": "", "path": "", "transform": "" } },
+      "label_perUnit":         { "price": 0.09,  "source": "Industry benchmark",            "co2ePerKg": 0.02, "feed": { "url": "", "path": "", "transform": "" } },
+      "heatTransfer_perUnit":  { "price": 0.15,  "source": "Industry benchmark",            "co2ePerKg": 0.03, "feed": { "url": "", "path": "", "transform": "" } }
     },
     "machineAssumptions": {
       "injectionMouldingMachine":  { "capitalCost": 45000, "lifeYears": 10, "operatingHoursPerYear": 4000, "powerCostPerHr": 0.60, "maintenancePercentOfDep": 8 },
@@ -486,7 +487,7 @@
   },
 
   "endToEnd": {
-    "notes": "End-to-end landed cost from factory to consumer. FOB is computed per source country from the actual labour and machine rates in assumptions.locations. Matrix is derived from tradeRules and updated live by the tariff simulator.",
+    "notes": "End-to-end landed cost from factory to consumer. FOB is computed per source country from the actual labour and machine rates in assumptions.locations. Matrix is derived from tradeRules and updated live by the tariff simulator. Carbon cost added for EU destinations per carbonRules.",
     "sourceCountries": [
       { "id": "vietnam",    "name": "Vietnam",    "shareOfProductionPct": 26, "laborRatePerHr": 2.30, "flag": "🇻🇳" },
       { "id": "china",      "name": "China",      "shareOfProductionPct": 28, "laborRatePerHr": 4.50, "flag": "🇨🇳" },
@@ -570,6 +571,14 @@
         "brazil": 1.50,
         "mexico": 1.20,
         "india_market": 1.00
+      },
+      "carbonRules": {
+        "euEtsPricePerTonne": 85,
+        "euDestinations": ["germany", "france", "italy"],
+        "cbamYearPct": { "2026": 2.5, "2028": 10, "2030": 48.5, "2034": 100 },
+        "currentYear": 2026,
+        "manufacturingCO2ePerPair": 4.8,
+        "notes": "EU ETS price ~€85/tCO2e (Q4 2026 forecast). CBAM currently covers cement, iron/steel, aluminium, fertilisers, electricity, hydrogen — footwear is not yet in scope. Modelled here as an indicative scope-3 pass-through cost to EU destinations."
       }
     }
   },
