@@ -577,6 +577,7 @@ let data = null, originalAssumptions = null;
 let selected = null, chart = null, moqChart = null;
 let currentLocation = null, currentTier = 'tier2';
 let currentChartType = 'icicle', currentMOQ = null;
+let currentTab = 'dashboard';
 let sortState = { column: 'cost', dir: 'desc' };
 let editingLocId = null;
 let colFilters = {};
@@ -591,6 +592,103 @@ const pct = n => (isFinite(n) ? n.toFixed(1) : '0.0') + '%';
 
 function safeRender(name, fn) {
   try { fn(); } catch (err) { console.error('[Render error in ' + name + ']:', err); }
+}
+
+/* ============================================================
+   URL DEEP LINKS
+   ============================================================ */
+
+function syncUrl() {
+  if (!data) return;
+  const params = new URLSearchParams();
+  if (selected) params.set('product', selected.id);
+  if (currentLocation) params.set('loc', currentLocation.id);
+  if (currentTier) params.set('tier', currentTier);
+  if (currentTab && currentTab !== 'dashboard') params.set('tab', currentTab);
+  const str = params.toString();
+  const newHash = str ? '#' + str : '';
+  const newUrl = location.pathname + location.search + newHash;
+  if (location.hash === newHash) return;
+  try {
+    history.replaceState(null, '', newUrl);
+  } catch (e) {
+    // some browsers block replaceState on file:// — fall back to hash assignment
+    location.hash = str;
+  }
+}
+
+function readUrl() {
+  const hash = location.hash.replace(/^#/, '');
+  if (!hash) return {};
+  const params = new URLSearchParams(hash);
+  return {
+    product: params.get('product'),
+    loc: params.get('loc'),
+    tier: params.get('tier'),
+    tab: params.get('tab')
+  };
+}
+
+function applyUrlState(u) {
+  if (!data || !u) return;
+  let needsCardRender = false;
+
+  // Location
+  if (u.loc) {
+    const loc = data.assumptions.locations.find(l => l.id === u.loc);
+    if (loc && (!currentLocation || currentLocation.id !== loc.id)) {
+      currentLocation = loc;
+      document.getElementById('locationSelect').value = loc.id;
+      needsCardRender = true;
+    }
+  }
+
+  // Tier
+  if (u.tier && data.assumptions.supplierTiers[u.tier]) {
+    if (currentTier !== u.tier) {
+      currentTier = u.tier;
+      document.getElementById('tierSelect').value = u.tier;
+      needsCardRender = true;
+    }
+  }
+
+  if (needsCardRender) {
+    safeRender('cards', renderCards);
+    if (selected) safeRender('drilldown', renderDrilldown);
+    safeRender('forecast', renderForecastTab);
+    safeRender('process', renderProcessTab);
+  }
+
+  // Product
+  if (u.product) {
+    const p = data.products.find(pp => pp.id === u.product);
+    if (p && (!selected || selected.id !== u.product)) {
+      selectProduct(p.id);
+      setTimeout(() => {
+        const drill = document.getElementById('drill');
+        if (drill) {
+          const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          drill.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+        }
+      }, 150);
+    }
+  } else if (selected) {
+    selected = null;
+    document.getElementById('drill').classList.remove('on');
+    safeRender('cards', renderCards);
+  }
+
+  // Tab
+  if (u.tab) {
+    const btn = [...document.querySelectorAll('.tab')].find(b => {
+      const oc = b.getAttribute('onclick') || '';
+      const m = oc.match(/showTab\('([^']+)'/);
+      return m && m[1] === u.tab;
+    });
+    if (btn && !btn.classList.contains('active')) {
+      showTab(u.tab, btn);
+    }
+  }
 }
 
 async function load() {
@@ -635,6 +733,9 @@ async function load() {
   safeRender('competitive', renderCompetitiveTab);
   safeRender('e2e', renderE2ETab);
   safeRender('process', renderProcessTab);
+
+  // Apply any deep-link state from the URL
+  applyUrlState(readUrl());
 }
 
 function showTab(name, btn) {
@@ -642,12 +743,15 @@ function showTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
+  currentTab = name;
 
   if (name === 'forecast') safeRender('forecast', renderForecastTab);
   if (name === 'competitive') safeRender('competitive', renderCompetitiveTab);
   if (name === 'e2e') safeRender('e2e', renderE2ETab);
   if (name === 'process' && data.processFlow) safeRender('process', renderProcessTab);
   if (name === 'dtc' && typeof renderDtcTab === 'function') safeRender('dtc', renderDtcTab);
+
+  syncUrl();
 }
 
 function getTierMultipliers() {
@@ -789,6 +893,7 @@ function selectProduct(id) {
   expandedNodes[rootPath] = true;
   selected.costTree.children.forEach(c => { expandedNodes[rootPath + '/' + c.name] = true; });
   renderDrilldown();
+  syncUrl();
 }
 function renderDrilldown() {
   if (!selected) return;
@@ -920,11 +1025,13 @@ function onLocationChange() {
   if (selected) safeRender('drilldown', renderDrilldown);
   safeRender('forecast', renderForecastTab);
   safeRender('process', renderProcessTab);
+  syncUrl();
 }
 function onTierChange() {
   currentTier = document.getElementById('tierSelect').value;
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
+  syncUrl();
 }
 
 let _moqTimer = null;
@@ -1519,6 +1626,12 @@ if (document.readyState === 'loading') {
 } else {
   load();
 }
+
+// React to external URL changes (manual edits, pasted URLs, bookmarks)
+window.addEventListener('hashchange', () => {
+  if (!data) return;
+  applyUrlState(readUrl());
+});
 </script>
 <script src="dtc.js"></script>
 </body>
