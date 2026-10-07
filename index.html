@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#111111">
-<meta name="description" content="Open source-cited should-cost dashboard for footwear: MOQ sensitivity, cost driver trees, landed cost matrices, tariff simulator, and negotiation briefs.">
+<meta name="description" content="Open source-cited should-cost dashboard for footwear: MOQ sensitivity, cost driver trees, landed cost matrices, tariff simulator, carbon layer, and negotiation briefs.">
 <title>Footwear Costing Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
@@ -19,7 +19,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .header { background: #111; color: #fff; padding: 18px 40px; }
 .header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
 .header h1 { font-size: 22px; }
-.header .sub { font-size: 12px; color: #aaa; margin-top: 4px; }
+.header .sub { font-size: 12px; color: #aaa; margin-top: 4px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.feed-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 12px; background: #1e3a1e; color: #86efac; font-size: 11px; font-weight: 600; }
+.feed-badge.static { background: #2a2a2a; color: #aaa; }
+.feed-badge.refreshing { background: #422006; color: #fbbf24; }
+.feed-badge.error { background: #450a0a; color: #fca5a5; }
+.feed-refresh-btn { padding: 3px 10px; border: 1px solid #444; background: #222; color: #ccc; border-radius: 12px; font-size: 11px; cursor: pointer; }
+.feed-refresh-btn:hover { background: #333; color: #fff; }
 .tabs { display: flex; gap: 4px; margin-top: 15px; flex-wrap: wrap; }
 .tab { padding: 10px 22px; background: #2a2a2a; color: #aaa; border: none; cursor: pointer; border-radius: 8px 8px 0 0; font-size: 14px; font-weight: 500; }
 .tab.active { background: #f5f5f5; color: #111; }
@@ -86,6 +92,14 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .btn-secondary { background: #e5e5e5; color: #222; }
 .footer { text-align: center; color: #999; font-size: 12px; padding: 30px; }
 .tier-select { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; font-size: 14px; }
+.feed-help { font-size: 12px; color: #888; margin-bottom: 14px; line-height: 1.6; }
+.feed-help code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 11px; font-family: ui-monospace, monospace; }
+.feed-actions { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.feed-status { font-size: 12px; color: #666; font-family: ui-monospace, monospace; }
+.feed-row { display: grid; grid-template-columns: 1.4fr 1.6fr 1.2fr 0.8fr; gap: 10px; padding: 10px 0; align-items: center; border-bottom: 1px solid #f5f5f5; }
+.feed-row input { padding: 6px 10px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 12px; width: 100%; font-family: ui-monospace, monospace; }
+.feed-row .feed-key { font-family: ui-monospace, monospace; font-size: 12px; color: #222; font-weight: 600; }
+.feed-row .feed-key .co2e { display: block; font-size: 10px; color: #666; font-weight: 400; margin-top: 2px; }
 
 .forecast-header { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .forecast-header h3 { margin-bottom: 10px; }
@@ -178,7 +192,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .waterfall-controls select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
 #waterfallChart { height: 360px; }
 
-/* TARIFF SIMULATOR */
 .tariff-section { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); border-left: 4px solid #f57c00; }
 .tariff-section h3 { font-size: 16px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .tariff-sub { font-size: 12px; color: #888; margin-bottom: 18px; line-height: 1.5; }
@@ -191,6 +204,21 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .tariff-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; background: #fff3e0; color: #e65100; font-size: 11px; font-weight: 700; }
 .tariff-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
 
+/* CARBON SECTION */
+.carbon-section { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); border-left: 4px solid #2d6a4f; }
+.carbon-section h3 { font-size: 16px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.carbon-sub { font-size: 12px; color: #888; margin-bottom: 18px; line-height: 1.6; }
+.carbon-controls { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+.carbon-controls label { font-size: 13px; color: #555; font-weight: 600; }
+.carbon-controls select { padding: 7px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: #fff; }
+.carbon-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.carbon-stat { background: #f0fdf4; border-radius: 8px; padding: 14px; border-left: 3px solid #2d6a4f; }
+.carbon-stat .lbl { font-size: 10px; text-transform: uppercase; color: #666; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700; }
+.carbon-stat .val { font-size: 22px; font-weight: 800; color: #1b4332; }
+.carbon-stat .val .unit { font-size: 12px; font-weight: 500; color: #666; margin-left: 4px; }
+.carbon-chart-wrap { height: 260px; position: relative; }
+.carbon-note { background: #f8fafc; padding: 12px 14px; border-radius: 8px; font-size: 11.5px; color: #555; line-height: 1.6; margin-top: 16px; }
+
 .card-image-wrap { width: 100%; height: 170px; background: #f8fafc; border-radius: 8px; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; border: 1px solid #f0f0f0; }
 .card-image-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 8px; }
 .card-image-wrap .placeholder { font-size: 56px; color: #cbd5e1; user-select: none; }
@@ -198,7 +226,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .card-image-wrap:hover .upload-btn { opacity: 1; }
 .card-image-wrap .upload-btn:hover { background: #fff; border-color: #111; }
 
-/* PROCESS FLOW TAB */
 .process-header { background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%); color: #fff; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
 .process-header h3 { font-size: 20px; margin-bottom: 10px; }
 .process-header p { font-size: 13px; line-height: 1.6; opacity: 0.9; }
@@ -242,7 +269,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .stage-card .input-pill { background: #dbeafe; color: #1e40af; font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 500; }
 .stage-card .output-pill { background: #d1fae5; color: #065f46; font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 500; }
 
-/* SCENARIOS TAB */
 .sc-header { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: #fff; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
 .sc-header h3 { font-size: 20px; margin-bottom: 10px; }
 .sc-header p { font-size: 13px; line-height: 1.6; opacity: 0.9; }
@@ -276,7 +302,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .sc-summary .sc-tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; background: #e5e7eb; color: #333; margin: 0 4px; }
 .sc-error { background: #fee2e2; border-left: 4px solid #c62828; padding: 14px; border-radius: 6px; color: #991b1b; font-size: 13px; }
 
-/* NEGOTIATION TAB */
 .neg-header { background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%); color: #fff; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
 .neg-header h3 { font-size: 20px; margin-bottom: 10px; }
 .neg-header p { font-size: 13px; line-height: 1.6; opacity: 0.9; }
@@ -310,7 +335,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .neg-brief-close { background: #e5e5e5; color: #333; }
 .neg-brief-text { margin: 0; padding: 22px; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 12px; line-height: 1.65; color: #222; white-space: pre; overflow-x: auto; background: #fff; }
 
-/* ---- Accessibility: visible keyboard focus ---- */
 :focus-visible { outline: 2px solid #4a148c; outline-offset: 2px; border-radius: 4px; }
 .card:focus-visible { border-color: #4a148c; }
 .tab:focus-visible, .chart-btn:focus-visible, .lever-opt:focus-visible, .loc-tab:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
@@ -329,7 +353,11 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="header-top">
     <div>
       <h1>Footwear Costing Dashboard</h1>
-      <div class="sub" id="updated">Loading…</div>
+      <div class="sub">
+        <span id="updated">Loading…</span>
+        <span class="feed-badge static" id="feedBadge">🟢 Static model</span>
+        <button class="feed-refresh-btn" id="feedRefreshBtn" style="display:none;" onclick="refreshFeeds()">🔄 Refresh feeds</button>
+      </div>
     </div>
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
       <div>
@@ -371,7 +399,8 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     <div class="grid" id="cards"></div>
     <div class="drill" id="drill">
       <h3 id="drillTitle"></h3>
-      <div id="locBanner" style="background:#e8f5e9; padding:10px 15px; border-radius:8px; margin-bottom:20px; font-size:13.5px;"></div>
+      <div id="locBanner" style="background:#e8f5e9; padding:10px 15px; border-radius:8px; margin-bottom:8px; font-size:13.5px;"></div>
+      <div id="co2eChip" style="display:none; background:#1b4332; color:#fff; padding:5px 12px; border-radius:14px; font-size:12px; font-weight:600; margin-bottom:20px; width:fit-content;"></div>
       <div class="chartbox"><canvas id="chart"></canvas></div>
       <div class="section">
         <h3 style="margin-bottom:15px;">MOQ — Volume Sensitivity</h3>
@@ -417,6 +446,16 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     <div class="assumption-group"><h3>🌍 Location Rates</h3><div class="loc-tabs" id="locTabs"></div><div id="locEditor"></div></div>
     <div class="assumption-group"><h3>💵 Material Prices</h3><div id="materialEditor"></div></div>
     <div class="assumption-group"><h3>🏭 Machine Assumptions</h3><div id="machineEditor"></div></div>
+    <div class="assumption-group">
+      <h3>🔄 Live Input-Cost Feeds</h3>
+      <p class="feed-help">Configure a URL per material to fetch live prices. Leave the URL blank to keep using the static price from <code>cost_data.json</code>. The fetcher expects a JSON endpoint; use <code>path</code> to point to the number in the response (e.g. <code>data.rubber.smr20</code>), and <code>transform</code> to rescale (<code>divideBy1000</code>, <code>divideBy100</code>, or blank).</p>
+      <div class="feed-actions">
+        <button class="btn-primary" onclick="refreshFeeds()">🔄 Refresh all feeds</button>
+        <button class="btn-secondary" onclick="clearFeedCache()">🧹 Clear cache</button>
+        <span class="feed-status" id="feedStatus">—</span>
+      </div>
+      <div id="feedEditor"></div>
+    </div>
   </div>
 
   <div class="tab-panel" id="tab-scenarios">
@@ -512,7 +551,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tab-panel" id="tab-e2e">
     <div class="e2e-header">
       <h3>🌐 End-to-End Landed Cost — Factory to Consumer</h3>
-      <p>Full cost journey from source country factory gate through freight, insurance, tariffs, customs, inland distribution, wholesale markup, and retail VAT. FOB is computed per source country from its actual labour and machine rates. Drag a tariff slider below to see the matrix, waterfall, and retail prices reflow live.</p>
+      <p>Full cost journey from source country factory gate through freight, insurance, tariffs, customs, inland distribution, and carbon cost for EU destinations. FOB is computed per source country from its actual labour and machine rates. Drag a tariff slider below to see the matrix, waterfall, and retail prices reflow live.</p>
     </div>
     <h3 style="margin-bottom:12px;">Source Countries</h3>
     <div class="source-legend" id="sourceLegend"></div>
@@ -526,6 +565,23 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
       <div class="tariff-actions">
         <button class="btn-secondary" onclick="resetTariffs()">↺ Reset tariffs to defaults</button>
       </div>
+    </div>
+
+    <div class="carbon-section" id="carbonSection">
+      <h3>🌱 Carbon footprint &amp; EU carbon cost</h3>
+      <p class="carbon-sub">CO₂e per pair is computed from the product BOM (material CO₂e factors in <code>cost_data.json</code>) plus a manufacturing energy allowance. EU destinations get a carbon cost line, sized by the CBAM phase-in schedule for the selected year. CBAM currently covers cement, iron/steel, aluminium, fertilisers, electricity, and hydrogen — <strong>footwear is not yet in scope</strong>; this models an indicative scope-3 pass-through.</p>
+      <div class="carbon-controls">
+        <label>CBAM phase-in year:</label>
+        <select id="cbamYearSelect" onchange="onCbamYearChange()">
+          <option value="2026">2026 — 2.5%</option>
+          <option value="2028">2028 — 10%</option>
+          <option value="2030">2030 — 48.5%</option>
+          <option value="2034">2034 — 100% (full)</option>
+        </select>
+      </div>
+      <div class="carbon-stats" id="carbonStats"></div>
+      <div class="carbon-chart-wrap"><canvas id="carbonChart"></canvas></div>
+      <div class="carbon-note" id="carbonNote"></div>
     </div>
 
     <h3 style="margin-bottom:12px;">Landed Cost Matrix</h3>
@@ -708,6 +764,9 @@ const FC_STORAGE = 'footwear_cost_forecast_overrides_v1';
 const SCENARIOS_KEY = 'footwear_scenarios_v1';
 const QUOTES_KEY = 'footwear_quotes_v1';
 const DTC_LS_KEY = 'puma_dtc_scenario_v1';
+const FEED_CACHE_KEY = 'footwear_feed_cache_v1';
+const FEED_CONFIG_KEY = 'footwear_feed_config_v1';
+const FEED_TTL_MS = 6 * 60 * 60 * 1000;
 
 let data = null, originalAssumptions = null, originalTradeRules = null;
 let selected = null, chart = null, moqChart = null;
@@ -721,8 +780,12 @@ let expandedNodes = {};
 let forecastOverrides = {};
 let compCharts = {};
 let retailChart = null;
+let carbonChart = null;
 let quotedFobs = {};
 let currentBriefProduct = null;
+let feedConfig = {};
+let feedCache = {};
+let feedState = { lastRefresh: null, live: 0, static: 0, errors: [], refreshing: false };
 window._fcCharts = [];
 let _forecastRafId = null;
 
@@ -732,9 +795,315 @@ const pct = n => (isFinite(n) && n != null ? Number(n).toFixed(1) : '0.0') + '%'
 function safeRender(name, fn) {
   try { fn(); } catch (err) { console.error('[Render error in ' + name + ']:', err); }
 }
+function prefersReducedMotion() {
+  try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  catch(e) { return false; }
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 
 /* ============================================================
-   QUOTES (factory FOB asks)
+   FEEDS (6A)
+   ============================================================ */
+
+function loadFeedConfig() {
+  try { feedConfig = JSON.parse(localStorage.getItem(FEED_CONFIG_KEY) || '{}') || {}; }
+  catch(e) { feedConfig = {}; }
+}
+function saveFeedConfig() {
+  try { localStorage.setItem(FEED_CONFIG_KEY, JSON.stringify(feedConfig)); } catch(e) {}
+}
+function loadFeedCache() {
+  try { feedCache = JSON.parse(localStorage.getItem(FEED_CACHE_KEY) || '{}') || {}; }
+  catch(e) { feedCache = {}; }
+}
+function saveFeedCache() {
+  try { localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(feedCache)); } catch(e) {}
+}
+function clearFeedCache() {
+  if (!confirm('Clear cached feed values? The next refresh will re-fetch.')) return;
+  feedCache = {};
+  saveFeedCache();
+  renderFeedBadge();
+  renderFeedsEditor();
+}
+
+function getMaterialFeed(key) {
+  const entry = data.assumptions.materialPrices[key];
+  if (!entry || typeof entry !== 'object') return null;
+  const base = entry.feed || {};
+  const override = feedConfig[key] || {};
+  const url = override.url != null ? override.url : (base.url || '');
+  const path = override.path != null ? override.path : (base.path || '');
+  const transform = override.transform != null ? override.transform : (base.transform || '');
+  return { url, path, transform };
+}
+
+async function refreshFeeds() {
+  if (feedState.refreshing) return;
+  feedState.refreshing = true;
+  feedState.errors = [];
+  feedState.live = 0;
+  feedState.static = 0;
+  renderFeedBadge();
+
+  const mats = data.assumptions.materialPrices;
+  const now = Date.now();
+  let anyConfigured = false;
+
+  for (const [key, entry] of Object.entries(mats)) {
+    const cfg = getMaterialFeed(key);
+    if (!cfg || !cfg.url) { feedState.static++; continue; }
+    anyConfigured = true;
+
+    const cached = feedCache[key];
+    if (cached && now - cached.ts < FEED_TTL_MS) {
+      entry.price = cached.price;
+      feedState.live++;
+      continue;
+    }
+
+    try {
+      const price = await fetchFeedValue(cfg);
+      entry.price = price;
+      feedCache[key] = { price, ts: now };
+      feedState.live++;
+    } catch (err) {
+      console.warn('[feed] failed for', key, err && err.message);
+      feedState.errors.push({ key, error: (err && err.message) || 'unknown' });
+      feedState.static++;
+    }
+  }
+
+  saveFeedCache();
+  feedState.lastRefresh = now;
+  feedState.refreshing = false;
+
+  if (!anyConfigured) {
+    // No feeds configured at all — just show static
+    renderFeedBadge();
+    renderFeedsEditor();
+    return;
+  }
+
+  renderFeedBadge();
+  renderFeedsEditor();
+  refreshEverything();
+}
+
+async function fetchFeedValue(cfg) {
+  const res = await fetch(cfg.url, { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const json = await res.json();
+  let v = json;
+  if (cfg.path) {
+    for (const seg of String(cfg.path).split('.')) {
+      if (v == null) break;
+      v = v[seg];
+    }
+  }
+  const n = Number(v);
+  if (!isFinite(n)) throw new Error('No numeric value at path "' + (cfg.path || '(root)') + '"');
+  let out = n;
+  if (cfg.transform === 'divideBy1000') out = n / 1000;
+  else if (cfg.transform === 'divideBy100') out = n / 100;
+  else if (cfg.transform === 'multiplyBy1000') out = n * 1000;
+  return +out.toFixed(4);
+}
+
+function renderFeedBadge() {
+  const badge = document.getElementById('feedBadge');
+  const btn = document.getElementById('feedRefreshBtn');
+  if (!badge) return;
+
+  const configured = Object.keys(data && data.assumptions && data.assumptions.materialPrices || {})
+    .filter(k => { const c = getMaterialFeed(k); return c && c.url; }).length;
+
+  btn.style.display = configured > 0 ? 'inline-block' : 'none';
+
+  badge.className = 'feed-badge';
+  if (feedState.refreshing) {
+    badge.classList.add('refreshing');
+    badge.textContent = '🔄 Refreshing…';
+  } else if (configured === 0) {
+    badge.classList.add('static');
+    badge.textContent = '🟢 Static model';
+  } else if (feedState.errors.length > 0) {
+    badge.classList.add('error');
+    badge.textContent = '⚠ ' + feedState.errors.length + ' feed' + (feedState.errors.length === 1 ? '' : 's') + ' failed';
+  } else if (feedState.lastRefresh) {
+    const ago = humanAgo(Date.now() - feedState.lastRefresh);
+    badge.textContent = '🟢 Live · updated ' + ago;
+  } else {
+    badge.classList.add('static');
+    badge.textContent = '🟢 Static model';
+  }
+}
+
+function humanAgo(ms) {
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return s + 's ago';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h / 24) + 'd ago';
+}
+
+function renderFeedsEditor() {
+  const wrap = document.getElementById('feedEditor');
+  const status = document.getElementById('feedStatus');
+  if (!wrap || !data) return;
+
+  let configured = 0, cached = 0;
+  let h = '';
+  for (const [key, entry] of Object.entries(data.assumptions.materialPrices)) {
+    const cfg = getMaterialFeed(key);
+    const co2e = (typeof entry === 'object' && entry.co2ePerKg != null) ? entry.co2ePerKg : '—';
+    const price = typeof entry === 'object' ? entry.price : entry;
+    const hasUrl = cfg && cfg.url;
+    if (hasUrl) configured++;
+    const isCached = feedCache[key] && Date.now() - feedCache[key].ts < FEED_TTL_MS;
+    if (isCached) cached++;
+
+    h += '<div class="feed-row">'
+       +   '<div class="feed-key">' + escapeHtml(key) + '<span class="co2e">€' + Number(price).toFixed(2) + ' · ' + co2e + ' kgCO₂e/kg' + (isCached ? ' · 🟢 live' : '') + '</span></div>'
+       +   '<input type="text" placeholder="https://api.example.com/commodities" value="' + escapeHtml(cfg.url) + '" onchange="updateFeedField(\'' + key + '\',\'url\',this.value)">'
+       +   '<input type="text" placeholder="path.to.value" value="' + escapeHtml(cfg.path) + '" onchange="updateFeedField(\'' + key + '\',\'path\',this.value)">'
+       +   '<input type="text" placeholder="transform" value="' + escapeHtml(cfg.transform) + '" onchange="updateFeedField(\'' + key + '\',\'transform\',this.value)">'
+       + '</div>';
+  }
+  wrap.innerHTML = h;
+  if (status) {
+    status.textContent = configured + ' configured · ' + cached + ' cached · TTL 6h';
+  }
+}
+
+function updateFeedField(key, field, value) {
+  if (!feedConfig[key]) feedConfig[key] = {};
+  feedConfig[key][field] = value;
+  saveFeedConfig();
+  renderFeedBadge();
+  renderFeedsEditor();
+}
+
+/* ============================================================
+   CARBON (6B)
+   ============================================================ */
+
+function calcCarbon(product) {
+  let materialsCO2e = 0;
+  function walk(n) {
+    if (n.type === 'material') {
+      const e = data.assumptions.materialPrices[n.inputs.priceKey];
+      const f = (e && typeof e === 'object' && typeof e.co2ePerKg === 'number') ? e.co2ePerKg : 0;
+      materialsCO2e += n.inputs.quantity * f;
+    }
+    (n.children || []).forEach(walk);
+  }
+  walk(product.costTree);
+  const rules = (data.endToEnd && data.endToEnd.tradeRules && data.endToEnd.tradeRules.carbonRules) || {};
+  const manuf = rules.manufacturingCO2ePerPair || 0;
+  return {
+    materialsCO2e: +materialsCO2e.toFixed(2),
+    manufacturingCO2e: +manuf.toFixed(2),
+    totalCO2e: +(materialsCO2e + manuf).toFixed(2)
+  };
+}
+
+function getCarbonCostPerUnit(kgCO2e, isEU) {
+  if (!isEU) return 0;
+  const rules = data.endToEnd.tradeRules.carbonRules;
+  const phasePct = rules.cbamYearPct[String(rules.currentYear)] || 0;
+  const ets = rules.euEtsPricePerTonne || 85;
+  return +(kgCO2e * (ets / 1000) * (phasePct / 100)).toFixed(4);
+}
+
+function onCbamYearChange() {
+  const sel = document.getElementById('cbamYearSelect');
+  if (!sel) return;
+  const yr = parseInt(sel.value);
+  if (!data.endToEnd.tradeRules.carbonRules) data.endToEnd.tradeRules.carbonRules = {};
+  data.endToEnd.tradeRules.carbonRules.currentYear = yr;
+  safeRender('carbon', renderCarbonSection);
+  safeRender('matrix', () => renderMatrix(data.endToEnd));
+  safeRender('waterfall', renderWaterfall);
+  safeRender('retailChart', () => renderRetailByMarket(data.endToEnd));
+}
+
+function renderCarbonSection() {
+  const statsEl = document.getElementById('carbonStats');
+  const noteEl = document.getElementById('carbonNote');
+  const sel = document.getElementById('cbamYearSelect');
+  if (!statsEl || !data || !data.endToEnd) return;
+  const rules = data.endToEnd.tradeRules.carbonRules || {};
+  const yr = rules.currentYear || 2026;
+  const phasePct = rules.cbamYearPct[String(yr)] || 0;
+  const ets = rules.euEtsPricePerTonne || 85;
+  if (sel) sel.value = String(yr);
+
+  // Portfolio-average carbon cost per pair at current year (across all products, to EU)
+  let totalCO2e = 0, count = 0, totalCost = 0;
+  const perProduct = [];
+  for (const p of data.products) {
+    const c = calcCarbon(p);
+    const cost = getCarbonCostPerUnit(c.totalCO2e, true);
+    perProduct.push({ name: p.name, co2e: c.totalCO2e, cost });
+    totalCO2e += c.totalCO2e;
+    totalCost += cost;
+    count++;
+  }
+  const avgCO2e = count ? +(totalCO2e / count).toFixed(2) : 0;
+  const avgCost = count ? +(totalCost / count).toFixed(4) : 0;
+
+  statsEl.innerHTML =
+    '<div class="carbon-stat"><div class="lbl">Avg CO₂e / pair</div><div class="val">' + avgCO2e.toFixed(1) + '<span class="unit">kg</span></div></div>'
+  + '<div class="carbon-stat"><div class="lbl">EU ETS price</div><div class="val">' + ets + '<span class="unit">€/t</span></div></div>'
+  + '<div class="carbon-stat"><div class="lbl">CBAM phase-in ' + yr + '</div><div class="val">' + phasePct.toFixed(1) + '<span class="unit">%</span></div></div>'
+  + '<div class="carbon-stat"><div class="lbl">Carbon cost / pair to EU</div><div class="val">€' + avgCost.toFixed(3) + '</div></div>';
+
+  if (noteEl) {
+    const atFull = avgCO2e * (ets / 1000);
+    noteEl.innerHTML = 'At the selected ' + yr + ' phase-in (' + phasePct + '%), the carbon cost per pair averages <strong>€' + avgCost.toFixed(3) + '</strong> for EU-bound shipments. At full phase-in (2034), the same figure rises to <strong>€' + atFull.toFixed(3) + '</strong> per pair. CBAM currently covers cement, iron/steel, aluminium, fertilisers, electricity, and hydrogen. Footwear is <em>not yet in scope</em>, but is widely expected to be added as the mechanism matures — this section models the exposure as a scope-3 pass-through cost.';
+  }
+
+  // Chart
+  const ctx = document.getElementById('carbonChart');
+  if (!ctx) return;
+  if (carbonChart) { try { carbonChart.destroy(); } catch(e){} }
+  carbonChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: perProduct.map(x => x.name),
+      datasets: [
+        { label: 'kgCO₂e per pair', data: perProduct.map(x => x.co2e), backgroundColor: '#2d6a4f', borderRadius: 6 },
+        { label: 'Carbon cost @ ' + yr + ' (€)', data: perProduct.map(x => x.cost), backgroundColor: '#86efac', borderRadius: 6, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+        tooltip: { callbacks: {
+          label: function(ctx) {
+            if (ctx.datasetIndex === 0) return ctx.dataset.label + ': ' + Number(ctx.raw).toFixed(2);
+            return ctx.dataset.label + ': €' + Number(ctx.raw).toFixed(4);
+          }
+        }}
+      },
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: 'kgCO₂e / pair' }, position: 'left' },
+        y1: { beginAtZero: true, title: { display: true, text: '€ / pair' }, position: 'right', grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+/* ============================================================
+   QUOTES (from Step 5)
    ============================================================ */
 
 function loadQuotes() {
@@ -748,10 +1117,6 @@ function getQuotedFob(product) {
   const q = quotedFobs[product.id];
   return (typeof q === 'number' && isFinite(q)) ? q : null;
 }
-
-/* ============================================================
-   NEGOTIATION TAB
-   ============================================================ */
 
 function renderNegotiationTab() {
   const t = document.getElementById('negTable');
@@ -821,24 +1186,16 @@ function gapTag(cls) {
     default:      return { cls: 'neg-status-ok',    label: '—' };
   }
 }
-
 function onQuoteChange(input) {
   const pid = input.dataset.product;
   const raw = input.value;
   const v = parseFloat(raw);
-  if (raw === '' || !isFinite(v)) {
-    delete quotedFobs[pid];
-  } else {
-    quotedFobs[pid] = v;
-  }
+  if (raw === '' || !isFinite(v)) delete quotedFobs[pid];
+  else quotedFobs[pid] = v;
   saveQuotes();
-  // Update just the gap cells for this row (avoid a full re-render which would
-  // steal focus from the input the user is typing in)
   updateNegRow(pid);
-  // If a brief is open for this product, refresh it
   if (currentBriefProduct === pid) renderNegotiationBrief(pid);
 }
-
 function updateNegRow(pid) {
   const p = data.products.find(x => x.id === pid);
   if (!p) return;
@@ -848,28 +1205,17 @@ function updateNegRow(pid) {
   const effective = quoted != null ? quoted : shouldCost;
   const gap = effective - shouldCost;
   const gapPct = shouldCost ? (gap / shouldCost) * 100 : 0;
-  const cls = classifyGap(gapPct);
-  const tag = gapTag(cls);
+  const tag = gapTag(classifyGap(gapPct));
 
   const gapEl = document.querySelector('[data-gap-for="' + pid + '"]');
   const pctEl = document.querySelector('[data-gappct-for="' + pid + '"]');
   const statEl = document.querySelector('[data-status-for="' + pid + '"]');
 
   const gapClass = gap > 0.005 ? 'neg-delta-up' : (gap < -0.005 ? 'neg-delta-down' : 'neg-delta-zero');
-  if (gapEl) {
-    gapEl.textContent = (gap > 0.005 ? '+' : '') + fmt(gap);
-    gapEl.className = 'num ' + gapClass;
-  }
-  if (pctEl) {
-    pctEl.textContent = (gap > 0.005 ? '+' : '') + gapPct.toFixed(1) + '%';
-    pctEl.className = 'num ' + gapClass;
-  }
-  if (statEl) {
-    statEl.textContent = tag.label;
-    statEl.className = 'neg-status ' + tag.cls;
-  }
+  if (gapEl) { gapEl.textContent = (gap > 0.005 ? '+' : '') + fmt(gap); gapEl.className = 'num ' + gapClass; }
+  if (pctEl) { pctEl.textContent = (gap > 0.005 ? '+' : '') + gapPct.toFixed(1) + '%'; pctEl.className = 'num ' + gapClass; }
+  if (statEl) { statEl.textContent = tag.label; statEl.className = 'neg-status ' + tag.cls; }
 }
-
 function resetQuotes() {
   if (!confirm('Clear all entered quotes? Should-cost values will still be shown.')) return;
   quotedFobs = {};
@@ -879,57 +1225,45 @@ function resetQuotes() {
 }
 
 /* ============================================================
-   NEGOTIATION BRIEF GENERATION
+   NEGOTIATION BRIEF (from Step 5)
    ============================================================ */
 
 function openNegotiationBrief(productId) {
   currentBriefProduct = productId;
   renderNegotiationBrief(productId);
 }
-
 function openAllBriefs() {
-  // Concatenate briefs for every product into one big text block
   const parts = [];
-  for (const p of data.products) {
-    parts.push(buildNegotiationBrief(p.id));
-  }
+  for (const p of data.products) parts.push(buildNegotiationBrief(p.id));
   const text = parts.join('\n\n' + '─'.repeat(72) + '\n\n');
   const wrap = document.getElementById('negBriefWrap');
-  const titleEl = document.getElementById('negBriefTitle');
-  const textEl = document.getElementById('negBriefText');
-  titleEl.textContent = 'Negotiation briefs — all products';
-  textEl.textContent = text;
+  document.getElementById('negBriefTitle').textContent = 'Negotiation briefs — all products';
+  document.getElementById('negBriefText').textContent = text;
   wrap.style.display = 'block';
   wrap.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
 }
-
 function renderNegotiationBrief(productId) {
   const wrap = document.getElementById('negBriefWrap');
-  const titleEl = document.getElementById('negBriefTitle');
-  const textEl = document.getElementById('negBriefText');
   const p = data.products.find(x => x.id === productId);
   if (!p) return;
-  titleEl.textContent = 'Negotiation brief — ' + p.name;
-  textEl.textContent = buildNegotiationBrief(productId);
+  document.getElementById('negBriefTitle').textContent = 'Negotiation brief — ' + p.name;
+  document.getElementById('negBriefText').textContent = buildNegotiationBrief(productId);
   wrap.style.display = 'block';
 }
-
 function closeNegotiationBrief() {
   const wrap = document.getElementById('negBriefWrap');
   if (wrap) wrap.style.display = 'none';
   currentBriefProduct = null;
 }
-
-function prefersReducedMotion() {
-  try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-  catch(e) { return false; }
-}
-
 function padR(s, n) { return String(s).padEnd(n, ' '); }
 function padL(s, n) { return String(s).padStart(n, ' '); }
 function money(v) { return '€' + (isFinite(v) ? v.toFixed(2) : '0.00'); }
 function moneyL(v, n) { return padL('€' + (isFinite(v) ? v.toFixed(2) : '0.00'), n); }
 function pctL(v, n) { return padL((isFinite(v) ? v.toFixed(1) : '0.0') + '%', n); }
+function fmtPctSigned(v) {
+  if (!isFinite(v)) return '0.0%';
+  return (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+}
 
 function buildNegotiationBrief(productId) {
   const p = data.products.find(x => x.id === productId);
@@ -951,24 +1285,12 @@ function buildNegotiationBrief(productId) {
   const target50 = shouldCost + gap * 0.5;
   const walkAway = shouldCost * 1.10;
 
-  // Top cost drivers
   const drivers = getTopCostDrivers(c.tree, 5);
 
-  // Nearest competitor comparison
-  let competitorRef = null;
-  if (data.competitors && data.competitors.productComparisons) {
-    for (const cmp of data.competitors.productComparisons) {
-      if ((cmp.puma && cmp.puma.name === p.name) ||
-          (cmp.competitor && cmp.competitor.name === p.name)) {
-        competitorRef = cmp;
-        break;
-      }
-    }
-  }
+  const carbon = calcCarbon(p);
+  const carbonCostEU = getCarbonCostPerUnit(carbon.totalCO2e, true);
 
   const L = '─'.repeat(56);
-  const line = '';
-
   const lines = [];
   lines.push('═══════════ NEGOTIATION BRIEF ═══════════');
   lines.push('');
@@ -982,7 +1304,7 @@ function buildNegotiationBrief(productId) {
   lines.push('Quoted FOB (factory ask):     ' + moneyL(effective, 10));
   lines.push('Gap:                          ' + padL(((gap > 0.005 ? '+' : '') + money(gap)), 10) + '  (' + ((gap > 0.005 ? '+' : '') + gapPct.toFixed(1) + '%)'));
   lines.push('');
-  lines.push('Status: ' + tag.label.toUpperCase() + '  (' + shortStatus(tag.label) + ')');
+  lines.push('Status: ' + tag.label.toUpperCase());
   lines.push('');
   lines.push('── COST BREAKDOWN (should-cost) ' + L.slice(0, 28));
   lines.push(padR('Materials', 34) + moneyL(c.mat, 10) + '  ' + pctL(shouldCost ? (c.mat / shouldCost) * 100 : 0, 6));
@@ -992,6 +1314,10 @@ function buildNegotiationBrief(productId) {
   lines.push('');
   lines.push(padR('Fixed cost pool (MOQ ' + moqCurrent.toLocaleString() + ')', 34) + padL('€' + fixedPool.toLocaleString(), 10));
   lines.push(padR('Fixed cost / unit at current MOQ', 34) + moneyL(fixedPerUnit, 10));
+  lines.push('');
+  lines.push('── CARBON ' + L.slice(0, 46));
+  lines.push(padR('CO₂e per pair (materials + mfg)', 34) + padL(carbon.totalCO2e.toFixed(2) + ' kg', 10));
+  lines.push(padR('EU carbon cost per pair (' + (data.endToEnd.tradeRules.carbonRules.currentYear) + ')', 34) + padL('€' + carbonCostEU.toFixed(4), 10));
   lines.push('');
   lines.push('── TARGET ' + L.slice(0, 46));
   lines.push('Recommended target ask (50% gap close):   ' + moneyL(target50, 10));
@@ -1023,15 +1349,10 @@ function buildNegotiationBrief(productId) {
     lines.push('   See Forecast tab for current rates.');
   }
   lines.push('');
-  lines.push('3. Competitive benchmark');
-  if (competitorRef) {
-    const comp = competitorRef.competitor;
-    lines.push('   ' + comp.brand + ' ' + comp.name + ' benchmark FOB: ' + money(comp.fob) + '.');
-    lines.push('   PUMA ' + p.name + ' should-cost: ' + money(shouldCost) + '.');
-    lines.push('   Market expects roughly this cost level for this segment.');
-  } else {
-    lines.push('   See Competitive Intelligence tab for peer product FOBs.');
-  }
+  lines.push('3. Carbon & sustainability');
+  lines.push('   Should-cost CO₂e per pair: ' + carbon.totalCO2e.toFixed(2) + ' kg.');
+  lines.push('   At CBAM phase-in year ' + data.endToEnd.tradeRules.carbonRules.currentYear + ', EU-bound shipments carry a carbon cost of €' + carbonCostEU.toFixed(4) + '/pair.');
+  lines.push('   Reducing recycled-content or bio-based material content helps both carbon and ESG reporting.');
   lines.push('');
   lines.push('4. Top cost drivers (where to focus the conversation)');
   if (drivers.length) {
@@ -1045,38 +1366,19 @@ function buildNegotiationBrief(productId) {
   lines.push('');
   lines.push('── NOTES ' + L.slice(0, 47));
   lines.push('Model:   Footwear Costing Dashboard v' + (data.version || '?'));
-  lines.push('Sources: Misciano 2026 (labour) · ANRPC (rubber) · 100ppi (EVA) · UNIDO (machine).');
+  lines.push('Sources: Misciano 2026 (labour) · ANRPC (rubber) · Ecoinvent 3.10 (CO₂e) · UNIDO (machine).');
   lines.push('');
   lines.push('This brief is generated from a bottom-up should-cost model.');
   lines.push('It is a negotiation starting point, not a contractual position.');
-
   return lines.join('\n');
-}
-
-function shortStatus(label) {
-  switch (label) {
-    case 'In range':    return 'within 5% of model';
-    case 'Negotiable':  return '5–15% above model';
-    case 'High gap':    return 'more than 15% above model';
-    case 'Below model': return 'below should-cost';
-    default:            return '';
-  }
-}
-
-function fmtPctSigned(v) {
-  if (!isFinite(v)) return '0.0%';
-  return (v > 0 ? '+' : '') + v.toFixed(1) + '%';
 }
 
 function getTopCostDrivers(evaluatedTree, limit) {
   const leaves = [];
   function walk(n, parentName) {
     const hasChildren = n.children && n.children.length > 0 && !n.type;
-    if (hasChildren) {
-      n.children.forEach(c => walk(c, n.name));
-    } else if (typeof n.cost === 'number' && n.cost > 0) {
-      leaves.push({ name: n.name, parent: parentName || '', cost: n.cost });
-    }
+    if (hasChildren) n.children.forEach(c => walk(c, n.name));
+    else if (typeof n.cost === 'number' && n.cost > 0) leaves.push({ name: n.name, parent: parentName || '', cost: n.cost });
   }
   walk(evaluatedTree, '');
   return leaves.sort((a, b) => b.cost - a.cost).slice(0, limit || 5);
@@ -1089,44 +1391,38 @@ function copyNegotiationBrief() {
 }
 
 /* ============================================================
-   LANDED COST MATRIX — computed from rules
+   LANDED COST MATRIX (with carbon)
    ============================================================ */
 
 function getComputedMatrix(e2e) {
   if (!e2e) return [];
-  if (!e2e.tradeRules || !e2e.tradeRules.tariffByPair) {
-    return e2e.matrix || [];
-  }
+  if (!e2e.tradeRules || !e2e.tradeRules.tariffByPair) return e2e.matrix || [];
   const rules = e2e.tradeRules;
+  const carbonRules = rules.carbonRules || {};
+  const euSet = new Set(carbonRules.euDestinations || []);
   const baseProduct = data.products[0];
   const out = [];
 
   for (const src of e2e.sourceCountries) {
-    const loc = data.assumptions.locations.find(l => l.id === src.id)
-                || data.assumptions.locations[0];
+    const loc = data.assumptions.locations.find(l => l.id === src.id) || data.assumptions.locations[0];
     let fob;
-    try {
-      fob = calc(baseProduct, loc, data.assumptions.materialPrices).fob;
-    } catch (e) {
-      console.warn('FOB calc failed for source', src.id, e);
-      fob = 20.93;
-    }
+    try { fob = calc(baseProduct, loc, data.assumptions.materialPrices).fob; }
+    catch (e) { console.warn('FOB calc failed for source', src.id, e); fob = 20.93; }
+
+    const carbon = calcCarbon(baseProduct);
 
     for (const dest of e2e.destinationMarkets) {
       const key = src.id + '>' + dest.id;
-      const freightPerUnit = (rules.freightByDest && rules.freightByDest[dest.id] != null)
-                             ? rules.freightByDest[dest.id] : 1.20;
+      const freightPerUnit = (rules.freightByDest && rules.freightByDest[dest.id] != null) ? rules.freightByDest[dest.id] : 1.20;
       const insurancePerUnit = +((fob + freightPerUnit) * ((rules.insuranceRatePct || 0.5) / 100)).toFixed(2);
       const cif = +(fob + freightPerUnit + insurancePerUnit).toFixed(2);
-      const tariffRatePct = (rules.tariffByPair[key] != null)
-                            ? rules.tariffByPair[key]
-                            : (rules.defaultTariffPct != null ? rules.defaultTariffPct : 12.5);
+      const tariffRatePct = (rules.tariffByPair[key] != null) ? rules.tariffByPair[key] : (rules.defaultTariffPct != null ? rules.defaultTariffPct : 12.5);
       const tariffPerUnit = +(cif * tariffRatePct / 100).toFixed(2);
-      const customsPerUnit = (rules.customsByDest && rules.customsByDest[dest.id] != null)
-                             ? rules.customsByDest[dest.id] : 0.35;
-      const inlandPerUnit = (rules.inlandByDest && rules.inlandByDest[dest.id] != null)
-                            ? rules.inlandByDest[dest.id] : 1.00;
-      const landedCost = +(cif + tariffPerUnit + customsPerUnit + inlandPerUnit).toFixed(2);
+      const customsPerUnit = (rules.customsByDest && rules.customsByDest[dest.id] != null) ? rules.customsByDest[dest.id] : 0.35;
+      const inlandPerUnit = (rules.inlandByDest && rules.inlandByDest[dest.id] != null) ? rules.inlandByDest[dest.id] : 1.00;
+      const isEU = euSet.has(dest.id);
+      const carbonCostPerUnit = getCarbonCostPerUnit(carbon.totalCO2e, isEU);
+      const landedCost = +(cif + tariffPerUnit + customsPerUnit + inlandPerUnit + carbonCostPerUnit).toFixed(2);
       const wholesaleMarkupPct = rules.wholesaleMarkupPct != null ? rules.wholesaleMarkupPct : 50;
       const retailPriceBeforeTax = +(landedCost * (1 + wholesaleMarkupPct / 100)).toFixed(2);
       const vatPerUnit = +(retailPriceBeforeTax * (dest.vatRatePct || 0) / 100).toFixed(2);
@@ -1136,7 +1432,9 @@ function getComputedMatrix(e2e) {
         source: src.id, destination: dest.id,
         fob: +fob.toFixed(2),
         freightPerUnit, insurancePerUnit, cif,
-        tariffRatePct, tariffPerUnit, customsPerUnit, inlandPerUnit, landedCost,
+        tariffRatePct, tariffPerUnit, customsPerUnit, inlandPerUnit,
+        carbonCostPerUnit, isEU, co2ePerUnit: carbon.totalCO2e,
+        landedCost,
         wholesaleMarkupPct, retailPriceBeforeTax, vatPerUnit, finalRetailPrice
       });
     }
@@ -1162,7 +1460,7 @@ function renderTariffSimulator() {
   if (!body) return;
   const e2e = data.endToEnd;
   if (!e2e || !e2e.tradeRules) {
-    body.innerHTML = '<p style="color:#999; font-size:13px;">No trade rules found in <code>cost_data.json</code>. Add a <code>tradeRules</code> block inside <code>endToEnd</code> to enable the simulator.</p>';
+    body.innerHTML = '<p style="color:#999; font-size:13px;">No trade rules found.</p>';
     return;
   }
   const rules = e2e.tradeRules;
@@ -1175,13 +1473,8 @@ function renderTariffSimulator() {
                      : (originalTradeRules && originalTradeRules.defaultTariffPct != null ? originalTradeRules.defaultTariffPct : 12.5);
     const changed = Math.abs(val - baseline) > 0.01;
     h += '<div class="tariff-row">'
-       +   '<div class="tariff-label">' + kp.label
-       +     (changed ? ' <span class="tariff-changed-dot" title="Changed from baseline">●</span>' : '')
-       +   '</div>'
-       +   '<input type="range" min="0" max="60" step="0.5" value="' + val + '" '
-       +          'data-pair="' + key + '" '
-       +          'aria-label="Tariff rate for ' + kp.label + '" '
-       +          'oninput="onTariffChange(this)">'
+       +   '<div class="tariff-label">' + kp.label + (changed ? ' <span class="tariff-changed-dot" title="Changed from baseline">●</span>' : '') + '</div>'
+       +   '<input type="range" min="0" max="60" step="0.5" value="' + val + '" data-pair="' + key + '" aria-label="Tariff rate for ' + kp.label + '" oninput="onTariffChange(this)">'
        +   '<div class="tariff-value">' + Number(val).toFixed(1) + '%</div>'
        + '</div>';
   }
@@ -1194,7 +1487,6 @@ function onTariffChange(input) {
   const val = parseFloat(input.value);
   if (!data.endToEnd.tradeRules.tariffByPair) data.endToEnd.tradeRules.tariffByPair = {};
   data.endToEnd.tradeRules.tariffByPair[key] = val;
-
   const valueEl = input.parentElement.querySelector('.tariff-value');
   if (valueEl) valueEl.textContent = val.toFixed(1) + '%';
 
@@ -1211,9 +1503,7 @@ function onTariffChange(input) {
       span.title = 'Changed from baseline';
       span.textContent = '●';
       labelEl.appendChild(span);
-    } else if (!changed && dot) {
-      dot.remove();
-    }
+    } else if (!changed && dot) dot.remove();
   }
 
   const e2e = data.endToEnd;
@@ -1237,10 +1527,7 @@ function resetTariffs() {
 function renderTariffDeltaBadge() {
   const el = document.getElementById('tariffDeltaBadge');
   if (!el) return;
-  if (!data.endToEnd || !data.endToEnd.tradeRules || !originalTradeRules) {
-    el.style.display = 'none';
-    return;
-  }
+  if (!data.endToEnd || !data.endToEnd.tradeRules || !originalTradeRules) { el.style.display = 'none'; return; }
   const cur = data.endToEnd.tradeRules.tariffByPair || {};
   const base = originalTradeRules.tariffByPair || {};
   let changed = 0;
@@ -1248,12 +1535,8 @@ function renderTariffDeltaBadge() {
     const b = base[k];
     if (b == null || Math.abs(v - b) > 0.01) changed++;
   }
-  if (changed === 0) {
-    el.style.display = 'none';
-  } else {
-    el.style.display = 'inline-block';
-    el.textContent = '● ' + changed + ' tariff' + (changed === 1 ? '' : 's') + ' modified';
-  }
+  if (changed === 0) el.style.display = 'none';
+  else { el.style.display = 'inline-block'; el.textContent = '● ' + changed + ' tariff' + (changed === 1 ? '' : 's') + ' modified'; }
 }
 
 /* ============================================================
@@ -1271,49 +1554,33 @@ function syncUrl() {
   const newHash = str ? '#' + str : '';
   const newUrl = location.pathname + location.search + newHash;
   if (location.hash === newHash) return;
-  try {
-    history.replaceState(null, '', newUrl);
-  } catch (e) {
-    location.hash = str;
-  }
+  try { history.replaceState(null, '', newUrl); }
+  catch (e) { location.hash = str; }
 }
 
 function readUrl() {
   const hash = location.hash.replace(/^#/, '');
   if (!hash) return {};
   const params = new URLSearchParams(hash);
-  return {
-    product: params.get('product'),
-    loc: params.get('loc'),
-    tier: params.get('tier'),
-    tab: params.get('tab'),
-    s: params.get('s')
-  };
+  return { product: params.get('product'), loc: params.get('loc'), tier: params.get('tier'), tab: params.get('tab'), s: params.get('s') };
 }
 
 function applyUrlState(u) {
   if (!data || !u) return;
   let changed = false;
-
   if (u.s) {
     const snap = decodeScenarioFromUrl(u.s);
     if (snap && applyScenarioSnapshot(snap)) changed = true;
   }
-
   if (u.loc) {
     const loc = data.assumptions.locations.find(l => l.id === u.loc);
-    if (loc) {
-      currentLocation = loc;
-      document.getElementById('locationSelect').value = loc.id;
-      changed = true;
-    }
+    if (loc) { currentLocation = loc; document.getElementById('locationSelect').value = loc.id; changed = true; }
   }
   if (u.tier && data.assumptions.supplierTiers[u.tier]) {
     currentTier = u.tier;
     document.getElementById('tierSelect').value = u.tier;
     changed = true;
   }
-
   if (u.product) {
     const p = data.products.find(pp => pp.id === u.product);
     if (p) {
@@ -1330,7 +1597,6 @@ function applyUrlState(u) {
     document.getElementById('drill').classList.remove('on');
     changed = true;
   }
-
   if (changed) {
     safeRender('cards', renderCards);
     if (selected) safeRender('drilldown', renderDrilldown);
@@ -1341,24 +1607,18 @@ function applyUrlState(u) {
     if (data.processFlow) safeRender('process', renderProcessTab);
     if (typeof renderDtcTab === 'function') safeRender('dtc', renderDtcTab);
   }
-
   if (u.tab) {
     const btn = [...document.querySelectorAll('.tab')].find(b => {
       const oc = b.getAttribute('onclick') || '';
       const m = oc.match(/showTab\('([^']+)'/);
       return m && m[1] === u.tab;
     });
-    if (btn && !btn.classList.contains('active')) {
-      showTab(u.tab, btn);
-    }
+    if (btn && !btn.classList.contains('active')) showTab(u.tab, btn);
   }
-
   if (u.product && selected) {
     setTimeout(() => {
       const drill = document.getElementById('drill');
-      if (drill) {
-        drill.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
-      }
+      if (drill) drill.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
     }, 150);
   }
 }
@@ -1368,83 +1628,57 @@ function applyUrlState(u) {
    ============================================================ */
 
 function isValidScenario(s) {
-  return s && typeof s === 'object'
-      && typeof s.id === 'string' && s.id.length > 0
+  return s && typeof s === 'object' && typeof s.id === 'string' && s.id.length > 0
       && s.assumptions && typeof s.assumptions === 'object'
-      && Array.isArray(s.assumptions.locations)
-      && s.assumptions.locations.length > 0
-      && s.assumptions.materialPrices
-      && s.assumptions.machineAssumptions
-      && s.assumptions.supplierTiers;
+      && Array.isArray(s.assumptions.locations) && s.assumptions.locations.length > 0
+      && s.assumptions.materialPrices && s.assumptions.machineAssumptions && s.assumptions.supplierTiers;
 }
-
 function getSavedScenarios() {
   try {
     const raw = JSON.parse(localStorage.getItem(SCENARIOS_KEY) || '[]');
     if (!Array.isArray(raw)) return [];
     return raw.filter(isValidScenario);
-  } catch(e) {
-    console.warn('Could not parse saved scenarios:', e);
-    return [];
-  }
+  } catch(e) { return []; }
 }
 function persistScenarios(list) {
   try { localStorage.setItem(SCENARIOS_KEY, JSON.stringify(list)); }
   catch(e) { alert('Could not save — browser storage may be full.'); }
 }
 function readDtcState() {
-  try { return JSON.parse(localStorage.getItem(DTC_LS_KEY) || '{}'); }
-  catch(e) { return {}; }
+  try { return JSON.parse(localStorage.getItem(DTC_LS_KEY) || '{}'); } catch(e) { return {}; }
 }
 function writeDtcState(dtc) {
-  try { localStorage.setItem(DTC_LS_KEY, JSON.stringify(dtc || {})); }
-  catch(e) {}
+  try { localStorage.setItem(DTC_LS_KEY, JSON.stringify(dtc || {})); } catch(e) {}
 }
-
 function snapshotState(name) {
   return {
     id: 'sc_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     name: name || ('Scenario ' + new Date().toISOString().slice(0, 16).replace('T', ' ')),
     createdAt: Date.now(),
     locationId: currentLocation ? currentLocation.id : null,
-    tier: currentTier,
-    moq: currentMOQ,
+    tier: currentTier, moq: currentMOQ,
     productId: selected ? selected.id : null,
     assumptions: JSON.parse(JSON.stringify(data.assumptions)),
     forecastOverrides: JSON.parse(JSON.stringify(forecastOverrides)),
     dtc: readDtcState()
   };
 }
-
 function computeScenarioFobs(snap) {
-  const savedAssumptions = data.assumptions;
-  const savedTier = currentTier;
-  const savedLocation = currentLocation;
+  const sA = data.assumptions, sT = currentTier, sL = currentLocation;
   try {
     data.assumptions = snap.assumptions;
     currentTier = snap.tier || 'tier2';
-    const loc = snap.assumptions.locations.find(l => l.id === snap.locationId)
-                || snap.assumptions.locations[0];
+    const loc = snap.assumptions.locations.find(l => l.id === snap.locationId) || snap.assumptions.locations[0];
     currentLocation = loc;
     const mats = snap.assumptions.materialPrices;
     const result = {};
     for (const p of data.products) {
-      try {
-        const c = calc(p, loc, mats);
-        result[p.id] = { fob: c.fob, mat: c.mat, lab: c.lab, ovh: c.ovh, margin: c.margin };
-      } catch (innerErr) {
-        console.error('calc failed for product', p.id, 'in scenario', snap.name, innerErr);
-        result[p.id] = { fob: 0, mat: 0, lab: 0, ovh: 0, margin: 0, error: innerErr.message };
-      }
+      try { const c = calc(p, loc, mats); result[p.id] = { fob: c.fob, mat: c.mat, lab: c.lab, ovh: c.ovh, margin: c.margin }; }
+      catch (err) { result[p.id] = { fob: 0, mat: 0, lab: 0, ovh: 0, margin: 0 }; }
     }
     return result;
-  } finally {
-    data.assumptions = savedAssumptions;
-    currentTier = savedTier;
-    currentLocation = savedLocation;
-  }
+  } finally { data.assumptions = sA; currentTier = sT; currentLocation = sL; }
 }
-
 function saveScenario(name) {
   const snap = snapshotState(name);
   const list = getSavedScenarios();
@@ -1452,21 +1686,18 @@ function saveScenario(name) {
   persistScenarios(list);
   return snap;
 }
-
 function applyScenarioSnapshot(snap) {
   if (!snap || !snap.assumptions) return false;
   data.assumptions = JSON.parse(JSON.stringify(snap.assumptions));
   forecastOverrides = JSON.parse(JSON.stringify(snap.forecastOverrides || {}));
   currentTier = snap.tier || 'tier2';
-  currentLocation = data.assumptions.locations.find(l => l.id === snap.locationId)
-                    || data.assumptions.locations[0];
+  currentLocation = data.assumptions.locations.find(l => l.id === snap.locationId) || data.assumptions.locations[0];
   if (snap.moq != null) currentMOQ = snap.moq;
   if (snap.dtc) writeDtcState(snap.dtc);
   document.getElementById('locationSelect').value = currentLocation.id;
   document.getElementById('tierSelect').value = currentTier;
   return true;
 }
-
 function loadScenario(id) {
   const snap = getSavedScenarios().find(s => s.id === id);
   if (!snap) return false;
@@ -1475,20 +1706,15 @@ function loadScenario(id) {
     const p = data.products.find(pp => pp.id === snap.productId);
     if (p) { selected = p; document.getElementById('drill').classList.add('on'); }
     else { selected = null; document.getElementById('drill').classList.remove('on'); }
-  } else {
-    selected = null;
-    document.getElementById('drill').classList.remove('on');
-  }
+  } else { selected = null; document.getElementById('drill').classList.remove('on'); }
   refreshEverything();
   return true;
 }
-
 function deleteScenario(id) {
   if (!confirm('Delete this scenario?')) return;
   persistScenarios(getSavedScenarios().filter(s => s.id !== id));
   renderScenariosTab();
 }
-
 function refreshEverything() {
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
@@ -1511,57 +1737,38 @@ function diffObject(base, target) {
   const out = {};
   const keys = new Set([...Object.keys(base || {}), ...Object.keys(target || {})]);
   for (const k of keys) {
-    const b = base ? base[k] : undefined;
-    const t = target ? target[k] : undefined;
+    const b = base ? base[k] : undefined, t = target ? target[k] : undefined;
     if (JSON.stringify(b) === JSON.stringify(t)) continue;
     if (b && t && typeof b === 'object' && typeof t === 'object' && !Array.isArray(b) && !Array.isArray(t)) {
       const nested = diffObject(b, t);
       if (Object.keys(nested).length) out[k] = nested;
-    } else {
-      out[k] = t;
-    }
+    } else { out[k] = t; }
   }
   return out;
 }
-
 function applyDiffToObject(base, diff) {
   const out = JSON.parse(JSON.stringify(base));
   for (const [k, v] of Object.entries(diff || {})) {
-    if (v && typeof v === 'object' && !Array.isArray(v)
-        && out[k] && typeof out[k] === 'object' && !Array.isArray(out[k])) {
+    if (v && typeof v === 'object' && !Array.isArray(v) && out[k] && typeof out[k] === 'object' && !Array.isArray(out[k])) {
       out[k] = applyDiffToObject(out[k], v);
-    } else {
-      out[k] = v;
-    }
+    } else { out[k] = v; }
   }
   return out;
 }
-
 function compactDiff(snap) {
-  const defaults = {
-    assumptions: originalAssumptions,
-    tier: 'tier2',
-    locationId: originalAssumptions.defaultLocationId
-  };
+  const defaults = { assumptions: originalAssumptions, tier: 'tier2', locationId: originalAssumptions.defaultLocationId };
   const diff = {};
   if (snap.name) diff.n = snap.name.length > 40 ? snap.name.slice(0, 40) : snap.name;
   if (snap.tier && snap.tier !== defaults.tier) diff.t = snap.tier;
   if (snap.locationId && snap.locationId !== defaults.locationId) diff.l = snap.locationId;
   if (snap.productId) diff.p = snap.productId;
   if (snap.moq != null) diff.m = snap.moq;
-
   const aDiff = diffObject(defaults.assumptions, snap.assumptions);
   if (Object.keys(aDiff).length) diff.a = aDiff;
-
-  const fo = snap.forecastOverrides || {};
-  if (Object.keys(fo).length) diff.f = fo;
-
-  const dtc = snap.dtc || {};
-  if (Object.keys(dtc).length) diff.d = dtc;
-
+  if (Object.keys(snap.forecastOverrides || {}).length) diff.f = snap.forecastOverrides;
+  if (Object.keys(snap.dtc || {}).length) diff.d = snap.dtc;
   return diff;
 }
-
 function reconstructFromDiff(diff) {
   return {
     id: 'url_' + Date.now().toString(36),
@@ -1576,27 +1783,12 @@ function reconstructFromDiff(diff) {
     dtc: diff.d || {}
   };
 }
-
-function b64UrlEncode(str) {
-  return btoa(unescape(encodeURIComponent(str)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-function b64UrlDecode(str) {
-  str = str.replace(/-/g, '+').replace(/_/g, '/');
-  while (str.length % 4) str += '=';
-  return decodeURIComponent(escape(atob(str)));
-}
-
-function encodeScenarioToUrl(snap) {
-  return b64UrlEncode(JSON.stringify(compactDiff(snap)));
-}
+function b64UrlEncode(str) { return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function b64UrlDecode(str) { str = str.replace(/-/g, '+').replace(/_/g, '/'); while (str.length % 4) str += '='; return decodeURIComponent(escape(atob(str))); }
+function encodeScenarioToUrl(snap) { return b64UrlEncode(JSON.stringify(compactDiff(snap))); }
 function decodeScenarioFromUrl(encoded) {
-  try {
-    return reconstructFromDiff(JSON.parse(b64UrlDecode(encoded)));
-  } catch(e) {
-    console.warn('Could not decode scenario URL', e);
-    return null;
-  }
+  try { return reconstructFromDiff(JSON.parse(b64UrlDecode(encoded))); }
+  catch(e) { console.warn('Could not decode scenario URL', e); return null; }
 }
 
 /* ============================================================
@@ -1607,12 +1799,11 @@ function promptSaveScenario() {
   const defaultName = 'Scenario ' + new Date().toISOString().slice(0, 16).replace('T', ' ');
   const name = prompt('Name this scenario:', defaultName);
   if (name === null) return;
-  const snap = saveScenario(name || undefined);
+  saveScenario(name || undefined);
   renderScenariosTab();
   const tabBtn = [...document.querySelectorAll('.tab')].find(b => /showTab\('scenarios'/.test(b.getAttribute('onclick') || ''));
   if (tabBtn) showTab('scenarios', tabBtn);
 }
-
 function promptResetScenarioToDefaults() {
   if (!confirm('Reset current assumptions, tier, location, MOQ, forecast overrides, and DTC levers to their defaults? Saved scenarios are not affected.')) return;
   data.assumptions = JSON.parse(JSON.stringify(originalAssumptions));
@@ -1627,34 +1818,23 @@ function promptResetScenarioToDefaults() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(FC_STORAGE);
   writeDtcState({});
-  if (originalTradeRules && data.endToEnd) {
-    data.endToEnd.tradeRules = JSON.parse(JSON.stringify(originalTradeRules));
-  }
+  if (originalTradeRules && data.endToEnd) data.endToEnd.tradeRules = JSON.parse(JSON.stringify(originalTradeRules));
   refreshEverything();
 }
-
 function shareScenario(id) {
   const snap = getSavedScenarios().find(s => s.id === id);
   if (!snap) return;
   const encoded = encodeScenarioToUrl(snap);
-  const url = location.origin + location.pathname + '#s=' + encoded;
-  copyToClipboard(url, 'Share link copied. Anyone opening it will see this exact scenario.');
+  copyToClipboard(location.origin + location.pathname + '#s=' + encoded, 'Share link copied. Anyone opening it will see this exact scenario.');
 }
-
 function copyToClipboard(text, successMsg) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => {
-      if (successMsg) alert(successMsg);
-    }).catch(() => fallbackCopy(text, successMsg));
-  } else {
-    fallbackCopy(text, successMsg);
-  }
+    navigator.clipboard.writeText(text).then(() => { if (successMsg) alert(successMsg); }).catch(() => fallbackCopy(text, successMsg));
+  } else fallbackCopy(text, successMsg);
 }
 function fallbackCopy(text, successMsg) {
   const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.top = '-9999px';
+  ta.value = text; ta.style.position = 'fixed'; ta.style.top = '-9999px';
   document.body.appendChild(ta);
   ta.select();
   try { document.execCommand('copy'); if (successMsg) alert(successMsg); }
@@ -1666,13 +1846,10 @@ function renderScenariosTab() {
   const wrap = document.getElementById('scListWrap');
   if (!wrap) return;
   const list = getSavedScenarios();
-
   if (list.length === 0) {
     wrap.innerHTML = '<div class="sc-empty">No scenarios saved yet. Click <strong>💾 Save current as scenario</strong> above to create your first one.</div>';
   } else {
-    let h = '<table class="sc-table"><thead><tr>'
-          + '<th>Name</th><th>Saved</th><th>Location</th><th>Tier</th><th>Product</th><th>Actions</th>'
-          + '</tr></thead><tbody>';
+    let h = '<table class="sc-table"><thead><tr><th>Name</th><th>Saved</th><th>Location</th><th>Tier</th><th>Product</th><th>Actions</th></tr></thead><tbody>';
     for (const s of list) {
       const date = new Date(s.createdAt).toLocaleString();
       const prod = s.productId ? ((data.products.find(p => p.id === s.productId) || {}).name || s.productId) : '—';
@@ -1694,14 +1871,11 @@ function renderScenariosTab() {
     h += '</tbody></table>';
     wrap.innerHTML = h;
   }
-
   populateCompareDropdowns(list);
   renderScenarioCompare();
 }
-
 function populateCompareDropdowns(list) {
-  const selA = document.getElementById('scCompareA');
-  const selB = document.getElementById('scCompareB');
+  const selA = document.getElementById('scCompareA'), selB = document.getElementById('scCompareB');
   if (!selA || !selB) return;
   const prevA = selA.value, prevB = selB.value;
   const opts = list.map(s => '<option value="' + s.id + '">' + escapeHtml(s.name) + '</option>').join('');
@@ -1711,159 +1885,67 @@ function populateCompareDropdowns(list) {
   if (list.find(s => s.id === prevB)) selB.value = prevB;
   if (list.length >= 1 && !selA.value) selA.value = list[Math.max(0, list.length - 2)].id;
   if (list.length >= 1 && !selB.value) selB.value = list[list.length - 1].id;
-
   if (selA.dataset.wired !== '1') {
     selA.addEventListener('change', renderScenarioCompare);
     selB.addEventListener('change', renderScenarioCompare);
-    selA.dataset.wired = '1';
-    selB.dataset.wired = '1';
+    selA.dataset.wired = '1'; selB.dataset.wired = '1';
   }
-}
-
-function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function renderScenarioCompare() {
   const out = document.getElementById('scCompareResults');
   if (!out) return;
   try {
-    const selA = document.getElementById('scCompareA');
-    const selB = document.getElementById('scCompareB');
-    if (!selA || !selB) {
-      out.innerHTML = '<div class="sc-error">Compare dropdowns missing from DOM.</div>';
-      return;
-    }
+    const selA = document.getElementById('scCompareA'), selB = document.getElementById('scCompareB');
+    if (!selA || !selB) { out.innerHTML = '<div class="sc-error">Compare dropdowns missing.</div>'; return; }
     const idA = selA.value, idB = selB.value;
-    if (!idA || !idB) {
-      out.innerHTML = '<p style="color:#888; font-size:13px;">Pick two scenarios above to compare them.</p>';
-      return;
-    }
+    if (!idA || !idB) { out.innerHTML = '<p style="color:#888; font-size:13px;">Pick two scenarios above to compare them.</p>'; return; }
     const list = getSavedScenarios();
-    const a = list.find(s => s.id === idA);
-    const b = list.find(s => s.id === idB);
-    if (!a || !b) {
-      out.innerHTML = '<div class="sc-error">One of the selected scenarios no longer exists. Reload the page and try again.</div>';
-      return;
-    }
+    const a = list.find(s => s.id === idA), b = list.find(s => s.id === idB);
+    if (!a || !b) { out.innerHTML = '<div class="sc-error">One of the selected scenarios no longer exists.</div>'; return; }
 
     let fobsA, fobsB;
-    try { fobsA = computeScenarioFobs(a); }
-    catch (err) {
-      out.innerHTML = '<div class="sc-error">Failed to compute scenario A "' + escapeHtml(a.name) + '": ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
-      return;
-    }
-    try { fobsB = computeScenarioFobs(b); }
-    catch (err) {
-      out.innerHTML = '<div class="sc-error">Failed to compute scenario B "' + escapeHtml(b.name) + '": ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
-      return;
-    }
+    try { fobsA = computeScenarioFobs(a); } catch (err) { out.innerHTML = '<div class="sc-error">Failed to compute A: ' + escapeHtml(String(err)) + '</div>'; return; }
+    try { fobsB = computeScenarioFobs(b); } catch (err) { out.innerHTML = '<div class="sc-error">Failed to compute B: ' + escapeHtml(String(err)) + '</div>'; return; }
 
     const locA = a.assumptions.locations.find(l => l.id === a.locationId);
     const locB = b.assumptions.locations.find(l => l.id === b.locationId);
 
     let h = '<div class="sc-summary">'
-          + '<strong>A:</strong> ' + escapeHtml(a.name)
-          + ' <span class="sc-tag">' + escapeHtml(locA ? locA.name : (a.locationId || '—')) + '</span>'
-          + ' <span class="sc-tag">' + escapeHtml((a.assumptions.supplierTiers[a.tier] || {}).name || a.tier || '—') + '</span>'
-          + '<br>'
-          + '<strong>B:</strong> ' + escapeHtml(b.name)
-          + ' <span class="sc-tag">' + escapeHtml(locB ? locB.name : (b.locationId || '—')) + '</span>'
-          + ' <span class="sc-tag">' + escapeHtml((b.assumptions.supplierTiers[b.tier] || {}).name || b.tier || '—') + '</span>'
+          + '<strong>A:</strong> ' + escapeHtml(a.name) + ' <span class="sc-tag">' + escapeHtml(locA ? locA.name : (a.locationId || '—')) + '</span> <span class="sc-tag">' + escapeHtml((a.assumptions.supplierTiers[a.tier] || {}).name || a.tier || '—') + '</span><br>'
+          + '<strong>B:</strong> ' + escapeHtml(b.name) + ' <span class="sc-tag">' + escapeHtml(locB ? locB.name : (b.locationId || '—')) + '</span> <span class="sc-tag">' + escapeHtml((b.assumptions.supplierTiers[b.tier] || {}).name || b.tier || '—') + '</span>'
           + '</div>';
 
-    h += '<table class="sc-compare-table"><thead><tr>'
-       + '<th>Product</th>'
-       + '<th class="num">A · FOB</th>'
-       + '<th class="num">B · FOB</th>'
-       + '<th class="num">Δ FOB</th>'
-       + '<th class="num">Δ %</th>'
-       + '<th>Lower cost</th>'
-       + '</tr></thead><tbody>';
-
+    h += '<table class="sc-compare-table"><thead><tr><th>Product</th><th class="num">A · FOB</th><th class="num">B · FOB</th><th class="num">Δ FOB</th><th class="num">Δ %</th><th>Lower cost</th></tr></thead><tbody>';
     let totalA = 0, totalB = 0;
     for (const p of data.products) {
       const fa = (fobsA[p.id] && fobsA[p.id].fob) || 0;
       const fb = (fobsB[p.id] && fobsB[p.id].fob) || 0;
-      const d = fb - fa;
-      const pctv = fa ? (d / fa) * 100 : 0;
+      const d = fb - fa, pctv = fa ? (d / fa) * 100 : 0;
       totalA += fa; totalB += fb;
       const dCls = Math.abs(d) < 0.005 ? 'sc-delta-zero' : (d > 0 ? 'sc-delta-up' : 'sc-delta-down');
       const sign = d > 0 ? '+' : '';
       const lower = Math.abs(d) < 0.005 ? '—' : (d < 0 ? 'B' : 'A');
-      h += '<tr>'
-        + '<td>' + escapeHtml(p.name) + '</td>'
-        + '<td class="num">' + fmt(fa) + '</td>'
-        + '<td class="num">' + fmt(fb) + '</td>'
+      h += '<tr><td>' + escapeHtml(p.name) + '</td>'
+        + '<td class="num">' + fmt(fa) + '</td><td class="num">' + fmt(fb) + '</td>'
         + '<td class="num ' + dCls + '">' + sign + fmt(Math.abs(d)) + '</td>'
         + '<td class="num ' + dCls + '">' + sign + pctv.toFixed(1) + '%</td>'
-        + '<td>' + lower + '</td>'
-        + '</tr>';
+        + '<td>' + lower + '</td></tr>';
     }
-
-    const dTot = totalB - totalA;
-    const dTotPct = totalA ? (dTot / totalA) * 100 : 0;
+    const dTot = totalB - totalA, dTotPct = totalA ? (dTot / totalA) * 100 : 0;
     const totCls = Math.abs(dTot) < 0.005 ? 'sc-delta-zero' : (dTot > 0 ? 'sc-delta-up' : 'sc-delta-down');
     const totSign = dTot > 0 ? '+' : '';
-    h += '<tr style="border-top:2px solid #111;">'
-       + '<td><strong>Portfolio total</strong></td>'
+    h += '<tr style="border-top:2px solid #111;"><td><strong>Portfolio total</strong></td>'
        + '<td class="num"><strong>' + fmt(totalA) + '</strong></td>'
        + '<td class="num"><strong>' + fmt(totalB) + '</strong></td>'
        + '<td class="num ' + totCls + '"><strong>' + totSign + fmt(Math.abs(dTot)) + '</strong></td>'
        + '<td class="num ' + totCls + '"><strong>' + totSign + dTotPct.toFixed(1) + '%</strong></td>'
-       + '<td>—</td>'
-       + '</tr>';
-    h += '</tbody></table>';
-
-    const aDiff = diffObject(a.assumptions, b.assumptions);
-    const changedKeys = countLeaves(aDiff);
-    if (changedKeys > 0) {
-      h += '<div class="sc-summary" style="margin-top:18px;">'
-        + '<strong>Assumption differences:</strong> ' + changedKeys + ' field' + (changedKeys === 1 ? '' : 's') + ' differ between A and B. '
-        + 'Notable: ' + describeAssumptionDiff(a.assumptions, b.assumptions)
-        + '</div>';
-    } else {
-      h += '<div class="sc-summary" style="margin-top:18px;">Assumptions are identical between A and B — the difference comes from tier, location, MOQ, or forecast overrides.</div>';
-    }
-
+       + '<td>—</td></tr></tbody></table>';
     out.innerHTML = h;
   } catch (err) {
     console.error('renderScenarioCompare crashed:', err);
     out.innerHTML = '<div class="sc-error">Could not render comparison: ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
   }
-}
-
-function countLeaves(obj) {
-  if (!obj || typeof obj !== 'object') return 0;
-  let n = 0;
-  for (const v of Object.values(obj)) {
-    if (v && typeof v === 'object' && !Array.isArray(v)) n += countLeaves(v);
-    else n += 1;
-  }
-  return n;
-}
-
-function describeAssumptionDiff(a, b) {
-  const parts = [];
-  const locsA = a.locations || [], locsB = b.locations || [];
-  for (const la of locsA) {
-    const lb = locsB.find(x => x.id === la.id);
-    if (!lb) continue;
-    const keys = ['laborRatePerHr','machineRatePerHr','overheadRatePerHr','freightPerUnit','dutyRatePercent'];
-    const diffs = keys.filter(k => Math.abs((la[k] || 0) - (lb[k] || 0)) > 0.001);
-    if (diffs.length) parts.push(la.name + ' (' + diffs.length + ' rate' + (diffs.length === 1 ? '' : 's') + ')');
-  }
-  let matDiffs = 0;
-  for (const [k, vA] of Object.entries(a.materialPrices || {})) {
-    const vB = (b.materialPrices || {})[k];
-    const pA = (vA && typeof vA === 'object') ? vA.price : vA;
-    const pB = (vB && typeof vB === 'object') ? vB.price : vB;
-    if (Math.abs((pA || 0) - (pB || 0)) > 0.001) matDiffs++;
-  }
-  if (matDiffs) parts.push(matDiffs + ' material price' + (matDiffs === 1 ? '' : 's'));
-  return parts.length ? parts.join(', ') + '.' : 'rate tweaks.';
 }
 
 /* ============================================================
@@ -1883,15 +1965,23 @@ async function load() {
   }
 
   originalAssumptions = JSON.parse(JSON.stringify(data.assumptions));
-  if (data.endToEnd && data.endToEnd.tradeRules) {
-    originalTradeRules = JSON.parse(JSON.stringify(data.endToEnd.tradeRules));
-  }
+  if (data.endToEnd && data.endToEnd.tradeRules) originalTradeRules = JSON.parse(JSON.stringify(data.endToEnd.tradeRules));
 
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) { try { data.assumptions = JSON.parse(saved); } catch(e){} }
   const savedFc = localStorage.getItem(FC_STORAGE);
   if (savedFc) { try { forecastOverrides = JSON.parse(savedFc); } catch(e){} }
+
   loadQuotes();
+  loadFeedConfig();
+  loadFeedCache();
+
+  // Re-apply any cached feed values on load (up to TTL)
+  const now = Date.now();
+  for (const [key, entry] of Object.entries(data.assumptions.materialPrices)) {
+    const c = feedCache[key];
+    if (c && now - c.ts < FEED_TTL_MS && typeof entry === 'object') entry.price = c.price;
+  }
 
   selected = null;
   editingLocId = null;
@@ -1908,11 +1998,11 @@ async function load() {
   currentLocation = data.assumptions.locations.find(l => l.id === sel.value);
   currentTier = document.getElementById('tierSelect').value;
 
-  document.getElementById('updated').textContent =
-    'Last updated: ' + (data.last_updated || '—') + ' · v' + (data.version || '');
+  document.getElementById('updated').textContent = 'Last updated: ' + (data.last_updated || '—') + ' · v' + (data.version || '');
 
   safeRender('cards', renderCards);
   safeRender('assumptions', renderAssumptionEditors);
+  safeRender('feeds', renderFeedsEditor);
   safeRender('scenarios', renderScenariosTab);
   safeRender('negotiation', renderNegotiationTab);
   safeRender('forecast', renderForecastTab);
@@ -1920,6 +2010,7 @@ async function load() {
   safeRender('e2e', renderE2ETab);
   safeRender('process', renderProcessTab);
 
+  renderFeedBadge();
   applyUrlState(readUrl());
 }
 
@@ -1930,6 +2021,7 @@ function showTab(name, btn) {
   document.getElementById('tab-' + name).classList.add('active');
   currentTab = name;
 
+  if (name === 'assumptions') { safeRender('assumptions', renderAssumptionEditors); safeRender('feeds', renderFeedsEditor); }
   if (name === 'scenarios') safeRender('scenarios', renderScenariosTab);
   if (name === 'negotiation') safeRender('negotiation', renderNegotiationTab);
   if (name === 'forecast') safeRender('forecast', renderForecastTab);
@@ -1940,6 +2032,10 @@ function showTab(name, btn) {
 
   syncUrl();
 }
+
+/* ============================================================
+   COST ENGINE
+   ============================================================ */
 
 function getTierMultipliers() {
   const tier = data.assumptions.supplierTiers[currentTier];
@@ -1953,9 +2049,7 @@ function machineRatePerHr(machineKey) {
   return (depreciation + maintenance + m.powerCostPerHr) * getTierMultipliers().machineMultiplier;
 }
 function evaluateNode(node, loc, matPrices) {
-  if (node.children && node.children.length > 0 && !node.type) {
-    return node.children.reduce((s, c) => s + evaluateNode(c, loc, matPrices), 0);
-  }
+  if (node.children && node.children.length > 0 && !node.type) return node.children.reduce((s, c) => s + evaluateNode(c, loc, matPrices), 0);
   const t = getTierMultipliers();
   switch (node.type) {
     case 'time_labour': return (node.inputs.minutesPerUnit / 60) * loc.laborRatePerHr * t.laborMultiplier;
@@ -1984,9 +2078,7 @@ function evaluateTree(node, loc, matPrices, path) {
       return c;
     });
     newNode.cost = newNode.children.reduce((s, c) => s + c.cost, 0);
-  } else {
-    newNode.cost = evaluateNode(node, loc, matPrices);
-  }
+  } else { newNode.cost = evaluateNode(node, loc, matPrices); }
   return newNode;
 }
 function totalOf(node) {
@@ -2008,6 +2100,10 @@ function calc(p, locOverride, matOverride) {
   };
 }
 
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+
 function renderCards() {
   const g = document.getElementById('cards'); if (!g) return;
   g.innerHTML = '';
@@ -2017,15 +2113,11 @@ function renderCards() {
     d.className = 'card';
     d.onclick = () => selectProduct(p.id);
     const tier = data.assumptions.supplierTiers[currentTier];
-
     const storedImage = localStorage.getItem('footwear_product_image_' + p.id);
     const imageUrl = storedImage || p.imageUrl || '';
     const imageBlock = imageUrl
-      ? `<img src="${imageUrl}" alt="${p.name}" loading="lazy" decoding="async"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-         <div class="placeholder" style="display:none;">👟</div>`
+      ? `<img src="${imageUrl}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="placeholder" style="display:none;">👟</div>`
       : `<div class="placeholder">👟</div>`;
-
     let moqLine = '';
     if (p.moq) {
       const moqAdj = p.moq.current * tier.moqMultiplier;
@@ -2033,7 +2125,6 @@ function renderCards() {
       moqLine = `<div class="row"><span class="lbl">Fixed @ MOQ ${Math.round(moqAdj).toLocaleString()}</span><span class="val">${fmt(fixedPerUnit)}</span></div>
                  <div class="row big"><span>Total Unit Cost</span><span>${fmt(c.fob + fixedPerUnit)}</span></div>`;
     }
-
     d.innerHTML = `
       <div class="card-image-wrap" title="Click to change image">
         ${imageBlock}
@@ -2052,26 +2143,16 @@ function renderCards() {
     g.appendChild(d);
   });
 }
-
 function uploadProductImage(productId, input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 800 * 1024) {
-    alert('Image is too large for browser storage. Please use an image under 800 KB.');
-    return;
-  }
+  const file = input.files[0]; if (!file) return;
+  if (file.size > 800 * 1024) { alert('Image is too large for browser storage. Please use an image under 800 KB.'); return; }
   const reader = new FileReader();
   reader.onload = e => {
-    try {
-      localStorage.setItem('footwear_product_image_' + productId, e.target.result);
-      renderCards();
-    } catch (err) {
-      alert('Browser storage is full.');
-    }
+    try { localStorage.setItem('footwear_product_image_' + productId, e.target.result); renderCards(); }
+    catch (err) { alert('Browser storage is full.'); }
   };
   reader.readAsDataURL(file);
 }
-
 function selectProduct(id) {
   selected = data.products.find(p => p.id === id);
   document.getElementById('drill').classList.add('on');
@@ -2088,6 +2169,17 @@ function renderDrilldown() {
   document.getElementById('drillTitle').textContent = selected.name + ' — Cost Breakdown';
   const tier = data.assumptions.supplierTiers[currentTier];
   document.getElementById('locBanner').innerHTML = `<strong>📍 ${currentLocation.name}</strong> · ${tier.name} · Labour €${currentLocation.laborRatePerHr}/hr`;
+
+  const co2eChip = document.getElementById('co2eChip');
+  if (co2eChip) {
+    const carbon = calcCarbon(selected);
+    const rules = data.endToEnd && data.endToEnd.tradeRules && data.endToEnd.tradeRules.carbonRules;
+    const yr = rules ? rules.currentYear : '—';
+    const carbonCostEU = getCarbonCostPerUnit(carbon.totalCO2e, true);
+    co2eChip.style.display = 'inline-block';
+    co2eChip.textContent = '🌱 ' + carbon.totalCO2e.toFixed(2) + ' kgCO₂e/pair · €' + carbonCostEU.toFixed(4) + ' EU carbon cost (' + yr + ')';
+  }
+
   if (chart) chart.destroy();
   chart = new Chart(document.getElementById('chart'), {
     type: 'doughnut',
@@ -2128,8 +2220,7 @@ function drawTreeChart(root) {
   else if (plotDiv._ev) plotDiv._ev = {};
   plotDiv.on('plotly_click', function(evt) {
     if (!evt.points || !evt.points[0]) return;
-    const clickedId = evt.points[0].id;
-    if (!clickedId) return;
+    const clickedId = evt.points[0].id; if (!clickedId) return;
     if (expandedNodes[clickedId]) delete expandedNodes[clickedId];
     else expandedNodes[clickedId] = true;
     if (selected) { const c = calc(selected); drawTreeChart(c.tree); }
@@ -2144,11 +2235,8 @@ function flattenLeaves(node, parentTotal, path, fob) {
   const rows = [];
   const cost = totalOf(node);
   const newPath = [...path, node.name];
-  if (node.children && node.children.length > 0 && !node.type) {
-    node.children.forEach(c => rows.push(...flattenLeaves(c, cost, newPath, fob)));
-  } else {
-    rows.push({ path: newPath, cost, pctOfParent: parentTotal ? (cost / parentTotal) * 100 : 100, pctOfFob: fob ? (cost / fob) * 100 : 0 });
-  }
+  if (node.children && node.children.length > 0 && !node.type) node.children.forEach(c => rows.push(...flattenLeaves(c, cost, newPath, fob)));
+  else rows.push({ path: newPath, cost, pctOfParent: parentTotal ? (cost / parentTotal) * 100 : 100, pctOfFob: fob ? (cost / fob) * 100 : 0 });
   return rows;
 }
 function renderTreeTable(tree, fob) {
@@ -2157,21 +2245,16 @@ function renderTreeTable(tree, fob) {
   const maxCols = Math.max(...allRows.map(r => r.path.length));
   const colCount = Math.max(maxCols, 5);
   let rows = allRows.filter(r => {
-    for (const [col, val] of Object.entries(colFilters)) {
-      if (!val) continue;
-      if ((r.path[col] || '') !== val) return false;
-    }
+    for (const [col, val] of Object.entries(colFilters)) { if (!val) continue; if ((r.path[col] || '') !== val) return false; }
     return true;
   });
-  if (sortState.column) {
-    rows.sort((a, b) => {
-      const d = sortState.dir === 'asc' ? 1 : -1;
-      if (sortState.column === 'cost') return (a.cost - b.cost) * d;
-      if (sortState.column === 'parent') return (a.pctOfParent - b.pctOfParent) * d;
-      if (sortState.column === 'fob') return (a.pctOfFob - b.pctOfFob) * d;
-      return 0;
-    });
-  }
+  if (sortState.column) rows.sort((a, b) => {
+    const d = sortState.dir === 'asc' ? 1 : -1;
+    if (sortState.column === 'cost') return (a.cost - b.cost) * d;
+    if (sortState.column === 'parent') return (a.pctOfParent - b.pctOfParent) * d;
+    if (sortState.column === 'fob') return (a.pctOfFob - b.pctOfFob) * d;
+    return 0;
+  });
   const arrow = c => sortState.column === c ? (sortState.dir === 'asc' ? ' ↑' : ' ↓') : ' ⇅';
   let h = '<thead><tr>';
   for (let i = 0; i < colCount; i++) h += `<th style="min-width:110px;">L${i + 1}</th>`;
@@ -2197,15 +2280,9 @@ function renderTreeTable(tree, fob) {
   }
   t.innerHTML = h + '</tbody>';
 }
-function applyColFilter(colIdx, val) {
-  if (val) colFilters[colIdx] = val; else delete colFilters[colIdx];
-  if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); }
-}
-function sortBy(col) {
-  if (sortState.column === col) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
-  else { sortState.column = col; sortState.dir = 'desc'; }
-  if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); }
-}
+function applyColFilter(colIdx, val) { if (val) colFilters[colIdx] = val; else delete colFilters[colIdx]; if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); } }
+function sortBy(col) { if (sortState.column === col) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc'; else { sortState.column = col; sortState.dir = 'desc'; } if (selected) { const c = calc(selected); renderTreeTable(c.tree, c.fob); } }
+
 function onLocationChange() {
   currentLocation = data.assumptions.locations.find(l => l.id === document.getElementById('locationSelect').value);
   safeRender('cards', renderCards);
@@ -2232,13 +2309,11 @@ function onMOQChange() {
   currentMOQ = parseInt(document.getElementById('moqSlider').value);
   if (selected && selected.moq) {
     const tier = getTierMultipliers();
-    document.getElementById('moqValue').textContent =
-      Math.round(currentMOQ * tier.moqMultiplier).toLocaleString() + ' ' + selected.moq.unit;
+    document.getElementById('moqValue').textContent = Math.round(currentMOQ * tier.moqMultiplier).toLocaleString() + ' ' + selected.moq.unit;
   }
   clearTimeout(_moqTimer);
   _moqTimer = setTimeout(updateMOQDisplay, 60);
 }
-
 function updateMOQDisplay() {
   if (!selected || !selected.moq) return;
   const moq = selected.moq;
@@ -2270,6 +2345,10 @@ function updateMOQDisplay() {
   });
 }
 
+/* ============================================================
+   ASSUMPTIONS TAB
+   ============================================================ */
+
 function renderAssumptionEditors() {
   const tabs = document.getElementById('locTabs'); if (!tabs) return;
   tabs.innerHTML = '';
@@ -2296,8 +2375,9 @@ function renderAssumptionEditors() {
   Object.entries(data.assumptions.materialPrices).forEach(([k, e]) => {
     const val = typeof e === 'number' ? e : e.price;
     const src = typeof e === 'object' ? e.source : '';
+    const co2e = typeof e === 'object' && e.co2ePerKg != null ? e.co2ePerKg : null;
     const row = document.createElement('div'); row.className = 'assumption-row';
-    row.innerHTML = `<div class="key">${k}<div class="id">materialPrices.${k}</div></div>
+    row.innerHTML = `<div class="key">${k}<div class="id">materialPrices.${k}${co2e != null ? ' · ' + co2e + ' kgCO₂e/kg' : ''}</div></div>
       <input type="number" step="0.01" value="${val}" onchange="updateMaterial('${k}', this.value)">
       <div class="note">${src}</div>`;
     matEd.appendChild(row);
@@ -2352,13 +2432,15 @@ function exportAssumptions() {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'footwear_assumptions.json'; a.click();
 }
 
+/* ============================================================
+   FORECAST TAB
+   ============================================================ */
+
 function getEffectiveForecastRate(driverId, qIdx) {
   if (!data.forecasts) return 0;
   const driver = data.forecasts.drivers.find(d => d.id === driverId);
   if (!driver) return 0;
-  if (forecastOverrides[driverId] && forecastOverrides[driverId][qIdx] !== undefined) {
-    return forecastOverrides[driverId][qIdx];
-  }
+  if (forecastOverrides[driverId] && forecastOverrides[driverId][qIdx] !== undefined) return forecastOverrides[driverId][qIdx];
   return driver.quarterlyChange[qIdx];
 }
 function buildProjection(product) {
@@ -2398,19 +2480,10 @@ function renderForecastTab() {
   if (!data.forecasts) return;
   const sub = document.getElementById('forecastSubtitle');
   if (sub) sub.textContent = `Projected cost evolution from ${data.forecasts.quarterLabels[0]} to ${data.forecasts.quarterLabels[data.forecasts.quarterLabels.length-1]}.`;
-
-  if (_forecastRafId) {
-    cancelAnimationFrame(_forecastRafId);
-    _forecastRafId = null;
-  }
-
-  if (window._fcCharts && window._fcCharts.length) {
-    window._fcCharts.forEach(c => { try { c.destroy(); } catch(e){} });
-  }
+  if (_forecastRafId) { cancelAnimationFrame(_forecastRafId); _forecastRafId = null; }
+  if (window._fcCharts && window._fcCharts.length) window._fcCharts.forEach(c => { try { c.destroy(); } catch(e){} });
   window._fcCharts = [];
-
-  const grid = document.getElementById('forecastGrid');
-  if (!grid) return;
+  const grid = document.getElementById('forecastGrid'); if (!grid) return;
   grid.innerHTML = '';
   data.products.forEach(p => {
     const proj = buildProjection(p); if (!proj) return;
@@ -2430,13 +2503,11 @@ function renderForecastTab() {
       <div class="forecast-chart-wrap"><canvas id="fc-${p.id}"></canvas></div>`;
     grid.appendChild(card);
   });
-
   _forecastRafId = requestAnimationFrame(() => {
     _forecastRafId = null;
     data.products.forEach(p => {
       const proj = buildProjection(p); if (!proj) return;
-      const canvas = document.getElementById('fc-' + p.id);
-      if (!canvas) return;
+      const canvas = document.getElementById('fc-' + p.id); if (!canvas) return;
       const existing = (typeof Chart.getChart === 'function') ? Chart.getChart(canvas) : null;
       if (existing) { try { existing.destroy(); } catch(e){} }
       try {
@@ -2456,7 +2527,6 @@ function renderForecastTab() {
       } catch (err) { console.error('Chart error:', err); }
     });
   });
-
   renderScenarioBox();
   renderDriverTable();
 }
@@ -2467,8 +2537,7 @@ function renderScenarioBox() {
     const row = document.createElement('div');
     row.className = 'scenario-row';
     const currentRate = getEffectiveForecastRate(d.id, 0);
-    row.innerHTML = `
-      <div>${d.name}<div class="note">${d.source || ''}</div></div>
+    row.innerHTML = `<div>${d.name}<div class="note">${d.source || ''}</div></div>
       <input type="number" step="0.1" value="${currentRate}" onchange="updateForecastOverride('${d.id}', this.value)">
       <div class="note">% change per quarter</div>`;
     box.appendChild(row);
@@ -2481,33 +2550,28 @@ function updateForecastOverride(driverId, val) {
   safeRender('forecast', renderForecastTab);
 }
 function runForecast() { safeRender('forecast', renderForecastTab); }
-function resetForecast() {
-  if (!confirm('Reset all forecast rates?')) return;
-  forecastOverrides = {}; localStorage.removeItem(FC_STORAGE); safeRender('forecast', renderForecastTab);
-}
+function resetForecast() { if (!confirm('Reset all forecast rates?')) return; forecastOverrides = {}; localStorage.removeItem(FC_STORAGE); safeRender('forecast', renderForecastTab); }
 function renderDriverTable() {
   const t = document.getElementById('driverTable'); if (!t || !data.forecasts) return;
-  let h = `<thead><tr>
-    <th style="width:15%;">Driver</th><th style="width:12%;">Affects</th><th style="width:15%;">Source</th>
-    <th>Forecast Basis</th>
-    <th class="q-change">Q1</th><th class="q-change">Q2</th><th class="q-change">Q3</th><th class="q-change">Q4</th><th class="q-change">Q5</th><th class="q-change">Q6</th>
-  </tr></thead><tbody>`;
+  let h = `<thead><tr><th style="width:15%;">Driver</th><th style="width:12%;">Affects</th><th style="width:15%;">Source</th><th>Forecast Basis</th>
+    <th class="q-change">Q1</th><th class="q-change">Q2</th><th class="q-change">Q3</th><th class="q-change">Q4</th><th class="q-change">Q5</th><th class="q-change">Q6</th></tr></thead><tbody>`;
   data.forecasts.drivers.forEach(d => {
     const qCells = [0,1,2,3,4,5].map(q => {
       const v = getEffectiveForecastRate(d.id, q);
       const cls = v > 0 ? 'delta-up' : (v < 0 ? 'delta-down' : '');
       return `<td class="q-change ${cls}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</td>`;
     }).join('');
-    h += `<tr>
-      <td><strong>${d.name}</strong></td>
+    h += `<tr><td><strong>${d.name}</strong></td>
       <td><span style="font-size:10px;color:#888;">${d.affects ? d.affects.type + ':' + d.affects.key : ''}</span></td>
       <td>${d.source || ''}${d.url ? `<a href="${d.url}" target="_blank" class="src-link">↗</a>` : ''}</td>
-      <td class="src">${d.citation || ''}</td>
-      ${qCells}
-    </tr>`;
+      <td class="src">${d.citation || ''}</td>${qCells}</tr>`;
   });
   t.innerHTML = h + '</tbody>';
 }
+
+/* ============================================================
+   COMPETITIVE TAB
+   ============================================================ */
 
 function renderCompetitiveTab() {
   if (!data.competitors) return;
@@ -2541,9 +2605,7 @@ function renderSourcingChart(benchmarks) {
   const ctx = document.getElementById('sourcingChart'); if (!ctx) return;
   if (compCharts.sourcing) { try { compCharts.sourcing.destroy(); } catch(e){} }
   const countrySet = new Set();
-  Object.values(benchmarks).forEach(b => {
-    Object.keys(b.fy2025.sourcingMixPct || {}).forEach(c => countrySet.add(c));
-  });
+  Object.values(benchmarks).forEach(b => Object.keys(b.fy2025.sourcingMixPct || {}).forEach(c => countrySet.add(c)));
   const countries = [...countrySet].sort();
   const colors = ['#111', '#2d6a4f', '#f57c00', '#c62828', '#283593'];
   const datasets = [];
@@ -2553,13 +2615,9 @@ function renderSourcingChart(benchmarks) {
     datasets.push({ label: b.name, data: countries.map(c => mix[c] || 0), backgroundColor: colors[idx % colors.length], borderWidth: 0 });
     idx++;
   });
-  compCharts.sourcing = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: countries, datasets },
-    options: { responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } },
-      scales: { y: { title: { display: true, text: '% of production volume' }, beginAtZero: true } } }
-  });
+  compCharts.sourcing = new Chart(ctx, { type: 'bar', data: { labels: countries, datasets },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },
+      scales: { y: { title: { display: true, text: '% of production volume' }, beginAtZero: true } } } });
 }
 function renderProductComparisons(comparisons) {
   const container = document.getElementById('productComparisons'); if (!container) return;
@@ -2569,40 +2627,21 @@ function renderProductComparisons(comparisons) {
     section.className = 'comp-section';
     let h = `<h3>${cmp.category}: ${cmp.puma.name} vs ${cmp.competitor.brand} ${cmp.competitor.name}</h3>`;
     h += `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin: 15px 0;">`;
-    h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;">
-      <div style="font-weight:700; margin-bottom:10px;">${cmp.puma.name.split(' ')[0]}</div>
+    h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;"><div style="font-weight:700; margin-bottom:10px;">${cmp.puma.name.split(' ')[0]}</div>
       <div class="metric-line"><span>Retail</span><span>${fmt(cmp.puma.retailPrice)}</span></div>
       <div class="metric-line"><span>FOB</span><span>${fmt(cmp.puma.fob)}</span></div>
-      <div class="metric-line"><span>FOB / retail</span><span>${cmp.puma.costPctOfRetail}%</span></div>
-    </div>`;
-    h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;">
-      <div style="font-weight:700; margin-bottom:10px;">${cmp.competitor.brand}</div>
+      <div class="metric-line"><span>FOB / retail</span><span>${cmp.puma.costPctOfRetail}%</span></div></div>`;
+    h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;"><div style="font-weight:700; margin-bottom:10px;">${cmp.competitor.brand}</div>
       <div class="metric-line"><span>Retail</span><span>${fmt(cmp.competitor.retailPrice)}</span></div>
       <div class="metric-line"><span>FOB</span><span>${fmt(cmp.competitor.fob)}</span></div>
-      <div class="metric-line"><span>FOB / retail</span><span>${cmp.competitor.costPctOfRetail}%</span></div>
-    </div></div>`;
-    h += `<table class="gap-table"><thead><tr>
-      <th style="width:20%;">Cost Element</th>
-      <th style="text-align:right;">PUMA</th>
-      <th style="text-align:right;">${cmp.competitor.brand}</th>
-      <th style="text-align:right;">Delta</th>
-      <th style="width:15%;">Status</th>
-      <th>Why</th>
-    </tr></thead><tbody>`;
+      <div class="metric-line"><span>FOB / retail</span><span>${cmp.competitor.costPctOfRetail}%</span></div></div></div>`;
+    h += `<table class="gap-table"><thead><tr><th style="width:20%;">Cost Element</th><th style="text-align:right;">PUMA</th><th style="text-align:right;">${cmp.competitor.brand}</th><th style="text-align:right;">Delta</th><th style="width:15%;">Status</th><th>Why</th></tr></thead><tbody>`;
     cmp.gapAnalysis.forEach(g => {
       const deltaStr = (g.delta > 0 ? '+' : '') + g.delta.toFixed(2);
-      const badge = g.status === 'better' ? '<span class="badge badge-better">PUMA better</span>'
-                  : g.status === 'worse' ? '<span class="badge badge-worse">PUMA worse</span>'
-                  : '<span class="badge badge-neutral">Neutral</span>';
+      const badge = g.status === 'better' ? '<span class="badge badge-better">PUMA better</span>' : g.status === 'worse' ? '<span class="badge badge-worse">PUMA worse</span>' : '<span class="badge badge-neutral">Neutral</span>';
       const deltaCls = g.status === 'better' ? 'better' : g.status === 'worse' ? 'worse' : '';
-      h += `<tr>
-        <td><strong>${g.area}</strong></td>
-        <td style="text-align:right;">${fmt(g.pumaCost)}</td>
-        <td style="text-align:right;">${fmt(g.compCost)}</td>
-        <td style="text-align:right; font-family:monospace;" class="${deltaCls}">${deltaStr}</td>
-        <td>${badge}</td>
-        <td class="note">${g.note}</td>
-      </tr>`;
+      h += `<tr><td><strong>${g.area}</strong></td><td style="text-align:right;">${fmt(g.pumaCost)}</td><td style="text-align:right;">${fmt(g.compCost)}</td>
+        <td style="text-align:right; font-family:monospace;" class="${deltaCls}">${deltaStr}</td><td>${badge}</td><td class="note">${g.note}</td></tr>`;
     });
     section.innerHTML = h + '</tbody></table>';
     container.appendChild(section);
@@ -2611,19 +2650,13 @@ function renderProductComparisons(comparisons) {
 function renderCostCompareChart(cmp) {
   const ctx = document.getElementById('costCompareChart'); if (!ctx || !cmp) return;
   if (compCharts.costCompare) { try { compCharts.costCompare.destroy(); } catch(e){} }
-  compCharts.costCompare = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Materials', 'Labour', 'Overheads', 'Factory margin', 'Total FOB'],
+  compCharts.costCompare = new Chart(ctx, { type: 'bar',
+    data: { labels: ['Materials', 'Labour', 'Overheads', 'Factory margin', 'Total FOB'],
       datasets: [
         { label: 'PUMA ' + cmp.puma.name, data: [cmp.puma.materials, cmp.puma.labour, cmp.puma.overheads, cmp.puma.margin, cmp.puma.fob], backgroundColor: '#111', borderWidth: 0 },
         { label: cmp.competitor.brand + ' ' + cmp.competitor.name, data: [cmp.competitor.materials, cmp.competitor.labour, cmp.competitor.overheads, cmp.competitor.margin, cmp.competitor.fob], backgroundColor: '#2d6a4f', borderWidth: 0 }
-      ]
-    },
-    options: { responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } },
-      scales: { y: { title: { display: true, text: '€ per unit' }, beginAtZero: true } } }
-  });
+      ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { title: { display: true, text: '€ per unit' }, beginAtZero: true } } } });
 }
 function renderPriorities(priorities) {
   const list = document.getElementById('priorityList'); if (!list) return;
@@ -2631,18 +2664,21 @@ function renderPriorities(priorities) {
   priorities.forEach(p => {
     const card = document.createElement('div');
     card.className = 'priority-card';
-    card.innerHTML = `
-      <div><span class="rank">${p.rank}</span><span class="area">${p.area}</span></div>
-      <div class="why">${p.why}</div>
-      <div class="action"><strong>Action:</strong> ${p.action}</div>
+    card.innerHTML = `<div><span class="rank">${p.rank}</span><span class="area">${p.area}</span></div>
+      <div class="why">${p.why}</div><div class="action"><strong>Action:</strong> ${p.action}</div>
       <div class="meta"><span><strong>Impact:</strong> ${p.impact}</span><span><strong>Effort:</strong> ${p.effort}</span></div>`;
     list.appendChild(card);
   });
 }
 
+/* ============================================================
+   E2E TAB
+   ============================================================ */
+
 function renderE2ETab() {
   const e2e = data.endToEnd; if (!e2e) return;
-  const srcLegend = document.getElementById('sourceLegend'); if (srcLegend) {
+  const srcLegend = document.getElementById('sourceLegend');
+  if (srcLegend) {
     srcLegend.innerHTML = '';
     e2e.sourceCountries.forEach(s => {
       const el = document.createElement('div'); el.className = 'source-pill';
@@ -2650,7 +2686,8 @@ function renderE2ETab() {
       srcLegend.appendChild(el);
     });
   }
-  const destLegend = document.getElementById('destLegend'); if (destLegend) {
+  const destLegend = document.getElementById('destLegend');
+  if (destLegend) {
     destLegend.innerHTML = '';
     e2e.destinationMarkets.forEach(m => {
       const el = document.createElement('div'); el.className = 'dest-card';
@@ -2659,6 +2696,7 @@ function renderE2ETab() {
     });
   }
   safeRender('tariffSim', renderTariffSimulator);
+  safeRender('carbon', renderCarbonSection);
   safeRender('matrix', () => renderMatrix(e2e));
   safeRender('wfSelectors', () => populateWaterfallSelectors(e2e));
   safeRender('waterfall', renderWaterfall);
@@ -2669,7 +2707,7 @@ function renderMatrix(e2e) {
   const sources = e2e.sourceCountries, dests = e2e.destinationMarkets;
   const matrix = getComputedMatrix(e2e);
   if (!matrix.length) {
-    t.innerHTML = '<tbody><tr><td colspan="' + (dests.length + 1) + '" style="text-align:center;padding:20px;color:#999;">No matrix data — check <code>tradeRules</code> in cost_data.json.</td></tr></tbody>';
+    t.innerHTML = '<tbody><tr><td colspan="' + (dests.length + 1) + '" style="text-align:center;padding:20px;color:#999;">No matrix data.</td></tr></tbody>';
     return;
   }
   const allLanded = matrix.map(m => m.landedCost);
@@ -2684,7 +2722,8 @@ function renderMatrix(e2e) {
       if (!cell) { h += '<td style="color:#ccc;">—</td>'; return; }
       const norm = (cell.landedCost - minC) / (maxC - minC || 1);
       let cls = norm < 0.33 ? 'highlight' : (norm > 0.66 ? 'danger' : 'warn');
-      h += `<td class="${cls}">${fmt(cell.landedCost)}</td>`;
+      const tooltip = 'Landed: ' + fmt(cell.landedCost) + (cell.carbonCostPerUnit > 0 ? ' (incl. carbon €' + cell.carbonCostPerUnit.toFixed(4) + ')' : '');
+      h += `<td class="${cls}" title="${tooltip}">${fmt(cell.landedCost)}</td>`;
     });
     h += '</tr>';
   });
@@ -2692,17 +2731,12 @@ function renderMatrix(e2e) {
   t.innerHTML = h;
 }
 function populateWaterfallSelectors(e2e) {
-  const srcSel = document.getElementById('wfSource');
-  const dstSel = document.getElementById('wfDest');
+  const srcSel = document.getElementById('wfSource'), dstSel = document.getElementById('wfDest');
   if (!srcSel || !dstSel) return;
   const prevSrc = srcSel.value, prevDst = dstSel.value;
   srcSel.innerHTML = ''; dstSel.innerHTML = '';
-  e2e.sourceCountries.forEach(s => {
-    const o = document.createElement('option'); o.value = s.id; o.textContent = s.flag + ' ' + s.name; srcSel.appendChild(o);
-  });
-  e2e.destinationMarkets.forEach(d => {
-    const o = document.createElement('option'); o.value = d.id; o.textContent = d.flag + ' ' + d.name; dstSel.appendChild(o);
-  });
+  e2e.sourceCountries.forEach(s => { const o = document.createElement('option'); o.value = s.id; o.textContent = s.flag + ' ' + s.name; srcSel.appendChild(o); });
+  e2e.destinationMarkets.forEach(d => { const o = document.createElement('option'); o.value = d.id; o.textContent = d.flag + ' ' + d.name; dstSel.appendChild(o); });
   srcSel.value = e2e.sourceCountries.find(s => s.id === prevSrc) ? prevSrc : 'vietnam';
   dstSel.value = e2e.destinationMarkets.find(d => d.id === prevDst) ? prevDst : 'us';
 }
@@ -2720,21 +2754,24 @@ function renderWaterfall() {
     { label: 'CIF', value: cell.cif, type: 'subtotal' },
     { label: 'Tariff ' + cell.tariffRatePct + '%', value: cell.tariffPerUnit, type: 'add' },
     { label: 'Customs', value: cell.customsPerUnit, type: 'add' },
-    { label: 'Inland', value: cell.inlandPerUnit, type: 'add' },
+    { label: 'Inland', value: cell.inlandPerUnit, type: 'add' }
+  ];
+  if (cell.carbonCostPerUnit > 0) steps.push({ label: 'Carbon', value: cell.carbonCostPerUnit, type: 'add' });
+  steps.push(
     { label: 'Landed', value: cell.landedCost, type: 'total' },
     { label: 'Wholesale', value: (cell.retailPriceBeforeTax - cell.landedCost), type: 'add' },
     { label: 'Retail ex-tax', value: cell.retailPriceBeforeTax, type: 'subtotal' },
     { label: 'VAT/GST', value: cell.vatPerUnit, type: 'add' },
     { label: 'Final Retail', value: cell.finalRetailPrice, type: 'total' }
-  ];
+  );
   const labels = steps.map(s => s.label);
   const values = steps.map(s => s.value);
-  const colors = steps.map(s => s.type === 'base' ? '#1a237e' : s.type === 'add' ? '#f57c00' : s.type === 'subtotal' ? '#2d6a4f' : s.type === 'total' ? '#111' : '#888');
+  const colors = steps.map(s => s.type === 'base' ? '#1a237e' : s.label === 'Carbon' ? '#2d6a4f' : s.type === 'add' ? '#f57c00' : s.type === 'subtotal' ? '#2d6a4f' : s.type === 'total' ? '#111' : '#888');
   const trace = {
     type: 'waterfall', orientation: 'v',
     x: labels, y: values,
     measure: steps.map(s => (s.type === 'base' || s.type === 'subtotal' || s.type === 'total') ? 'absolute' : 'relative'),
-    text: values.map(v => (typeof v === 'number' && isFinite(v) ? '€' + v.toFixed(2) : '')),
+    text: values.map(v => (typeof v === 'number' && isFinite(v) ? '€' + v.toFixed(v < 1 ? 4 : 2) : '')),
     textposition: 'outside',
     marker: { color: colors },
     connector: { line: { color: '#ccc' } }
@@ -2764,7 +2801,10 @@ function renderRetailByMarket(e2e) {
   });
 }
 
-// PROCESS FLOW
+/* ============================================================
+   PROCESS FLOW
+   ============================================================ */
+
 function renderProcessTab() {
   if (!data.processFlow) return;
   const product = selected || data.products[0];
@@ -2775,8 +2815,7 @@ function renderProcessTab() {
   renderProcessCards(fob);
 }
 function renderProcessTimeline(fob) {
-  const container = document.getElementById('stageTimeline');
-  if (!container) return;
+  const container = document.getElementById('stageTimeline'); if (!container) return;
   container.innerHTML = '';
   const stages = data.processFlow.stages;
   let cumulative = 0;
@@ -2786,22 +2825,17 @@ function renderProcessTimeline(fob) {
     const shortLocation = stage.location.split('—').pop().trim().split('·')[0].trim();
     const tile = document.createElement('div');
     tile.className = 'stage-tile';
-    tile.innerHTML = `
-      <span class="tile-order">${stage.order}</span>
-      <div class="tile-icon">${stage.icon}</div>
-      <div class="tile-name">${stage.name}</div>
-      <div class="tile-cost">${fmt(cost)}</div>
+    tile.innerHTML = `<span class="tile-order">${stage.order}</span><div class="tile-icon">${stage.icon}</div>
+      <div class="tile-name">${stage.name}</div><div class="tile-cost">${fmt(cost)}</div>
       <div class="tile-pct">${stage.costSharePct.toFixed(1)}% of FOB</div>
       <div class="tile-cumulative">cumulative: ${fmt(cumulative)}</div>
       <div class="tile-location">📍 ${shortLocation}</div>
-      ${i < stages.length - 1 ? '<div class="arrow">→</div>' : ''}
-    `;
+      ${i < stages.length - 1 ? '<div class="arrow">→</div>' : ''}`;
     container.appendChild(tile);
   });
 }
 function renderProcessCards(fob) {
-  const container = document.getElementById('stageCards');
-  if (!container) return;
+  const container = document.getElementById('stageCards'); if (!container) return;
   container.innerHTML = '';
   const stages = data.processFlow.stages;
   stages.forEach(stage => {
@@ -2809,51 +2843,31 @@ function renderProcessCards(fob) {
     const card = document.createElement('div');
     card.className = 'stage-card';
     card.onclick = () => card.classList.toggle('expanded');
-    card.innerHTML = `
-      <div class="card-top">
-        <span class="card-icon">${stage.icon}</span>
-        <div>
-          <div class="card-order">Stage ${stage.order} of ${stages.length}</div>
-          <div class="card-name">${stage.name}</div>
-        </div>
-      </div>
+    card.innerHTML = `<div class="card-top"><span class="card-icon">${stage.icon}</span><div>
+      <div class="card-order">Stage ${stage.order} of ${stages.length}</div>
+      <div class="card-name">${stage.name}</div></div></div>
       <div class="card-cost-line"><span class="lbl">Cost</span><span class="val">${fmt(cost)}</span></div>
       <div class="card-cost-line"><span class="lbl">% of FOB</span><span class="val">${stage.costSharePct.toFixed(1)}%</span></div>
       <div class="card-cost-line"><span class="lbl">Lead time</span><span class="val">${stage.leadTimeDays || '—'}</span></div>
       <div class="card-cost-line"><span class="lbl">Location</span><span class="val" style="font-family:inherit;font-weight:600;font-size:12px;">${stage.location}</span></div>
       <div class="card-details">
-        <div class="detail-section">
-          <div class="detail-label">Process</div>
-          <div class="detail-text">${stage.process}</div>
-        </div>
-        <div class="detail-section">
-          <div class="detail-label">Key Cost Drivers</div>
-          <div class="driver-list">${stage.drivers.map(d => `<span class="driver-pill">${d}</span>`).join('')}</div>
-        </div>
-        <div class="detail-section">
-          <div class="detail-label">Inputs</div>
-          <div class="input-list">${stage.inputs.map(inp => `<span class="input-pill">${inp}</span>`).join('')}</div>
-        </div>
-        <div class="detail-section">
-          <div class="detail-label">Outputs</div>
-          <div class="output-list">${stage.outputs.map(out => `<span class="output-pill">${out}</span>`).join('')}</div>
-        </div>
-      </div>
-    `;
+        <div class="detail-section"><div class="detail-label">Process</div><div class="detail-text">${stage.process}</div></div>
+        <div class="detail-section"><div class="detail-label">Key Cost Drivers</div><div class="driver-list">${stage.drivers.map(d => `<span class="driver-pill">${d}</span>`).join('')}</div></div>
+        <div class="detail-section"><div class="detail-label">Inputs</div><div class="input-list">${stage.inputs.map(inp => `<span class="input-pill">${inp}</span>`).join('')}</div></div>
+        <div class="detail-section"><div class="detail-label">Outputs</div><div class="output-list">${stage.outputs.map(out => `<span class="output-pill">${out}</span>`).join('')}</div></div>
+      </div>`;
     container.appendChild(card);
   });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', load);
-} else {
-  load();
-}
+/* ============================================================
+   BOOT
+   ============================================================ */
 
-window.addEventListener('hashchange', () => {
-  if (!data) return;
-  applyUrlState(readUrl());
-});
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
+else load();
+
+window.addEventListener('hashchange', () => { if (!data) return; applyUrlState(readUrl()); });
 </script>
 <script src="dtc.js"></script>
 </body>
