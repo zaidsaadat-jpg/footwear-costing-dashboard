@@ -261,6 +261,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .sc-summary { background: #f8fafc; padding: 14px; border-radius: 8px; margin-bottom: 15px; font-size: 12.5px; color: #444; line-height: 1.7; }
 .sc-summary code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-family: ui-monospace, monospace; }
 .sc-summary .sc-tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; background: #e5e7eb; color: #333; margin: 0 4px; }
+.sc-error { background: #fee2e2; border-left: 4px solid #c62828; padding: 14px; border-radius: 6px; color: #991b1b; font-size: 13px; }
 
 /* ---- Accessibility: visible keyboard focus ---- */
 :focus-visible { outline: 2px solid #4a148c; outline-offset: 2px; border-radius: 4px; }
@@ -386,8 +387,8 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     <div class="sc-compare">
       <h3>Compare two scenarios</h3>
       <div class="sc-compare-controls">
-        <label>Left: <select id="scCompareA" onchange="renderScenarioCompare()"></select></label>
-        <label>Right: <select id="scCompareB" onchange="renderScenarioCompare()"></select></label>
+        <label>Left: <select id="scCompareA"></select></label>
+        <label>Right: <select id="scCompareB"></select></label>
       </div>
       <div id="scCompareResults"></div>
     </div>
@@ -636,8 +637,8 @@ let compCharts = {};
 let retailChart = null;
 window._fcCharts = [];
 
-const fmt = n => '€' + (isFinite(n) ? n.toFixed(2) : '0.00');
-const pct = n => (isFinite(n) ? n.toFixed(1) : '0.0') + '%';
+const fmt = n => '€' + (isFinite(n) && n != null ? Number(n).toFixed(2) : '0.00');
+const pct = n => (isFinite(n) && n != null ? Number(n).toFixed(1) : '0.0') + '%';
 
 function safeRender(name, fn) {
   try { fn(); } catch (err) { console.error('[Render error in ' + name + ']:', err); }
@@ -682,13 +683,11 @@ function applyUrlState(u) {
   if (!data || !u) return;
   let changed = false;
 
-  // 1. Scenario overlay
   if (u.s) {
     const snap = decodeScenarioFromUrl(u.s);
     if (snap && applyScenarioSnapshot(snap)) changed = true;
   }
 
-  // 2. Individual overrides
   if (u.loc) {
     const loc = data.assumptions.locations.find(l => l.id === u.loc);
     if (loc) {
@@ -703,7 +702,6 @@ function applyUrlState(u) {
     changed = true;
   }
 
-  // 3. Product selection
   if (u.product) {
     const p = data.products.find(pp => pp.id === u.product);
     if (p) {
@@ -721,7 +719,6 @@ function applyUrlState(u) {
     changed = true;
   }
 
-  // 4. Refresh
   if (changed) {
     safeRender('cards', renderCards);
     if (selected) safeRender('drilldown', renderDrilldown);
@@ -732,7 +729,6 @@ function applyUrlState(u) {
     if (typeof renderDtcTab === 'function') safeRender('dtc', renderDtcTab);
   }
 
-  // 5. Tab
   if (u.tab) {
     const btn = [...document.querySelectorAll('.tab')].find(b => {
       const oc = b.getAttribute('onclick') || '';
@@ -744,7 +740,6 @@ function applyUrlState(u) {
     }
   }
 
-  // 6. Scroll
   if (u.product && selected) {
     setTimeout(() => {
       const drill = document.getElementById('drill');
@@ -760,9 +755,30 @@ function applyUrlState(u) {
    SCENARIO STORAGE
    ============================================================ */
 
+function isValidScenario(s) {
+  return s && typeof s === 'object'
+      && typeof s.id === 'string' && s.id.length > 0
+      && s.assumptions && typeof s.assumptions === 'object'
+      && Array.isArray(s.assumptions.locations)
+      && s.assumptions.locations.length > 0
+      && s.assumptions.materialPrices
+      && s.assumptions.machineAssumptions
+      && s.assumptions.supplierTiers;
+}
+
 function getSavedScenarios() {
-  try { return JSON.parse(localStorage.getItem(SCENARIOS_KEY) || '[]'); }
-  catch(e) { return []; }
+  try {
+    const raw = JSON.parse(localStorage.getItem(SCENARIOS_KEY) || '[]');
+    if (!Array.isArray(raw)) return [];
+    const valid = raw.filter(isValidScenario);
+    if (valid.length !== raw.length) {
+      console.warn('Dropped ' + (raw.length - valid.length) + ' malformed scenario(s) from localStorage');
+    }
+    return valid;
+  } catch(e) {
+    console.warn('Could not parse saved scenarios:', e);
+    return [];
+  }
 }
 function persistScenarios(list) {
   try { localStorage.setItem(SCENARIOS_KEY, JSON.stringify(list)); }
@@ -792,20 +808,36 @@ function snapshotState(name) {
   };
 }
 
+/* Computes FOBs for a scenario using ITS OWN assumptions, not the live ones.
+   Temporarily swaps `data.assumptions` so shared helpers resolve against the
+   snapshot, then restores in a finally block. */
 function computeScenarioFobs(snap) {
-  const savedTier = currentTier, savedLoc = currentLocation;
-  currentTier = snap.tier || 'tier2';
-  const loc = snap.assumptions.locations.find(l => l.id === snap.locationId)
-              || snap.assumptions.locations[0];
-  const mats = snap.assumptions.materialPrices;
-  const result = {};
-  for (const p of data.products) {
-    const c = calc(p, loc, mats);
-    result[p.id] = { fob: c.fob, mat: c.mat, lab: c.lab, ovh: c.ovh, margin: c.margin };
+  const savedAssumptions = data.assumptions;
+  const savedTier = currentTier;
+  const savedLocation = currentLocation;
+  try {
+    data.assumptions = snap.assumptions;
+    currentTier = snap.tier || 'tier2';
+    const loc = snap.assumptions.locations.find(l => l.id === snap.locationId)
+                || snap.assumptions.locations[0];
+    currentLocation = loc;
+    const mats = snap.assumptions.materialPrices;
+    const result = {};
+    for (const p of data.products) {
+      try {
+        const c = calc(p, loc, mats);
+        result[p.id] = { fob: c.fob, mat: c.mat, lab: c.lab, ovh: c.ovh, margin: c.margin };
+      } catch (innerErr) {
+        console.error('calc failed for product', p.id, 'in scenario', snap.name, innerErr);
+        result[p.id] = { fob: 0, mat: 0, lab: 0, ovh: 0, margin: 0, error: innerErr.message };
+      }
+    }
+    return result;
+  } finally {
+    data.assumptions = savedAssumptions;
+    currentTier = savedTier;
+    currentLocation = savedLocation;
   }
-  currentTier = savedTier;
-  currentLocation = savedLoc;
-  return result;
 }
 
 function saveScenario(name) {
@@ -971,7 +1003,7 @@ function promptSaveScenario() {
   renderScenariosTab();
   const tabBtn = [...document.querySelectorAll('.tab')].find(b => /showTab\('scenarios'/.test(b.getAttribute('onclick') || ''));
   if (tabBtn) showTab('scenarios', tabBtn);
-  console.log('Saved scenario:', snap.id);
+  console.log('Saved scenario:', snap.id, snap.name);
 }
 
 function promptResetScenarioToDefaults() {
@@ -1024,6 +1056,7 @@ function renderScenariosTab() {
   const wrap = document.getElementById('scListWrap');
   if (!wrap) return;
   const list = getSavedScenarios();
+  console.log('[Scenarios tab] rendering', list.length, 'saved scenario(s)');
 
   if (list.length === 0) {
     wrap.innerHTML = '<div class="sc-empty">No scenarios saved yet. Click <strong>💾 Save current as scenario</strong> above to create your first one.</div>';
@@ -1033,10 +1066,10 @@ function renderScenariosTab() {
           + '</tr></thead><tbody>';
     for (const s of list) {
       const date = new Date(s.createdAt).toLocaleString();
-      const prod = s.productId ? (data.products.find(p => p.id === s.productId)?.name || s.productId) : '—';
+      const prod = s.productId ? ((data.products.find(p => p.id === s.productId) || {}).name || s.productId) : '—';
       const loc = s.assumptions.locations.find(l => l.id === s.locationId);
-      const locName = loc ? loc.name : s.locationId || '—';
-      const tierName = (s.assumptions.supplierTiers[s.tier] || {}).name || s.tier;
+      const locName = loc ? loc.name : (s.locationId || '—');
+      const tierName = (s.assumptions.supplierTiers[s.tier] || {}).name || s.tier || '—';
       h += '<tr>'
         + '<td class="sc-name">' + escapeHtml(s.name) + '</td>'
         + '<td class="sc-meta">' + date + '</td>'
@@ -1053,21 +1086,32 @@ function renderScenariosTab() {
     wrap.innerHTML = h;
   }
 
-  // Populate compare dropdowns
+  populateCompareDropdowns(list);
+  renderScenarioCompare();
+}
+
+function populateCompareDropdowns(list) {
   const selA = document.getElementById('scCompareA');
   const selB = document.getElementById('scCompareB');
-  if (selA && selB) {
-    const prevA = selA.value, prevB = selB.value;
-    const opts = list.map(s => '<option value="' + s.id + '">' + escapeHtml(s.name) + '</option>').join('');
-    selA.innerHTML = '<option value="">— pick a scenario —</option>' + opts;
-    selB.innerHTML = '<option value="">— pick a scenario —</option>' + opts;
-    if (list.find(s => s.id === prevA)) selA.value = prevA;
-    if (list.find(s => s.id === prevB)) selB.value = prevB;
-    // Default: compare last two
-    if (!selA.value && list.length >= 1) selA.value = list[Math.max(0, list.length - 2)].id;
-    if (!selB.value && list.length >= 1) selB.value = list[list.length - 1].id;
+  if (!selA || !selB) return;
+  const prevA = selA.value, prevB = selB.value;
+  const opts = list.map(s => '<option value="' + s.id + '">' + escapeHtml(s.name) + '</option>').join('');
+  selA.innerHTML = '<option value="">— pick a scenario —</option>' + opts;
+  selB.innerHTML = '<option value="">— pick a scenario —</option>' + opts;
+  if (list.find(s => s.id === prevA)) selA.value = prevA;
+  if (list.find(s => s.id === prevB)) selB.value = prevB;
+  // Sensible defaults: compare the two most recent scenarios
+  if (list.length >= 1 && !selA.value) selA.value = list[Math.max(0, list.length - 2)].id;
+  if (list.length >= 1 && !selB.value) selB.value = list[list.length - 1].id;
+
+  // Re-bind listeners (innerHTML wipes them)
+  if (selA.dataset.wired !== '1') {
+    selA.addEventListener('change', renderScenarioCompare);
+    selB.addEventListener('change', renderScenarioCompare);
+    selA.dataset.wired = '1';
+    selB.dataset.wired = '1';
   }
-  renderScenarioCompare();
+  console.log('[Compare dropdowns] A =', selA.value, ' B =', selB.value);
 }
 
 function escapeHtml(s) {
@@ -1079,92 +1123,118 @@ function escapeHtml(s) {
 function renderScenarioCompare() {
   const out = document.getElementById('scCompareResults');
   if (!out) return;
-  const selA = document.getElementById('scCompareA');
-  const selB = document.getElementById('scCompareB');
-  if (!selA || !selB || !selA.value || !selB.value) {
-    out.innerHTML = '<p style="color:#888; font-size:13px;">Pick two scenarios above to compare them.</p>';
-    return;
-  }
-  const list = getSavedScenarios();
-  const a = list.find(s => s.id === selA.value);
-  const b = list.find(s => s.id === selB.value);
-  if (!a || !b) {
-    out.innerHTML = '<p style="color:#888; font-size:13px;">Scenario not found.</p>';
-    return;
-  }
-  const fobsA = computeScenarioFobs(a);
-  const fobsB = computeScenarioFobs(b);
+  try {
+    const selA = document.getElementById('scCompareA');
+    const selB = document.getElementById('scCompareB');
+    if (!selA || !selB) {
+      out.innerHTML = '<div class="sc-error">Compare dropdowns missing from DOM.</div>';
+      return;
+    }
+    const idA = selA.value, idB = selB.value;
+    console.log('[renderScenarioCompare] idA =', idA, ' idB =', idB);
+    if (!idA || !idB) {
+      out.innerHTML = '<p style="color:#888; font-size:13px;">Pick two scenarios above to compare them.</p>';
+      return;
+    }
+    const list = getSavedScenarios();
+    const a = list.find(s => s.id === idA);
+    const b = list.find(s => s.id === idB);
+    if (!a || !b) {
+      out.innerHTML = '<div class="sc-error">One of the selected scenarios no longer exists. Reload the page and try again.</div>';
+      return;
+    }
 
-  const locA = a.assumptions.locations.find(l => l.id === a.locationId);
-  const locB = b.assumptions.locations.find(l => l.id === b.locationId);
+    let fobsA, fobsB;
+    try {
+      fobsA = computeScenarioFobs(a);
+    } catch (err) {
+      console.error('computeScenarioFobs failed for A:', err);
+      out.innerHTML = '<div class="sc-error">Failed to compute scenario A "' + escapeHtml(a.name) + '": ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
+      return;
+    }
+    try {
+      fobsB = computeScenarioFobs(b);
+    } catch (err) {
+      console.error('computeScenarioFobs failed for B:', err);
+      out.innerHTML = '<div class="sc-error">Failed to compute scenario B "' + escapeHtml(b.name) + '": ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
+      return;
+    }
+    console.log('[renderScenarioCompare] fobsA =', fobsA);
+    console.log('[renderScenarioCompare] fobsB =', fobsB);
 
-  let h = '<div class="sc-summary">'
-        + '<strong>A:</strong> ' + escapeHtml(a.name)
-        + ' <span class="sc-tag">' + escapeHtml(locA ? locA.name : a.locationId || '—') + '</span>'
-        + ' <span class="sc-tag">' + escapeHtml((a.assumptions.supplierTiers[a.tier] || {}).name || a.tier) + '</span>'
-        + '<br>'
-        + '<strong>B:</strong> ' + escapeHtml(b.name)
-        + ' <span class="sc-tag">' + escapeHtml(locB ? locB.name : b.locationId || '—') + '</span>'
-        + ' <span class="sc-tag">' + escapeHtml((b.assumptions.supplierTiers[b.tier] || {}).name || b.tier) + '</span>'
+    const locA = a.assumptions.locations.find(l => l.id === a.locationId);
+    const locB = b.assumptions.locations.find(l => l.id === b.locationId);
+
+    let h = '<div class="sc-summary">'
+          + '<strong>A:</strong> ' + escapeHtml(a.name)
+          + ' <span class="sc-tag">' + escapeHtml(locA ? locA.name : (a.locationId || '—')) + '</span>'
+          + ' <span class="sc-tag">' + escapeHtml((a.assumptions.supplierTiers[a.tier] || {}).name || a.tier || '—') + '</span>'
+          + '<br>'
+          + '<strong>B:</strong> ' + escapeHtml(b.name)
+          + ' <span class="sc-tag">' + escapeHtml(locB ? locB.name : (b.locationId || '—')) + '</span>'
+          + ' <span class="sc-tag">' + escapeHtml((b.assumptions.supplierTiers[b.tier] || {}).name || b.tier || '—') + '</span>'
+          + '</div>';
+
+    h += '<table class="sc-compare-table"><thead><tr>'
+       + '<th>Product</th>'
+       + '<th class="num">A · FOB</th>'
+       + '<th class="num">B · FOB</th>'
+       + '<th class="num">Δ FOB</th>'
+       + '<th class="num">Δ %</th>'
+       + '<th>Lower cost</th>'
+       + '</tr></thead><tbody>';
+
+    let totalA = 0, totalB = 0;
+    for (const p of data.products) {
+      const fa = (fobsA[p.id] && fobsA[p.id].fob) || 0;
+      const fb = (fobsB[p.id] && fobsB[p.id].fob) || 0;
+      const d = fb - fa;
+      const pctv = fa ? (d / fa) * 100 : 0;
+      totalA += fa; totalB += fb;
+      const dCls = Math.abs(d) < 0.005 ? 'sc-delta-zero' : (d > 0 ? 'sc-delta-up' : 'sc-delta-down');
+      const sign = d > 0 ? '+' : '';
+      const lower = Math.abs(d) < 0.005 ? '—' : (d < 0 ? 'B' : 'A');
+      h += '<tr>'
+        + '<td>' + escapeHtml(p.name) + '</td>'
+        + '<td class="num">' + fmt(fa) + '</td>'
+        + '<td class="num">' + fmt(fb) + '</td>'
+        + '<td class="num ' + dCls + '">' + sign + fmt(Math.abs(d)) + '</td>'
+        + '<td class="num ' + dCls + '">' + sign + pctv.toFixed(1) + '%</td>'
+        + '<td>' + lower + '</td>'
+        + '</tr>';
+    }
+
+    const dTot = totalB - totalA;
+    const dTotPct = totalA ? (dTot / totalA) * 100 : 0;
+    const totCls = Math.abs(dTot) < 0.005 ? 'sc-delta-zero' : (dTot > 0 ? 'sc-delta-up' : 'sc-delta-down');
+    const totSign = dTot > 0 ? '+' : '';
+    h += '<tr style="border-top:2px solid #111;">'
+       + '<td><strong>Portfolio total</strong></td>'
+       + '<td class="num"><strong>' + fmt(totalA) + '</strong></td>'
+       + '<td class="num"><strong>' + fmt(totalB) + '</strong></td>'
+       + '<td class="num ' + totCls + '"><strong>' + totSign + fmt(Math.abs(dTot)) + '</strong></td>'
+       + '<td class="num ' + totCls + '"><strong>' + totSign + dTotPct.toFixed(1) + '%</strong></td>'
+       + '<td>—</td>'
+       + '</tr>';
+    h += '</tbody></table>';
+
+    const aDiff = diffObject(a.assumptions, b.assumptions);
+    const changedKeys = countLeaves(aDiff);
+    if (changedKeys > 0) {
+      h += '<div class="sc-summary" style="margin-top:18px;">'
+        + '<strong>Assumption differences:</strong> ' + changedKeys + ' field' + (changedKeys === 1 ? '' : 's') + ' differ between A and B. '
+        + 'Notable: ' + describeAssumptionDiff(a.assumptions, b.assumptions)
         + '</div>';
+    } else {
+      h += '<div class="sc-summary" style="margin-top:18px;">Assumptions are identical between A and B — the difference comes from tier, location, MOQ, or forecast overrides.</div>';
+    }
 
-  h += '<table class="sc-compare-table"><thead><tr>'
-     + '<th>Product</th>'
-     + '<th class="num">A · FOB</th>'
-     + '<th class="num">B · FOB</th>'
-     + '<th class="num">Δ FOB</th>'
-     + '<th class="num">Δ %</th>'
-     + '<th>Lower cost</th>'
-     + '</tr></thead><tbody>';
-
-  let totalA = 0, totalB = 0;
-  for (const p of data.products) {
-    const fa = fobsA[p.id]?.fob || 0;
-    const fb = fobsB[p.id]?.fob || 0;
-    const d = fb - fa;
-    const pctv = fa ? (d / fa) * 100 : 0;
-    totalA += fa; totalB += fb;
-    const dCls = Math.abs(d) < 0.005 ? 'sc-delta-zero' : (d > 0 ? 'sc-delta-up' : 'sc-delta-down');
-    const sign = d > 0 ? '+' : '';
-    const lower = Math.abs(d) < 0.005 ? '—' : (d < 0 ? 'B' : 'A');
-    h += '<tr>'
-      + '<td>' + escapeHtml(p.name) + '</td>'
-      + '<td class="num">' + fmt(fa) + '</td>'
-      + '<td class="num">' + fmt(fb) + '</td>'
-      + '<td class="num ' + dCls + '">' + sign + fmt(Math.abs(d)).replace('€','€') + '</td>'
-      + '<td class="num ' + dCls + '">' + sign + pctv.toFixed(1) + '%</td>'
-      + '<td>' + lower + '</td>'
-      + '</tr>';
+    out.innerHTML = h;
+    console.log('[renderScenarioCompare] rendered OK');
+  } catch (err) {
+    console.error('renderScenarioCompare crashed:', err);
+    out.innerHTML = '<div class="sc-error">Could not render comparison: ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
   }
-  // Total
-  const dTot = totalB - totalA;
-  const dTotPct = totalA ? (dTot / totalA) * 100 : 0;
-  const totCls = Math.abs(dTot) < 0.005 ? 'sc-delta-zero' : (dTot > 0 ? 'sc-delta-up' : 'sc-delta-down');
-  const totSign = dTot > 0 ? '+' : '';
-  h += '<tr style="border-top:2px solid #111;">'
-     + '<td><strong>Portfolio total</strong></td>'
-     + '<td class="num"><strong>' + fmt(totalA) + '</strong></td>'
-     + '<td class="num"><strong>' + fmt(totalB) + '</strong></td>'
-     + '<td class="num ' + totCls + '"><strong>' + totSign + fmt(Math.abs(dTot)) + '</strong></td>'
-     + '<td class="num ' + totCls + '"><strong>' + totSign + dTotPct.toFixed(1) + '%</strong></td>'
-     + '<td>—</td>'
-     + '</tr>';
-  h += '</tbody></table>';
-
-  // Assumption diff summary
-  const aDiff = diffObject(a.assumptions, b.assumptions);
-  const changedKeys = countLeaves(aDiff);
-  if (changedKeys > 0) {
-    h += '<div class="sc-summary" style="margin-top:18px;">'
-      + '<strong>Assumption differences:</strong> ' + changedKeys + ' field' + (changedKeys === 1 ? '' : 's') + ' differ between A and B. '
-      + 'Notable: '
-      + describeAssumptionDiff(a.assumptions, b.assumptions)
-      + '</div>';
-  } else {
-    h += '<div class="sc-summary" style="margin-top:18px;">Assumptions are identical between A and B — the difference comes from tier, location, MOQ, or forecast overrides.</div>';
-  }
-
-  out.innerHTML = h;
 }
 
 function countLeaves(obj) {
@@ -1179,7 +1249,6 @@ function countLeaves(obj) {
 
 function describeAssumptionDiff(a, b) {
   const parts = [];
-  // Locations
   const locsA = a.locations || [], locsB = b.locations || [];
   for (const la of locsA) {
     const lb = locsB.find(x => x.id === la.id);
@@ -1188,12 +1257,11 @@ function describeAssumptionDiff(a, b) {
     const diffs = keys.filter(k => Math.abs((la[k] || 0) - (lb[k] || 0)) > 0.001);
     if (diffs.length) parts.push(la.name + ' (' + diffs.length + ' rate' + (diffs.length === 1 ? '' : 's') + ')');
   }
-  // Materials
   let matDiffs = 0;
   for (const [k, vA] of Object.entries(a.materialPrices || {})) {
     const vB = (b.materialPrices || {})[k];
-    const pA = typeof vA === 'object' ? vA.price : vA;
-    const pB = typeof vB === 'object' ? vB.price : vB;
+    const pA = (vA && typeof vA === 'object') ? vA.price : vA;
+    const pB = (vB && typeof vB === 'object') ? vB.price : vB;
     if (Math.abs((pA || 0) - (pB || 0)) > 0.001) matDiffs++;
   }
   if (matDiffs) parts.push(matDiffs + ' material price' + (matDiffs === 1 ? '' : 's'));
@@ -1328,10 +1396,10 @@ function calc(p, locOverride, matOverride) {
   const findTop = n => tree.children.find(c => c.name === n);
   return {
     tree, fob,
-    mat: findTop('Materials')?.cost || 0,
-    lab: findTop('Labour (CMT)')?.cost || 0,
-    ovh: findTop('Overheads')?.cost || 0,
-    margin: findTop('Factory Margin')?.cost || 0
+    mat: (findTop('Materials') || {}).cost || 0,
+    lab: (findTop('Labour (CMT)') || {}).cost || 0,
+    ovh: (findTop('Overheads') || {}).cost || 0,
+    margin: (findTop('Factory Margin') || {}).cost || 0
   };
 }
 
@@ -2139,7 +2207,6 @@ if (document.readyState === 'loading') {
   load();
 }
 
-// React to external URL changes (manual edits, pasted URLs, bookmarks)
 window.addEventListener('hashchange', () => {
   if (!data) return;
   applyUrlState(readUrl());
