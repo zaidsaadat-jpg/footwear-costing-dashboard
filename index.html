@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Footwear Costing</title>
+<title>Footwear Costing Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -24,7 +24,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
-.card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.08); cursor: pointer; border: 2px solid transparent; }
+.card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.08); cursor: pointer; border: 2px solid transparent; position: relative; }
 .card:hover { border-color: #111; }
 .card h2 { font-size: 17px; margin-bottom: 4px; }
 .card .cat { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; }
@@ -174,6 +174,57 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .waterfall-controls label { font-size: 13px; color: #555; }
 .waterfall-controls select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
 #waterfallChart { height: 360px; }
+
+.card-image-wrap { width: 100%; height: 170px; background: #f8fafc; border-radius: 8px; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; border: 1px solid #f0f0f0; }
+.card-image-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 8px; }
+.card-image-wrap .placeholder { font-size: 56px; color: #cbd5e1; user-select: none; }
+.card-image-wrap .upload-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.95); border: 1px solid #ddd; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; opacity: 0; transition: opacity 0.15s; font-family: inherit; color: #333; }
+.card-image-wrap:hover .upload-btn { opacity: 1; }
+.card-image-wrap .upload-btn:hover { background: #fff; border-color: #111; }
+
+/* PROCESS FLOW TAB */
+.process-header { background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%); color: #fff; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
+.process-header h3 { font-size: 20px; margin-bottom: 10px; }
+.process-header p { font-size: 13px; line-height: 1.6; opacity: 0.9; }
+.process-section { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.process-section h3 { font-size: 16px; color: #1b4332; margin-bottom: 6px; }
+.process-sub { font-size: 12px; color: #888; margin-bottom: 18px; }
+.stage-timeline { display: flex; gap: 0; overflow-x: auto; padding: 10px 4px 20px; }
+.stage-timeline::-webkit-scrollbar { height: 8px; }
+.stage-timeline::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.stage-tile { flex: 0 0 170px; position: relative; padding: 16px 14px; border-radius: 10px; background: #f8fafc; border: 2px solid #e5e7eb; margin-right: 22px; transition: all 0.2s; }
+.stage-tile:hover { border-color: #40916c; transform: translateY(-2px); background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+.stage-tile .tile-icon { font-size: 26px; line-height: 1; }
+.stage-tile .tile-order { position: absolute; top: 10px; right: 12px; font-size: 10px; color: #888; font-weight: 700; background: #fff; padding: 2px 6px; border-radius: 10px; border: 1px solid #e5e7eb; }
+.stage-tile .tile-name { font-size: 13px; font-weight: 700; margin: 8px 0 6px; color: #1b4332; line-height: 1.3; min-height: 34px; }
+.stage-tile .tile-cost { font-size: 17px; font-weight: 800; color: #111; font-family: ui-monospace, monospace; }
+.stage-tile .tile-pct { font-size: 11px; color: #40916c; font-weight: 600; margin-top: 2px; }
+.stage-tile .tile-location { font-size: 10px; color: #888; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb; line-height: 1.4; }
+.stage-tile .tile-cumulative { font-size: 10px; color: #666; margin-top: 4px; font-family: ui-monospace, monospace; }
+.stage-tile .arrow { position: absolute; right: -20px; top: 50%; transform: translateY(-50%); font-size: 22px; color: #40916c; z-index: 2; font-weight: 300; }
+.stage-tile:last-child .arrow { display: none; }
+.stage-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 10px; }
+.stage-card { background: #f8fafc; border-radius: 10px; padding: 18px; border-left: 4px solid #40916c; cursor: pointer; transition: all 0.15s; }
+.stage-card:hover { background: #f0fdf4; }
+.stage-card.expanded { background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.stage-card .card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.stage-card .card-icon { font-size: 30px; line-height: 1; }
+.stage-card .card-name { font-size: 15px; font-weight: 700; color: #1b4332; line-height: 1.3; }
+.stage-card .card-order { font-size: 10px; color: #888; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.stage-card .card-cost-line { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid #e5e7eb; }
+.stage-card .card-cost-line:last-child { border-bottom: none; }
+.stage-card .card-cost-line .lbl { color: #666; }
+.stage-card .card-cost-line .val { font-weight: 700; font-family: ui-monospace, monospace; text-align: right; }
+.stage-card .card-details { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #d1d5db; }
+.stage-card.expanded .card-details { display: block; }
+.stage-card .detail-section { margin-bottom: 14px; }
+.stage-card .detail-section:last-child { margin-bottom: 0; }
+.stage-card .detail-label { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 6px; }
+.stage-card .detail-text { font-size: 12.5px; color: #444; line-height: 1.55; }
+.stage-card .driver-list, .stage-card .input-list, .stage-card .output-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.stage-card .driver-pill { background: #fef3c7; color: #92400e; font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 500; }
+.stage-card .input-pill { background: #dbeafe; color: #1e40af; font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 500; }
+.stage-card .output-pill { background: #d1fae5; color: #065f46; font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -181,7 +232,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 <div class="header">
   <div class="header-top">
     <div>
-      <h1>Footwear Costing</h1>
+      <h1>Footwear Costing Dashboard</h1>
       <div class="sub" id="updated">Loading…</div>
     </div>
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
@@ -205,6 +256,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     <button class="tab" onclick="showTab('forecast', this)">📈 Budgeting & Forecasting</button>
     <button class="tab" onclick="showTab('competitive', this)">🏆 Competitive Intelligence</button>
     <button class="tab" onclick="showTab('e2e', this)">🌐 End-to-End</button>
+    <button class="tab" onclick="showTab('process', this)">🔧 Process Flow</button>
     <button class="tab" onclick="showTab('dtc', this)">🎨 Design-to-Cost</button>
   </div>
 </div>
@@ -333,6 +385,25 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     <div class="comp-section">
       <h3>📊 Retail Price by Destination</h3>
       <div style="height:360px;"><canvas id="retailByMarketChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-process">
+    <div class="process-header">
+      <h3 id="processTitle">🔧 End-to-End Manufacturing Process Flow</h3>
+      <p>How a shoe is made — from raw materials to factory gate. Each stage shows cost, location, key drivers, and the physical manufacturing process. Click any card below to expand the full detail and understand where cost accumulates.</p>
+    </div>
+
+    <div class="process-section">
+      <h3>Process timeline</h3>
+      <p class="process-sub">The physical journey of a shoe, from raw material to ready-to-ship package. Costs scale with the currently-selected product's FOB.</p>
+      <div class="stage-timeline" id="stageTimeline"></div>
+    </div>
+
+    <div class="process-section">
+      <h3>Stage detail cards</h3>
+      <p class="process-sub">Click any card to expand and see the process steps, cost drivers, inputs and outputs. This is where the optimization conversation begins.</p>
+      <div class="stage-cards" id="stageCards"></div>
     </div>
   </div>
 
@@ -469,9 +540,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 <div class="footer">Estimates based on industry benchmarks and published disclosures. Not actual brand supplier data.</div>
 
 <script>
-// ============================================================
-// GLOBAL STATE
-// ============================================================
 const STORAGE_KEY = 'footwear_cost_assumptions_v1';
 const FC_STORAGE = 'footwear_cost_forecast_overrides_v1';
 let data = null, originalAssumptions = null;
@@ -535,6 +603,7 @@ async function load() {
   safeRender('forecast', renderForecastTab);
   safeRender('competitive', renderCompetitiveTab);
   safeRender('e2e', renderE2ETab);
+  safeRender('process', renderProcessTab);
 }
 
 function showTab(name, btn) {
@@ -546,12 +615,10 @@ function showTab(name, btn) {
   if (name === 'forecast') safeRender('forecast', renderForecastTab);
   if (name === 'competitive') safeRender('competitive', renderCompetitiveTab);
   if (name === 'e2e') safeRender('e2e', renderE2ETab);
+  if (name === 'process' && data.processFlow) safeRender('process', renderProcessTab);
   if (name === 'dtc' && typeof renderDtcTab === 'function') safeRender('dtc', renderDtcTab);
 }
 
-// ============================================================
-// COST ENGINE
-// ============================================================
 function getTierMultipliers() {
   const tier = data.assumptions.supplierTiers[currentTier];
   return tier || { laborMultiplier: 1, machineMultiplier: 1, overheadMultiplier: 1, moqMultiplier: 1, marginPercent: 9 };
@@ -619,9 +686,6 @@ function calc(p, locOverride, matOverride) {
   };
 }
 
-// ============================================================
-// DASHBOARD
-// ============================================================
 function renderCards() {
   const g = document.getElementById('cards'); if (!g) return;
   g.innerHTML = '';
@@ -631,6 +695,14 @@ function renderCards() {
     d.className = 'card';
     d.onclick = () => selectProduct(p.id);
     const tier = data.assumptions.supplierTiers[currentTier];
+    
+    const storedImage = localStorage.getItem('footwear_product_image_' + p.id);
+    const imageUrl = storedImage || p.imageUrl || '';
+    const imageBlock = imageUrl
+      ? `<img src="${imageUrl}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+         <div class="placeholder" style="display:none;">👟</div>`
+      : `<div class="placeholder">👟</div>`;
+    
     let moqLine = '';
     if (p.moq) {
       const moqAdj = p.moq.current * tier.moqMultiplier;
@@ -638,7 +710,13 @@ function renderCards() {
       moqLine = `<div class="row"><span class="lbl">Fixed @ MOQ ${Math.round(moqAdj).toLocaleString()}</span><span class="val">${fmt(fixedPerUnit)}</span></div>
                  <div class="row big"><span>Total Unit Cost</span><span>${fmt(c.fob + fixedPerUnit)}</span></div>`;
     }
+    
     d.innerHTML = `
+      <div class="card-image-wrap" title="Click to change image">
+        ${imageBlock}
+        <button class="upload-btn" onclick="event.stopPropagation(); document.getElementById('img-input-${p.id}').click();">📷 Change</button>
+        <input type="file" id="img-input-${p.id}" accept="image/*" style="display:none" onchange="uploadProductImage('${p.id}', this)">
+      </div>
       <h2>${p.name}</h2>
       <div class="cat">${p.brand || ''} · ${p.category} · ${currentLocation.name}</div>
       <div class="row"><span class="lbl">Materials</span><span class="val">${fmt(c.mat)}</span></div>
@@ -651,6 +729,26 @@ function renderCards() {
     g.appendChild(d);
   });
 }
+
+function uploadProductImage(productId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 800 * 1024) {
+    alert('Image is too large for browser storage. Please use an image under 800 KB.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      localStorage.setItem('footwear_product_image_' + productId, e.target.result);
+      renderCards();
+    } catch (err) {
+      alert('Browser storage is full.');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
 function selectProduct(id) {
   selected = data.products.find(p => p.id === id);
   document.getElementById('drill').classList.add('on');
@@ -789,6 +887,7 @@ function onLocationChange() {
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
   safeRender('forecast', renderForecastTab);
+  safeRender('process', renderProcessTab);
 }
 function onTierChange() {
   currentTier = document.getElementById('tierSelect').value;
@@ -827,9 +926,6 @@ function updateMOQDisplay() {
   });
 }
 
-// ============================================================
-// ASSUMPTIONS
-// ============================================================
 function renderAssumptionEditors() {
   const tabs = document.getElementById('locTabs'); if (!tabs) return;
   tabs.innerHTML = '';
@@ -904,9 +1000,6 @@ function exportAssumptions() {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'footwear_assumptions.json'; a.click();
 }
 
-// ============================================================
-// FORECAST
-// ============================================================
 function getEffectiveForecastRate(driverId, qIdx) {
   if (!data.forecasts) return 0;
   const driver = data.forecasts.drivers.find(d => d.id === driverId);
@@ -1048,9 +1141,6 @@ function renderDriverTable() {
   t.innerHTML = h + '</tbody>';
 }
 
-// ============================================================
-// COMPETITIVE
-// ============================================================
 function renderCompetitiveTab() {
   if (!data.competitors) return;
   const comp = data.competitors;
@@ -1182,9 +1272,6 @@ function renderPriorities(priorities) {
   });
 }
 
-// ============================================================
-// END-TO-END
-// ============================================================
 function renderE2ETab() {
   const e2e = data.endToEnd; if (!e2e) return;
   const srcLegend = document.getElementById('sourceLegend'); if (srcLegend) {
@@ -1301,9 +1388,86 @@ function renderRetailByMarket(e2e) {
   });
 }
 
-// ============================================================
-// BOOT
-// ============================================================
+// PROCESS FLOW
+function renderProcessTab() {
+  if (!data.processFlow) return;
+  const product = selected || data.products[0];
+  const fob = calc(product).fob;
+  const titleEl = document.getElementById('processTitle');
+  if (titleEl) titleEl.textContent = '🔧 ' + product.name + ' — End-to-End Manufacturing Process';
+  renderProcessTimeline(fob);
+  renderProcessCards(fob);
+}
+function renderProcessTimeline(fob) {
+  const container = document.getElementById('stageTimeline');
+  if (!container) return;
+  container.innerHTML = '';
+  const stages = data.processFlow.stages;
+  let cumulative = 0;
+  stages.forEach((stage, i) => {
+    const cost = fob * stage.costSharePct / 100;
+    cumulative += cost;
+    const shortLocation = stage.location.split('—').pop().trim().split('·')[0].trim();
+    const tile = document.createElement('div');
+    tile.className = 'stage-tile';
+    tile.innerHTML = `
+      <span class="tile-order">${stage.order}</span>
+      <div class="tile-icon">${stage.icon}</div>
+      <div class="tile-name">${stage.name}</div>
+      <div class="tile-cost">${fmt(cost)}</div>
+      <div class="tile-pct">${stage.costSharePct.toFixed(1)}% of FOB</div>
+      <div class="tile-cumulative">cumulative: ${fmt(cumulative)}</div>
+      <div class="tile-location">📍 ${shortLocation}</div>
+      ${i < stages.length - 1 ? '<div class="arrow">→</div>' : ''}
+    `;
+    container.appendChild(tile);
+  });
+}
+function renderProcessCards(fob) {
+  const container = document.getElementById('stageCards');
+  if (!container) return;
+  container.innerHTML = '';
+  const stages = data.processFlow.stages;
+  stages.forEach(stage => {
+    const cost = fob * stage.costSharePct / 100;
+    const card = document.createElement('div');
+    card.className = 'stage-card';
+    card.onclick = () => card.classList.toggle('expanded');
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="card-icon">${stage.icon}</span>
+        <div>
+          <div class="card-order">Stage ${stage.order} of ${stages.length}</div>
+          <div class="card-name">${stage.name}</div>
+        </div>
+      </div>
+      <div class="card-cost-line"><span class="lbl">Cost</span><span class="val">${fmt(cost)}</span></div>
+      <div class="card-cost-line"><span class="lbl">% of FOB</span><span class="val">${stage.costSharePct.toFixed(1)}%</span></div>
+      <div class="card-cost-line"><span class="lbl">Lead time</span><span class="val">${stage.leadTimeDays || '—'}</span></div>
+      <div class="card-cost-line"><span class="lbl">Location</span><span class="val" style="font-family:inherit;font-weight:600;font-size:12px;">${stage.location}</span></div>
+      <div class="card-details">
+        <div class="detail-section">
+          <div class="detail-label">Process</div>
+          <div class="detail-text">${stage.process}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Key Cost Drivers</div>
+          <div class="driver-list">${stage.drivers.map(d => `<span class="driver-pill">${d}</span>`).join('')}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Inputs</div>
+          <div class="input-list">${stage.inputs.map(inp => `<span class="input-pill">${inp}</span>`).join('')}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Outputs</div>
+          <div class="output-list">${stage.outputs.map(out => `<span class="output-pill">${out}</span>`).join('')}</div>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', load);
 } else {
