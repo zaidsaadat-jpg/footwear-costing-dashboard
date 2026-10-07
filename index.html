@@ -178,6 +178,19 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .waterfall-controls select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
 #waterfallChart { height: 360px; }
 
+/* TARIFF SIMULATOR */
+.tariff-section { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); border-left: 4px solid #f57c00; }
+.tariff-section h3 { font-size: 16px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tariff-sub { font-size: 12px; color: #888; margin-bottom: 18px; line-height: 1.5; }
+.tariff-row { display: grid; grid-template-columns: minmax(180px, 1fr) 2fr 80px; gap: 14px; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.tariff-row:last-child { border-bottom: none; }
+.tariff-label { font-size: 13px; font-weight: 600; color: #333; }
+.tariff-row input[type="range"] { width: 100%; cursor: pointer; accent-color: #f57c00; }
+.tariff-value { font-size: 13px; font-weight: 700; font-family: ui-monospace, monospace; text-align: right; color: #111; }
+.tariff-changed-dot { color: #f57c00; font-size: 14px; margin-left: 6px; }
+.tariff-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; background: #fff3e0; color: #e65100; font-size: 11px; font-weight: 700; }
+.tariff-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+
 .card-image-wrap { width: 100%; height: 170px; background: #f8fafc; border-radius: 8px; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; border: 1px solid #f0f0f0; }
 .card-image-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 8px; }
 .card-image-wrap .placeholder { font-size: 56px; color: #cbd5e1; user-select: none; }
@@ -437,12 +450,22 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tab-panel" id="tab-e2e">
     <div class="e2e-header">
       <h3>🌐 End-to-End Landed Cost — Factory to Consumer</h3>
-      <p>Full cost journey from source country factory gate through freight, insurance, tariffs, customs, inland distribution, wholesale markup, and retail VAT. Base FOB = PUMA Velocity NITRO 4.</p>
+      <p>Full cost journey from source country factory gate through freight, insurance, tariffs, customs, inland distribution, wholesale markup, and retail VAT. FOB is now computed per source country from its actual labour and machine rates. Drag a tariff slider below to see the matrix, waterfall, and retail prices reflow live.</p>
     </div>
     <h3 style="margin-bottom:12px;">Source Countries</h3>
     <div class="source-legend" id="sourceLegend"></div>
     <h3 style="margin-bottom:12px;">Destination Markets</h3>
     <div class="dest-legend" id="destLegend"></div>
+
+    <div class="tariff-section" id="tariffSection">
+      <h3>Tariff Simulator <span id="tariffDeltaBadge" class="tariff-badge" style="display:none;"></span></h3>
+      <p class="tariff-sub">Drag any slider to override the baseline tariff for that source → destination pair. Every downstream chart updates immediately — no reload needed. Tariffs default to the WTO/regional rates in <code>cost_data.json → tradeRules</code>.</p>
+      <div id="tariffSimBody"></div>
+      <div class="tariff-actions">
+        <button class="btn-secondary" onclick="resetTariffs()">↺ Reset tariffs to defaults</button>
+      </div>
+    </div>
+
     <h3 style="margin-bottom:12px;">Landed Cost Matrix</h3>
     <div class="matrix-wrap">
       <table class="matrix-table" id="matrixTable"></table>
@@ -623,7 +646,7 @@ const FC_STORAGE = 'footwear_cost_forecast_overrides_v1';
 const SCENARIOS_KEY = 'footwear_scenarios_v1';
 const DTC_LS_KEY = 'puma_dtc_scenario_v1';
 
-let data = null, originalAssumptions = null;
+let data = null, originalAssumptions = null, originalTradeRules = null;
 let selected = null, chart = null, moqChart = null;
 let currentLocation = null, currentTier = 'tier2';
 let currentChartType = 'icicle', currentMOQ = null;
@@ -643,6 +666,177 @@ const pct = n => (isFinite(n) && n != null ? Number(n).toFixed(1) : '0.0') + '%'
 
 function safeRender(name, fn) {
   try { fn(); } catch (err) { console.error('[Render error in ' + name + ']:', err); }
+}
+
+/* ============================================================
+   LANDED COST MATRIX — computed from rules
+   ============================================================ */
+
+function getComputedMatrix(e2e) {
+  if (!e2e) return [];
+  // Fallback for older JSON that still ships a hardcoded matrix
+  if (!e2e.tradeRules || !e2e.tradeRules.tariffByPair) {
+    return e2e.matrix || [];
+  }
+  const rules = e2e.tradeRules;
+  const baseProduct = data.products[0];
+  const out = [];
+
+  for (const src of e2e.sourceCountries) {
+    const loc = data.assumptions.locations.find(l => l.id === src.id)
+                || data.assumptions.locations[0];
+    let fob;
+    try {
+      fob = calc(baseProduct, loc, data.assumptions.materialPrices).fob;
+    } catch (e) {
+      console.warn('FOB calc failed for source', src.id, e);
+      fob = 20.93;
+    }
+
+    for (const dest of e2e.destinationMarkets) {
+      const key = src.id + '>' + dest.id;
+      const freightPerUnit = (rules.freightByDest && rules.freightByDest[dest.id] != null)
+                             ? rules.freightByDest[dest.id] : 1.20;
+      const insurancePerUnit = +((fob + freightPerUnit) * ((rules.insuranceRatePct || 0.5) / 100)).toFixed(2);
+      const cif = +(fob + freightPerUnit + insurancePerUnit).toFixed(2);
+      const tariffRatePct = (rules.tariffByPair[key] != null)
+                            ? rules.tariffByPair[key]
+                            : (rules.defaultTariffPct != null ? rules.defaultTariffPct : 12.5);
+      const tariffPerUnit = +(cif * tariffRatePct / 100).toFixed(2);
+      const customsPerUnit = (rules.customsByDest && rules.customsByDest[dest.id] != null)
+                             ? rules.customsByDest[dest.id] : 0.35;
+      const inlandPerUnit = (rules.inlandByDest && rules.inlandByDest[dest.id] != null)
+                            ? rules.inlandByDest[dest.id] : 1.00;
+      const landedCost = +(cif + tariffPerUnit + customsPerUnit + inlandPerUnit).toFixed(2);
+      const wholesaleMarkupPct = rules.wholesaleMarkupPct != null ? rules.wholesaleMarkupPct : 50;
+      const retailPriceBeforeTax = +(landedCost * (1 + wholesaleMarkupPct / 100)).toFixed(2);
+      const vatPerUnit = +(retailPriceBeforeTax * (dest.vatRatePct || 0) / 100).toFixed(2);
+      const finalRetailPrice = +(retailPriceBeforeTax + vatPerUnit).toFixed(2);
+
+      out.push({
+        source: src.id, destination: dest.id,
+        fob: +fob.toFixed(2),
+        freightPerUnit, insurancePerUnit, cif,
+        tariffRatePct, tariffPerUnit, customsPerUnit, inlandPerUnit, landedCost,
+        wholesaleMarkupPct, retailPriceBeforeTax, vatPerUnit, finalRetailPrice
+      });
+    }
+  }
+  return out;
+}
+
+/* ============================================================
+   TARIFF SIMULATOR
+   ============================================================ */
+
+const TARIFF_KEY_PAIRS = [
+  { src: 'vietnam', dst: 'us',           label: '🇻🇳 Vietnam → 🇺🇸 US' },
+  { src: 'china',   dst: 'us',           label: '🇨🇳 China → 🇺🇸 US' },
+  { src: 'vietnam', dst: 'germany',      label: '🇻🇳 Vietnam → 🇩🇪 Germany' },
+  { src: 'vietnam', dst: 'brazil',       label: '🇻🇳 Vietnam → 🇧🇷 Brazil' },
+  { src: 'vietnam', dst: 'mexico',       label: '🇻🇳 Vietnam → 🇲🇽 Mexico' },
+  { src: 'vietnam', dst: 'india_market', label: '🇻🇳 Vietnam → 🇮🇳 India' }
+];
+
+function renderTariffSimulator() {
+  const body = document.getElementById('tariffSimBody');
+  if (!body) return;
+  const e2e = data.endToEnd;
+  if (!e2e || !e2e.tradeRules) {
+    body.innerHTML = '<p style="color:#999; font-size:13px;">No trade rules found in <code>cost_data.json</code>. Add a <code>tradeRules</code> block inside <code>endToEnd</code> to enable the simulator.</p>';
+    return;
+  }
+  const rules = e2e.tradeRules;
+  let h = '';
+  for (const kp of TARIFF_KEY_PAIRS) {
+    const key = kp.src + '>' + kp.dst;
+    const val = (rules.tariffByPair[key] != null) ? rules.tariffByPair[key] : (rules.defaultTariffPct || 12.5);
+    const baseline = (originalTradeRules && originalTradeRules.tariffByPair && originalTradeRules.tariffByPair[key] != null)
+                     ? originalTradeRules.tariffByPair[key]
+                     : (originalTradeRules && originalTradeRules.defaultTariffPct != null ? originalTradeRules.defaultTariffPct : 12.5);
+    const changed = Math.abs(val - baseline) > 0.01;
+    h += '<div class="tariff-row">'
+       +   '<div class="tariff-label">' + kp.label
+       +     (changed ? ' <span class="tariff-changed-dot" title="Changed from baseline">●</span>' : '')
+       +   '</div>'
+       +   '<input type="range" min="0" max="60" step="0.5" value="' + val + '" '
+       +          'data-pair="' + key + '" '
+       +          'aria-label="Tariff rate for ' + kp.label + '" '
+       +          'oninput="onTariffChange(this)">'
+       +   '<div class="tariff-value">' + Number(val).toFixed(1) + '%</div>'
+       + '</div>';
+  }
+  body.innerHTML = h;
+  renderTariffDeltaBadge();
+}
+
+function onTariffChange(input) {
+  const key = input.dataset.pair;
+  const val = parseFloat(input.value);
+  if (!data.endToEnd.tradeRules.tariffByPair) data.endToEnd.tradeRules.tariffByPair = {};
+  data.endToEnd.tradeRules.tariffByPair[key] = val;
+
+  const valueEl = input.parentElement.querySelector('.tariff-value');
+  if (valueEl) valueEl.textContent = val.toFixed(1) + '%';
+
+  // Update the "changed" dot without rebuilding the whole simulator
+  const labelEl = input.parentElement.querySelector('.tariff-label');
+  const baseline = (originalTradeRules && originalTradeRules.tariffByPair && originalTradeRules.tariffByPair[key] != null)
+                   ? originalTradeRules.tariffByPair[key]
+                   : (originalTradeRules && originalTradeRules.defaultTariffPct != null ? originalTradeRules.defaultTariffPct : 12.5);
+  const changed = Math.abs(val - baseline) > 0.01;
+  if (labelEl) {
+    const dot = labelEl.querySelector('.tariff-changed-dot');
+    if (changed && !dot) {
+      const span = document.createElement('span');
+      span.className = 'tariff-changed-dot';
+      span.title = 'Changed from baseline';
+      span.textContent = '●';
+      labelEl.appendChild(span);
+    } else if (!changed && dot) {
+      dot.remove();
+    }
+  }
+
+  // Re-render downstream views
+  const e2e = data.endToEnd;
+  safeRender('matrix', () => renderMatrix(e2e));
+  safeRender('waterfall', renderWaterfall);
+  safeRender('retailChart', () => renderRetailByMarket(e2e));
+  renderTariffDeltaBadge();
+}
+
+function resetTariffs() {
+  if (!originalTradeRules) return;
+  if (!confirm('Reset all tariff rates to their research defaults?')) return;
+  data.endToEnd.tradeRules = JSON.parse(JSON.stringify(originalTradeRules));
+  renderTariffSimulator();
+  const e2e = data.endToEnd;
+  safeRender('matrix', () => renderMatrix(e2e));
+  safeRender('waterfall', renderWaterfall);
+  safeRender('retailChart', () => renderRetailByMarket(e2e));
+}
+
+function renderTariffDeltaBadge() {
+  const el = document.getElementById('tariffDeltaBadge');
+  if (!el) return;
+  if (!data.endToEnd || !data.endToEnd.tradeRules || !originalTradeRules) {
+    el.style.display = 'none';
+    return;
+  }
+  const cur = data.endToEnd.tradeRules.tariffByPair || {};
+  const base = originalTradeRules.tariffByPair || {};
+  let changed = 0;
+  for (const [k, v] of Object.entries(cur)) {
+    const b = base[k];
+    if (b == null || Math.abs(v - b) > 0.01) changed++;
+  }
+  if (changed === 0) {
+    el.style.display = 'none';
+  } else {
+    el.style.display = 'inline-block';
+    el.textContent = '● ' + changed + ' tariff' + (changed === 1 ? '' : 's') + ' modified';
+  }
 }
 
 /* ============================================================
@@ -890,6 +1084,7 @@ function refreshEverything() {
   safeRender('scenarios', renderScenariosTab);
   if (data.processFlow) safeRender('process', renderProcessTab);
   if (typeof renderDtcTab === 'function') safeRender('dtc', renderDtcTab);
+  safeRender('e2e', renderE2ETab);
   syncUrl();
 }
 
@@ -1018,6 +1213,9 @@ function promptResetScenarioToDefaults() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(FC_STORAGE);
   writeDtcState({});
+  if (originalTradeRules && data.endToEnd) {
+    data.endToEnd.tradeRules = JSON.parse(JSON.stringify(originalTradeRules));
+  }
   refreshEverything();
 }
 
@@ -1054,7 +1252,6 @@ function renderScenariosTab() {
   const wrap = document.getElementById('scListWrap');
   if (!wrap) return;
   const list = getSavedScenarios();
-  console.log('[Scenarios tab] rendering', list.length, 'saved scenario(s)');
 
   if (list.length === 0) {
     wrap.innerHTML = '<div class="sc-empty">No scenarios saved yet. Click <strong>💾 Save current as scenario</strong> above to create your first one.</div>';
@@ -1107,7 +1304,6 @@ function populateCompareDropdowns(list) {
     selA.dataset.wired = '1';
     selB.dataset.wired = '1';
   }
-  console.log('[Compare dropdowns] A =', selA.value, ' B =', selB.value);
 }
 
 function escapeHtml(s) {
@@ -1127,7 +1323,6 @@ function renderScenarioCompare() {
       return;
     }
     const idA = selA.value, idB = selB.value;
-    console.log('[renderScenarioCompare] idA =', idA, ' idB =', idB);
     if (!idA || !idB) {
       out.innerHTML = '<p style="color:#888; font-size:13px;">Pick two scenarios above to compare them.</p>';
       return;
@@ -1224,7 +1419,6 @@ function renderScenarioCompare() {
     }
 
     out.innerHTML = h;
-    console.log('[renderScenarioCompare] rendered OK');
   } catch (err) {
     console.error('renderScenarioCompare crashed:', err);
     out.innerHTML = '<div class="sc-error">Could not render comparison: ' + escapeHtml(err && err.message ? err.message : String(err)) + '</div>';
@@ -1279,6 +1473,10 @@ async function load() {
   }
 
   originalAssumptions = JSON.parse(JSON.stringify(data.assumptions));
+  if (data.endToEnd && data.endToEnd.tradeRules) {
+    originalTradeRules = JSON.parse(JSON.stringify(data.endToEnd.tradeRules));
+  }
+
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) { try { data.assumptions = JSON.parse(saved); } catch(e){} }
   const savedFc = localStorage.getItem(FC_STORAGE);
@@ -1601,12 +1799,14 @@ function onLocationChange() {
   if (selected) safeRender('drilldown', renderDrilldown);
   safeRender('forecast', renderForecastTab);
   safeRender('process', renderProcessTab);
+  safeRender('e2e', renderE2ETab);
   syncUrl();
 }
 function onTierChange() {
   currentTier = document.getElementById('tierSelect').value;
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
+  safeRender('e2e', renderE2ETab);
   syncUrl();
 }
 
@@ -1702,6 +1902,7 @@ function updateLocField(locId, key, val) {
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
   safeRender('forecast', renderForecastTab);
+  safeRender('e2e', renderE2ETab);
 }
 function updateMaterial(key, val) {
   if (typeof data.assumptions.materialPrices[key] === 'object') data.assumptions.materialPrices[key].price = parseFloat(val);
@@ -1709,6 +1910,7 @@ function updateMaterial(key, val) {
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
   safeRender('forecast', renderForecastTab);
+  safeRender('e2e', renderE2ETab);
 }
 function updateMachine(key, field, val) { data.assumptions.machineAssumptions[key][field] = parseFloat(val); }
 function saveAssumptions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data.assumptions)); alert('✅ Saved.'); }
@@ -1721,6 +1923,7 @@ function resetAssumptions() {
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
   safeRender('forecast', renderForecastTab);
+  safeRender('e2e', renderE2ETab);
 }
 function exportAssumptions() {
   const blob = new Blob([JSON.stringify(data.assumptions, null, 2)], { type: 'application/json' });
@@ -1774,14 +1977,11 @@ function renderForecastTab() {
   const sub = document.getElementById('forecastSubtitle');
   if (sub) sub.textContent = `Projected cost evolution from ${data.forecasts.quarterLabels[0]} to ${data.forecasts.quarterLabels[data.forecasts.quarterLabels.length-1]}.`;
 
-  // Cancel any pending rAF-driven chart build so multiple rapid calls
-  // (showTab + applyUrlState + onLocationChange) don't pile up.
   if (_forecastRafId) {
     cancelAnimationFrame(_forecastRafId);
     _forecastRafId = null;
   }
 
-  // Destroy every previously-tracked forecast chart instance
   if (window._fcCharts && window._fcCharts.length) {
     window._fcCharts.forEach(c => { try { c.destroy(); } catch(e){} });
   }
@@ -1815,7 +2015,6 @@ function renderForecastTab() {
       const proj = buildProjection(p); if (!proj) return;
       const canvas = document.getElementById('fc-' + p.id);
       if (!canvas) return;
-      // Defensive: if a chart is already bound to this exact canvas, destroy it
       const existing = (typeof Chart.getChart === 'function') ? Chart.getChart(canvas) : null;
       if (existing) { try { existing.destroy(); } catch(e){} }
       try {
@@ -2037,6 +2236,7 @@ function renderE2ETab() {
       destLegend.appendChild(el);
     });
   }
+  safeRender('tariffSim', renderTariffSimulator);
   safeRender('matrix', () => renderMatrix(e2e));
   safeRender('wfSelectors', () => populateWaterfallSelectors(e2e));
   safeRender('waterfall', renderWaterfall);
@@ -2044,7 +2244,12 @@ function renderE2ETab() {
 }
 function renderMatrix(e2e) {
   const t = document.getElementById('matrixTable'); if (!t) return;
-  const sources = e2e.sourceCountries, dests = e2e.destinationMarkets, matrix = e2e.matrix;
+  const sources = e2e.sourceCountries, dests = e2e.destinationMarkets;
+  const matrix = getComputedMatrix(e2e);
+  if (!matrix.length) {
+    t.innerHTML = '<tbody><tr><td colspan="' + (dests.length + 1) + '" style="text-align:center;padding:20px;color:#999;">No matrix data — check <code>tradeRules</code> in cost_data.json.</td></tr></tbody>';
+    return;
+  }
   const allLanded = matrix.map(m => m.landedCost);
   const minC = Math.min(...allLanded), maxC = Math.max(...allLanded);
   let h = '<thead><tr><th class="row-header">Source ↓ / Destination →</th>';
@@ -2055,7 +2260,7 @@ function renderMatrix(e2e) {
     dests.forEach(d => {
       const cell = matrix.find(m => m.source === s.id && m.destination === d.id);
       if (!cell) { h += '<td style="color:#ccc;">—</td>'; return; }
-      const norm = (cell.landedCost - minC) / (maxC - minC);
+      const norm = (cell.landedCost - minC) / (maxC - minC || 1);
       let cls = norm < 0.33 ? 'highlight' : (norm > 0.66 ? 'danger' : 'warn');
       h += `<td class="${cls}">${fmt(cell.landedCost)}</td>`;
     });
@@ -2068,6 +2273,7 @@ function populateWaterfallSelectors(e2e) {
   const srcSel = document.getElementById('wfSource');
   const dstSel = document.getElementById('wfDest');
   if (!srcSel || !dstSel) return;
+  const prevSrc = srcSel.value, prevDst = dstSel.value;
   srcSel.innerHTML = ''; dstSel.innerHTML = '';
   e2e.sourceCountries.forEach(s => {
     const o = document.createElement('option'); o.value = s.id; o.textContent = s.flag + ' ' + s.name; srcSel.appendChild(o);
@@ -2075,14 +2281,15 @@ function populateWaterfallSelectors(e2e) {
   e2e.destinationMarkets.forEach(d => {
     const o = document.createElement('option'); o.value = d.id; o.textContent = d.flag + ' ' + d.name; dstSel.appendChild(o);
   });
-  srcSel.value = 'vietnam';
-  dstSel.value = 'us';
+  srcSel.value = e2e.sourceCountries.find(s => s.id === prevSrc) ? prevSrc : 'vietnam';
+  dstSel.value = e2e.destinationMarkets.find(d => d.id === prevDst) ? prevDst : 'us';
 }
 function renderWaterfall() {
   const e2e = data.endToEnd; if (!e2e) return;
   const srcSel = document.getElementById('wfSource'), dstSel = document.getElementById('wfDest');
   if (!srcSel || !dstSel) return;
-  const cell = e2e.matrix.find(m => m.source === srcSel.value && m.destination === dstSel.value);
+  const matrix = getComputedMatrix(e2e);
+  const cell = matrix.find(m => m.source === srcSel.value && m.destination === dstSel.value);
   if (!cell) { document.getElementById('waterfallChart').innerHTML = '<p style="color:#888;">No data for this pair.</p>'; return; }
   const steps = [
     { label: 'FOB', value: cell.fob, type: 'base' },
@@ -2120,8 +2327,8 @@ function renderRetailByMarket(e2e) {
   const ctx = document.getElementById('retailByMarketChart'); if (!ctx) return;
   if (retailChart) { try { retailChart.destroy(); } catch(e){} }
   const srcSel = document.getElementById('wfSource');
-  const srcId = srcSel ? srcSel.value : 'vietnam';
-  const matrix = e2e.matrix.filter(m => m.source === srcId);
+  const srcId = srcSel && srcSel.value ? srcSel.value : 'vietnam';
+  const matrix = getComputedMatrix(e2e).filter(m => m.source === srcId);
   const labels = matrix.map(m => {
     const d = e2e.destinationMarkets.find(dm => dm.id === m.destination);
     return d ? d.flag + ' ' + d.name : m.destination;
