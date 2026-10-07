@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMA Should-Cost Dashboard v7.5</title>
+<title>Footwear Costing</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <link rel="stylesheet" href="dtc.css">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -111,15 +112,16 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .comp-header { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .comp-header h3 { margin-bottom: 10px; }
 .comp-header p { font-size: 13px; color: #555; line-height: 1.6; }
-.benchmark-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 25px; }
+.benchmark-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 25px; }
 .benchmark-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .benchmark-card h4 { font-size: 14px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
 .benchmark-card .metric-line { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
 .benchmark-card .metric-line .lbl { color: #666; }
 .benchmark-card .metric-line .val { font-weight: 600; }
-.benchmark-card.puma { border-top: 4px solid #111; }
-.benchmark-card.adidas { border-top: 4px solid #2d6a4f; }
-.benchmark-card.nike { border-top: 4px solid #f57c00; }
+.benchmark-card.brand-0 { border-top: 4px solid #111; }
+.benchmark-card.brand-1 { border-top: 4px solid #2d6a4f; }
+.benchmark-card.brand-2 { border-top: 4px solid #f57c00; }
+.benchmark-card.brand-3 { border-top: 4px solid #c62828; }
 .comp-section { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .comp-section h3 { margin-bottom: 15px; }
 .gap-table { width: 100%; border-collapse: collapse; }
@@ -179,7 +181,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 <div class="header">
   <div class="header-top">
     <div>
-      <h1>PUMA Should-Cost Dashboard v7.5</h1>
+      <h1>Footwear Costing</h1>
       <div class="sub" id="updated">Loading…</div>
     </div>
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
@@ -261,7 +263,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tab-panel" id="tab-forecast">
     <div class="forecast-header">
       <h3>📈 18-Month Budgeting & Forecasting</h3>
-      <p id="forecastSubtitle">Projected cost evolution for each product. Driver-level forecasts cited from industry sources.</p>
+      <p id="forecastSubtitle">Projected cost evolution for each product.</p>
     </div>
     <div class="forecast-grid" id="forecastGrid"></div>
     <div class="forecast-card">
@@ -279,8 +281,8 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 
   <div class="tab-panel" id="tab-competitive">
     <div class="comp-header">
-      <h3>🏆 Competitive Intelligence — PUMA vs Adidas vs Nike</h3>
-      <p>FY2025 financial benchmarks and product-level gap analysis.</p>
+      <h3>🏆 Competitive Intelligence</h3>
+      <p>Financial benchmarks and product-level gap analysis vs Adidas, Nike, and Anta.</p>
     </div>
     <div class="benchmark-grid" id="benchmarkGrid"></div>
     <div class="comp-section">
@@ -289,7 +291,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
     </div>
     <div id="productComparisons"></div>
     <div class="comp-section">
-      <h3>📊 Cost Structure — Running Shoe</h3>
+      <h3>📊 Cost Structure Comparison</h3>
       <div class="comp-chart-wrap"><canvas id="costCompareChart"></canvas></div>
     </div>
     <div class="comp-section">
@@ -301,11 +303,11 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tab-panel" id="tab-e2e">
     <div class="e2e-header">
       <h3>🌐 End-to-End Landed Cost — Factory to Consumer</h3>
-      <p>Full cost journey from source country factory gate (FOB) through freight, insurance, tariffs, customs, inland distribution, wholesale markup, and retail VAT.</p>
+      <p>Full cost journey from source country factory gate through freight, insurance, tariffs, customs, inland distribution, wholesale markup, and retail VAT. Base FOB = PUMA Velocity NITRO 4.</p>
     </div>
-    <h3 style="margin-bottom:12px;">Source Countries (PUMA Production Mix)</h3>
+    <h3 style="margin-bottom:12px;">Source Countries</h3>
     <div class="source-legend" id="sourceLegend"></div>
-    <h3 style="margin-bottom:12px;">Destination Markets (Top 10 Estimated)</h3>
+    <h3 style="margin-bottom:12px;">Destination Markets</h3>
     <div class="dest-legend" id="destLegend"></div>
     <h3 style="margin-bottom:12px;">Landed Cost Matrix</h3>
     <div class="matrix-wrap">
@@ -333,7 +335,7 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
   <div class="tab-panel" id="tab-dtc">
     <div class="dtc-header">
       <h3>🎨 Design-to-Cost & Value Engineering</h3>
-      <p>Cross-functional decision workspace for Design, Procurement, Costing, and Engineering. Adjust the levers below to see live cost and value impact. Each lever is tagged with the owner who needs to act.</p>
+      <p>Cross-functional decision workspace for Design, Procurement, Costing, and Engineering. Adjust the levers below to see live cost and value impact.</p>
     </div>
 
     <div class="dtc-layout">
@@ -343,7 +345,6 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
         <div class="dtc-upload-zone" onclick="document.getElementById('dtcImage').click()">
           <div class="icon">📸</div>
           <p><strong>Upload product image</strong> to texture the model</p>
-          <p style="font-size:11px;">For best results, use a flat product photo</p>
           <input type="file" id="dtcImage" accept="image/*" style="display:none">
         </div>
 
@@ -402,6 +403,13 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
             <span class="cad-label">Color:</span>
             <input type="color" id="meshColor" value="#2d6a4f" onchange="setBaseColor(this.value)">
           </div>
+
+          <div class="cad-control-group">
+            <span class="cad-label">Custom model:</span>
+            <button class="cad-chip" onclick="document.getElementById('glbInput').click()">📁 Upload GLB</button>
+            <input type="file" id="glbInput" accept=".glb,.gltf" style="display:none">
+            <button class="cad-chip" onclick="resetToBuiltIn()">↺ Use Built-in</button>
+          </div>
         </div>
 
         <p class="dim-label" id="dimLabel">L × W × H: 260 × 100 × 90 mm</p>
@@ -413,26 +421,11 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
         <div id="leversPanel"></div>
 
         <div class="dtc-impact-panel">
-          <div class="impact-row">
-            <span class="impact-label">Baseline FOB</span>
-            <span class="impact-value" id="dtcBaseFob">—</span>
-          </div>
-          <div class="impact-row">
-            <span class="impact-label">Current FOB (with levers)</span>
-            <span class="impact-value highlight" id="dtcCurrentFob">—</span>
-          </div>
-          <div class="impact-row">
-            <span class="impact-label">Delta vs Baseline</span>
-            <span class="impact-value delta" id="dtcDelta">—</span>
-          </div>
-          <div class="impact-row">
-            <span class="impact-label">Landed Cost @ MOQ</span>
-            <span class="impact-value" id="dtcLanded">—</span>
-          </div>
-          <div class="impact-row">
-            <span class="impact-label">Value Score (brand perception)</span>
-            <span class="impact-value" id="dtcValueScore">—</span>
-          </div>
+          <div class="impact-row"><span class="impact-label">Baseline FOB</span><span class="impact-value" id="dtcBaseFob">—</span></div>
+          <div class="impact-row"><span class="impact-label">Current FOB (with levers)</span><span class="impact-value highlight" id="dtcCurrentFob">—</span></div>
+          <div class="impact-row"><span class="impact-label">Delta vs Baseline</span><span class="impact-value delta" id="dtcDelta">—</span></div>
+          <div class="impact-row"><span class="impact-label">Landed Cost @ MOQ</span><span class="impact-value" id="dtcLanded">—</span></div>
+          <div class="impact-row"><span class="impact-label">Value Score</span><span class="impact-value" id="dtcValueScore">—</span></div>
         </div>
 
         <div class="dtc-actions">
@@ -445,32 +438,30 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 
     <div class="dtc-section">
       <h3>Value Engineering Matrix</h3>
-      <p class="dtc-subtitle">Each option positioned by cost impact (X-axis) and value impact (Y-axis). Green = win-win. Red = cost up + value down.</p>
+      <p class="dtc-subtitle">Cost impact (X-axis) vs Value impact (Y-axis).</p>
       <div class="dtc-matrix-wrap"><canvas id="valueMatrixChart"></canvas></div>
     </div>
 
     <div class="dtc-section">
       <h3>Cross-Functional Action Board</h3>
-      <p class="dtc-subtitle">What each function needs to deliver to realize the current scenario</p>
       <div class="action-grid" id="actionBoard"></div>
     </div>
 
     <div class="dtc-section">
       <h3>Scenario Comparison</h3>
-      <p class="dtc-subtitle">Baseline vs your current lever configuration</p>
       <div class="scenario-compare" id="scenarioCompare"></div>
     </div>
   </div>
 </div>
 
-<div class="footer">Estimates based on industry benchmarks and published disclosures. Not actual PUMA supplier data.</div>
+<div class="footer">Estimates based on industry benchmarks and published disclosures. Not actual brand supplier data.</div>
 
 <script>
 // ============================================================
 // GLOBAL STATE
 // ============================================================
-const STORAGE_KEY = 'puma_should_cost_v4';
-const FC_STORAGE = 'puma_forecast_overrides_v5';
+const STORAGE_KEY = 'footwear_cost_assumptions_v1';
+const FC_STORAGE = 'footwear_cost_forecast_overrides_v1';
 let data = null, originalAssumptions = null;
 let selected = null, chart = null, moqChart = null;
 let currentLocation = null, currentTier = 'tier2';
@@ -494,8 +485,9 @@ function safeRender(name, fn) {
 async function load() {
   try {
     const r = await fetch('cost_data.json');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     data = await r.json();
-    console.log('Data loaded. Keys:', Object.keys(data));
+    console.log('Footwear costing data loaded. Products:', data.products.length);
   } catch (err) {
     console.error('Failed to load cost_data.json:', err);
     document.getElementById('updated').textContent = 'Error loading cost_data.json';
@@ -507,6 +499,12 @@ async function load() {
   if (saved) { try { data.assumptions = JSON.parse(saved); } catch(e){} }
   const savedFc = localStorage.getItem(FC_STORAGE);
   if (savedFc) { try { forecastOverrides = JSON.parse(savedFc); } catch(e){} }
+
+  selected = null;
+  editingLocId = null;
+  colFilters = {};
+  expandedNodes = {};
+  document.getElementById('drill').classList.remove('on');
 
   const sel = document.getElementById('locationSelect');
   sel.innerHTML = '';
@@ -630,7 +628,7 @@ function renderCards() {
     }
     d.innerHTML = `
       <h2>${p.name}</h2>
-      <div class="cat">${p.category} · ${currentLocation.name} · ${tier.name}</div>
+      <div class="cat">${p.brand || ''} · ${p.category} · ${currentLocation.name}</div>
       <div class="row"><span class="lbl">Materials</span><span class="val">${fmt(c.mat)}</span></div>
       <div class="row"><span class="lbl">Labour (CMT)</span><span class="val">${fmt(c.lab)}</span></div>
       <div class="row"><span class="lbl">Overheads</span><span class="val">${fmt(c.ovh)}</span></div>
@@ -645,12 +643,9 @@ function selectProduct(id) {
   selected = data.products.find(p => p.id === id);
   document.getElementById('drill').classList.add('on');
   expandedNodes = {};
-  const rootPath = 'Factory Cost (FOB)';
+  const rootPath = selected.costTree.name;
   expandedNodes[rootPath] = true;
-  expandedNodes[rootPath + '/Materials'] = true;
-  expandedNodes[rootPath + '/Labour (CMT)'] = true;
-  expandedNodes[rootPath + '/Overheads'] = true;
-  expandedNodes[rootPath + '/Factory Margin'] = true;
+  selected.costTree.children.forEach(c => { expandedNodes[rootPath + '/' + c.name] = true; });
   renderDrilldown();
 }
 function renderDrilldown() {
@@ -885,7 +880,8 @@ function saveAssumptions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(da
 function resetAssumptions() {
   if (!confirm('Reset all assumptions?')) return;
   data.assumptions = JSON.parse(JSON.stringify(originalAssumptions));
-  localStorage.removeItem(STORAGE_KEY); editingLocId = data.assumptions.locations[0].id;
+  localStorage.removeItem(STORAGE_KEY);
+  editingLocId = data.assumptions.locations[0].id;
   safeRender('assumptions', renderAssumptionEditors);
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
@@ -893,7 +889,7 @@ function resetAssumptions() {
 }
 function exportAssumptions() {
   const blob = new Blob([JSON.stringify(data.assumptions, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'assumptions_v7.json'; a.click();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'footwear_assumptions.json'; a.click();
 }
 
 // ============================================================
@@ -941,11 +937,10 @@ function buildProjection(product) {
   const delta = baseCost ? ((finalFob - baseCost) / baseCost) * 100 : 0;
   return { baseCost, projections, delta, finalFob };
 }
-
 function renderForecastTab() {
   if (!data.forecasts) return;
   const sub = document.getElementById('forecastSubtitle');
-  if (sub) sub.textContent = `Projected cost evolution for each product from ${data.forecasts.quarterLabels[0]} to ${data.forecasts.quarterLabels[data.forecasts.quarterLabels.length-1]}.`;
+  if (sub) sub.textContent = `Projected cost evolution from ${data.forecasts.quarterLabels[0]} to ${data.forecasts.quarterLabels[data.forecasts.quarterLabels.length-1]}.`;
   if (window._fcCharts && window._fcCharts.length) window._fcCharts.forEach(c => { try { c.destroy(); } catch(e){} });
   window._fcCharts = [];
   const grid = document.getElementById('forecastGrid'); if (!grid) return;
@@ -959,7 +954,7 @@ function renderForecastTab() {
     const deltaSign = deltaPct > 0 ? '+' : '';
     card.innerHTML = `
       <h4>${p.name}</h4>
-      <div class="cat">${p.category} · ${currentLocation.name}</div>
+      <div class="cat">${p.brand || ''} · ${p.category} · ${currentLocation.name}</div>
       <div class="forecast-summary">
         <div class="stat"><div class="lbl">Base FOB</div><div class="val">${fmt(proj.baseCost)}</div></div>
         <div class="stat"><div class="lbl">Projected Q1 2028</div><div class="val">${fmt(proj.finalFob)}</div></div>
@@ -992,7 +987,6 @@ function renderForecastTab() {
   renderScenarioBox();
   renderDriverTable();
 }
-
 function renderScenarioBox() {
   const box = document.getElementById('scenarioBox'); if (!box || !data.forecasts) return;
   box.innerHTML = '';
@@ -1057,17 +1051,18 @@ function renderCompetitiveTab() {
 function renderBenchmarkCards(benchmarks) {
   const grid = document.getElementById('benchmarkGrid'); if (!grid) return;
   grid.innerHTML = '';
-  ['puma','adidas','nike'].forEach(key => {
+  const keys = ['puma', 'adidas', 'nike', 'anta'];
+  keys.forEach((key, idx) => {
     const b = benchmarks[key]; if (!b) return;
     const f = b.fy2025;
     let html = `<h4>${b.name}</h4>`;
-    html += `<div class="metric-line"><span class="lbl">Gross margin</span><span class="val">${f.grossMarginPct.toFixed(1)}%</span></div>`;
-    if (f.footwearGrossMarginPct) html += `<div class="metric-line"><span class="lbl">Footwear gross margin</span><span class="val">${f.footwearGrossMarginPct.toFixed(1)}%</span></div>`;
-    html += `<div class="metric-line"><span class="lbl">Operating margin</span><span class="val">${f.operatingMarginPct.toFixed(1)}%</span></div>`;
+    if (f.grossMarginPct != null) html += `<div class="metric-line"><span class="lbl">Gross margin</span><span class="val">${f.grossMarginPct.toFixed(1)}%</span></div>`;
+    if (f.footwearGrossMarginPct != null) html += `<div class="metric-line"><span class="lbl">Footwear gross margin</span><span class="val">${f.footwearGrossMarginPct.toFixed(1)}%</span></div>`;
+    if (f.operatingMarginPct != null) html += `<div class="metric-line"><span class="lbl">Operating margin</span><span class="val">${f.operatingMarginPct.toFixed(1)}%</span></div>`;
     if (f.netSalesM) html += `<div class="metric-line"><span class="lbl">Net sales</span><span class="val">€${f.netSalesM.toLocaleString()}M</span></div>`;
-    html += `<div class="metric-line"><span class="lbl">Footwear share</span><span class="val">${f.footwearSharePct}%</span></div>`;
+    if (f.footwearSharePct) html += `<div class="metric-line"><span class="lbl">Footwear share</span><span class="val">${f.footwearSharePct}%</span></div>`;
     const card = document.createElement('div');
-    card.className = 'benchmark-card ' + key;
+    card.className = 'benchmark-card brand-' + idx;
     card.innerHTML = html;
     grid.appendChild(card);
   });
@@ -1075,13 +1070,18 @@ function renderBenchmarkCards(benchmarks) {
 function renderSourcingChart(benchmarks) {
   const ctx = document.getElementById('sourcingChart'); if (!ctx) return;
   if (compCharts.sourcing) { try { compCharts.sourcing.destroy(); } catch(e){} }
-  const countries = ['Vietnam', 'China', 'Indonesia', 'Cambodia', 'Bangladesh', 'India'];
-  const colors = { puma: '#111', adidas: '#2d6a4f', nike: '#f57c00' };
+  const countrySet = new Set();
+  Object.values(benchmarks).forEach(b => {
+    Object.keys(b.fy2025.sourcingMixPct || {}).forEach(c => countrySet.add(c));
+  });
+  const countries = [...countrySet].sort();
+  const colors = ['#111', '#2d6a4f', '#f57c00', '#c62828', '#283593'];
   const datasets = [];
-  ['puma', 'adidas', 'nike'].forEach(key => {
-    const b = benchmarks[key]; if (!b) return;
+  let idx = 0;
+  Object.values(benchmarks).forEach(b => {
     const mix = b.fy2025.sourcingMixPct || {};
-    datasets.push({ label: b.name, data: countries.map(c => mix[c] || 0), backgroundColor: colors[key], borderWidth: 0 });
+    datasets.push({ label: b.name, data: countries.map(c => mix[c] || 0), backgroundColor: colors[idx % colors.length], borderWidth: 0 });
+    idx++;
   });
   compCharts.sourcing = new Chart(ctx, {
     type: 'bar',
@@ -1100,7 +1100,7 @@ function renderProductComparisons(comparisons) {
     let h = `<h3>${cmp.category}: ${cmp.puma.name} vs ${cmp.competitor.brand} ${cmp.competitor.name}</h3>`;
     h += `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin: 15px 0;">`;
     h += `<div style="background:#f8fafc; padding:15px; border-radius:8px;">
-      <div style="font-weight:700; margin-bottom:10px;">PUMA</div>
+      <div style="font-weight:700; margin-bottom:10px;">${cmp.puma.name.split(' ')[0]}</div>
       <div class="metric-line"><span>Retail</span><span>${fmt(cmp.puma.retailPrice)}</span></div>
       <div class="metric-line"><span>FOB</span><span>${fmt(cmp.puma.fob)}</span></div>
       <div class="metric-line"><span>FOB / retail</span><span>${cmp.puma.costPctOfRetail}%</span></div>
@@ -1229,14 +1229,15 @@ function populateWaterfallSelectors(e2e) {
   e2e.destinationMarkets.forEach(d => {
     const o = document.createElement('option'); o.value = d.id; o.textContent = d.flag + ' ' + d.name; dstSel.appendChild(o);
   });
-  srcSel.value = 'bangladesh'; dstSel.value = 'us';
+  srcSel.value = 'vietnam';
+  dstSel.value = 'us';
 }
 function renderWaterfall() {
   const e2e = data.endToEnd; if (!e2e) return;
   const srcSel = document.getElementById('wfSource'), dstSel = document.getElementById('wfDest');
   if (!srcSel || !dstSel) return;
   const cell = e2e.matrix.find(m => m.source === srcSel.value && m.destination === dstSel.value);
-  if (!cell) { document.getElementById('waterfallChart').innerHTML = '<p style="color:#888;">No data.</p>'; return; }
+  if (!cell) { document.getElementById('waterfallChart').innerHTML = '<p style="color:#888;">No data for this pair.</p>'; return; }
   const steps = [
     { label: 'FOB', value: cell.fob, type: 'base' },
     { label: 'Freight', value: cell.freightPerUnit, type: 'add' },
@@ -1258,7 +1259,7 @@ function renderWaterfall() {
     type: 'waterfall', orientation: 'v',
     x: labels, y: values,
     measure: steps.map(s => (s.type === 'base' || s.type === 'subtotal' || s.type === 'total') ? 'absolute' : 'relative'),
-    text: values.map(v => '€' + v.toFixed(2)),
+    text: values.map(v => (typeof v === 'number' && isFinite(v) ? '€' + v.toFixed(2) : '')),
     textposition: 'outside',
     marker: { color: colors },
     connector: { line: { color: '#ccc' } }
@@ -1273,7 +1274,7 @@ function renderRetailByMarket(e2e) {
   const ctx = document.getElementById('retailByMarketChart'); if (!ctx) return;
   if (retailChart) { try { retailChart.destroy(); } catch(e){} }
   const srcSel = document.getElementById('wfSource');
-  const srcId = srcSel ? srcSel.value : 'bangladesh';
+  const srcId = srcSel ? srcSel.value : 'vietnam';
   const matrix = e2e.matrix.filter(m => m.source === srcId);
   const labels = matrix.map(m => {
     const d = e2e.destinationMarkets.find(dm => dm.id === m.destination);
