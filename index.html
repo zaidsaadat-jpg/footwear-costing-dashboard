@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#111111">
+<meta name="description" content="Open source-cited should-cost dashboard for footwear: MOQ sensitivity, cost driver trees, landed cost matrices, and 18-month forecasting.">
 <title>Footwear Costing Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
@@ -225,6 +228,32 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
 .stage-card .driver-pill { background: #fef3c7; color: #92400e; font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 500; }
 .stage-card .input-pill { background: #dbeafe; color: #1e40af; font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 500; }
 .stage-card .output-pill { background: #d1fae5; color: #065f46; font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 500; }
+
+/* ---- Accessibility: visible keyboard focus ---- */
+:focus-visible {
+  outline: 2px solid #4a148c;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.card:focus-visible {
+  border-color: #4a148c;
+}
+.tab:focus-visible,
+.chart-btn:focus-visible,
+.lever-opt:focus-visible,
+.loc-tab:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+
+/* ---- Accessibility: respect reduced-motion preference ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -277,7 +306,9 @@ td.lvl.L5 { color: #666; } td.lvl.L6, td.lvl.L7, td.lvl.L8, td.lvl.L9, td.lvl.L1
         <div class="moq-box">
           <div class="moq-controls">
             <label>Order Quantity:</label>
-            <input type="range" id="moqSlider" oninput="onMOQChange()">
+            <input type="range" id="moqSlider" oninput="onMOQChange()"
+                   aria-label="Order quantity in pairs"
+                   aria-orientation="horizontal">
             <div class="moq-value" id="moqValue">—</div>
           </div>
           <div class="moq-metrics">
@@ -699,7 +730,8 @@ function renderCards() {
     const storedImage = localStorage.getItem('footwear_product_image_' + p.id);
     const imageUrl = storedImage || p.imageUrl || '';
     const imageBlock = imageUrl
-      ? `<img src="${imageUrl}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      ? `<img src="${imageUrl}" alt="${p.name}" loading="lazy" decoding="async"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
          <div class="placeholder" style="display:none;">👟</div>`
       : `<div class="placeholder">👟</div>`;
     
@@ -894,7 +926,21 @@ function onTierChange() {
   safeRender('cards', renderCards);
   if (selected) safeRender('drilldown', renderDrilldown);
 }
-function onMOQChange() { currentMOQ = parseInt(document.getElementById('moqSlider').value); updateMOQDisplay(); }
+
+let _moqTimer = null;
+function onMOQChange() {
+  currentMOQ = parseInt(document.getElementById('moqSlider').value);
+  // Update the big number instantly so dragging feels responsive
+  if (selected && selected.moq) {
+    const tier = getTierMultipliers();
+    document.getElementById('moqValue').textContent =
+      Math.round(currentMOQ * tier.moqMultiplier).toLocaleString() + ' ' + selected.moq.unit;
+  }
+  // Debounce the expensive chart redraw
+  clearTimeout(_moqTimer);
+  _moqTimer = setTimeout(updateMOQDisplay, 60);
+}
+
 function updateMOQDisplay() {
   if (!selected || !selected.moq) return;
   const moq = selected.moq;
