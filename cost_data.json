@@ -1,42 +1,45 @@
 {
-  "version": "7.1",
-  "last_updated": "2026-10-04",
+  "version": "8.0",
+  "last_updated": "2026-10-07",
   "currency": "EUR",
-  "notes": "Formula-driven should-cost model with forecasts, competitive benchmarks, and end-to-end landed cost analysis. Not actual PUMA supplier data.",
+  "category": "footwear",
+  "notes": "Footwear costing model — PUMA, Adidas, Nike, Anta comparison. Not actual supplier data.",
 
   "assumptions": {
     "sources": {
       "labour_rates": "Misciano Textile Atlas 2026; ILO footwear study",
-      "cmt_rates": "Garment costing formulas by country, 2026",
-      "machine_rates": "UNIDO footwear costing framework; industry benchmark",
-      "material_prices": "100ppi.com commodity index; ANRPC (rubber); OPIS/Argus (rPET)",
-      "overhead": "ILO footwear study; industry benchmark",
-      "tiers": "FDRA Shoe Supplier Tiers; Sourcify footwear factory tiers"
+      "machine_rates": "UNIDO footwear costing framework",
+      "material_prices": "ANRPC; 100ppi; OPIS; industry benchmark"
     },
     "locations": [
-      { "id": "bangladesh", "name": "Bangladesh", "laborRatePerHr": 0.90, "machineRatePerHr": 1.20, "overheadRatePerHr": 0.25, "freightPerUnit": 1.60, "dutyRatePercent": 15.0, "source": "Misciano 2026: 0.9 EUR/hr" },
-      { "id": "vietnam",    "name": "Vietnam",    "laborRatePerHr": 2.30, "machineRatePerHr": 1.80, "overheadRatePerHr": 0.40, "freightPerUnit": 1.20, "dutyRatePercent": 12.5, "source": "Misciano 2026: 2.3 EUR/hr" },
-      { "id": "china",      "name": "China (Coastal)", "laborRatePerHr": 4.50, "machineRatePerHr": 2.80, "overheadRatePerHr": 0.70, "freightPerUnit": 0.90, "dutyRatePercent": 37.5, "source": "Misciano 2026; US Section 301" },
-      { "id": "indonesia",  "name": "Indonesia",  "laborRatePerHr": 2.10, "machineRatePerHr": 1.60, "overheadRatePerHr": 0.35, "freightPerUnit": 1.40, "dutyRatePercent": 12.5, "source": "Misciano 2026" },
-      { "id": "cambodia",   "name": "Cambodia",   "laborRatePerHr": 1.90, "machineRatePerHr": 1.50, "overheadRatePerHr": 0.32, "freightPerUnit": 1.50, "dutyRatePercent": 15.0, "source": "Misciano 2026" },
-      { "id": "portugal",   "name": "Portugal",   "laborRatePerHr": 12.50, "machineRatePerHr": 6.00, "overheadRatePerHr": 1.80, "freightPerUnit": 0.40, "dutyRatePercent": 4.0, "source": "EU benchmark" }
+      { "id": "vietnam",    "name": "Vietnam",        "laborRatePerHr": 2.30, "machineRatePerHr": 1.80, "overheadRatePerHr": 0.40, "freightPerUnit": 1.20, "dutyRatePercent": 12.5, "source": "Misciano 2026" },
+      { "id": "indonesia",  "name": "Indonesia",      "laborRatePerHr": 2.10, "machineRatePerHr": 1.60, "overheadRatePerHr": 0.35, "freightPerUnit": 1.40, "dutyRatePercent": 12.5, "source": "Misciano 2026" },
+      { "id": "china",      "name": "China (Coastal)","laborRatePerHr": 4.50, "machineRatePerHr": 2.80, "overheadRatePerHr": 0.70, "freightPerUnit": 0.90, "dutyRatePercent": 37.5, "source": "Misciano 2026; Section 301" },
+      { "id": "bangladesh", "name": "Bangladesh",     "laborRatePerHr": 0.90, "machineRatePerHr": 1.20, "overheadRatePerHr": 0.25, "freightPerUnit": 1.60, "dutyRatePercent": 15.0, "source": "Misciano 2026" },
+      { "id": "cambodia",   "name": "Cambodia",       "laborRatePerHr": 1.90, "machineRatePerHr": 1.50, "overheadRatePerHr": 0.32, "freightPerUnit": 1.50, "dutyRatePercent": 15.0, "source": "Misciano 2026" },
+      { "id": "portugal",   "name": "Portugal",       "laborRatePerHr": 12.50, "machineRatePerHr": 6.00, "overheadRatePerHr": 1.80, "freightPerUnit": 0.40, "dutyRatePercent": 4.0, "source": "EU benchmark" }
     ],
-    "defaultLocationId": "bangladesh",
+    "defaultLocationId": "vietnam",
     "supplierTiers": {
       "tier1": { "name": "Tier 1 — Global Manufacturer", "laborMultiplier": 1.20, "machineMultiplier": 1.30, "overheadMultiplier": 1.25, "moqMultiplier": 2.0, "marginPercent": 10 },
       "tier2": { "name": "Tier 2 — Mid-Size Specialist", "laborMultiplier": 1.00, "machineMultiplier": 1.00, "overheadMultiplier": 1.00, "moqMultiplier": 1.0, "marginPercent": 9 },
-      "tier3": { "name": "Tier 3 — Small/Niche", "laborMultiplier": 0.85, "machineMultiplier": 0.75, "overheadMultiplier": 0.80, "moqMultiplier": 0.4, "marginPercent": 8 }
+      "tier3": { "name": "Tier 3 — Small/Niche",         "laborMultiplier": 0.85, "machineMultiplier": 0.75, "overheadMultiplier": 0.80, "moqMultiplier": 0.4, "marginPercent": 8 }
     },
     "materialPrices": {
-      "rawRubber_perKg":       { "price": 2.50,  "source": "ANRPC Apr 2026" },
+      "rawRubber_perKg":       { "price": 2.50,  "source": "ANRPC Apr 2026: SMR-20" },
       "evaResin_perKg":        { "price": 2.10,  "source": "100ppi Jul 2026" },
-      "polyesterYarn_perKg":   { "price": 4.50,  "source": "100ppi" },
+      "superFoam_perKg":       { "price": 4.80,  "source": "PEBA supercritical foam" },
+      "reactFoam_perKg":       { "price": 3.90,  "source": "Nike ReactX equivalent" },
+      "carbonPlate_perUnit":   { "price": 6.80,  "source": "Carbon fibre racing plate" },
+      "zoomAirUnit_perUnit":   { "price": 2.40,  "source": "Pressurised air unit" },
+      "polyesterYarn_perKg":   { "price": 4.50,  "source": "100ppi: polyester POY" },
       "rPETPellet_perKg":      { "price": 1.10,  "source": "OPIS Apr 2026" },
-      "tpuFilm_perSqm":        { "price": 8.50,  "source": "Industry benchmark" },
-      "meshFabric_perSqm":     { "price": 3.80,  "source": "China suppliers" },
+      "meshFabric_perSqm":     { "price": 3.80,  "source": "Engineered mesh" },
+      "engineeredKnit_perSqm": { "price": 5.20,  "source": "Premium engineered knit" },
       "liningFabric_perSqm":   { "price": 2.40,  "source": "Industry benchmark" },
-      "cardboard_perUnit":     { "price": 0.55,  "source": "Industry benchmark" },
-      "ldpeFilm_perUnit":      { "price": 0.12,  "source": "100ppi" },
+      "tpuFilm_perSqm":        { "price": 8.50,  "source": "Industry benchmark" },
+      "cardboard_perUnit":     { "price": 0.55,  "source": "Recycled content box" },
+      "ldpeFilm_perUnit":      { "price": 0.12,  "source": "100ppi: LDPE" },
       "hangtag_perUnit":       { "price": 0.20,  "source": "Industry benchmark" },
       "adhesive_perKg":        { "price": 6.20,  "source": "Industry benchmark" },
       "thread_perUnit":        { "price": 0.08,  "source": "Industry benchmark" },
@@ -47,14 +50,16 @@
       "injectionMouldingMachine":  { "capitalCost": 45000, "lifeYears": 10, "operatingHoursPerYear": 4000, "powerCostPerHr": 0.60, "maintenancePercentOfDep": 8 },
       "compressionMouldingPress":  { "capitalCost": 28000, "lifeYears": 10, "operatingHoursPerYear": 4000, "powerCostPerHr": 0.45, "maintenancePercentOfDep": 8 },
       "knittingMachine":           { "capitalCost": 35000, "lifeYears": 8,  "operatingHoursPerYear": 5000, "powerCostPerHr": 0.35, "maintenancePercentOfDep": 6 },
-      "sewingMachine":             { "capitalCost": 3500,  "lifeYears": 7,  "operatingHoursPerYear": 4000, "powerCostPerHr": 0.08, "maintenancePercentOfDep": 5 }
+      "sewingMachine":             { "capitalCost": 3500,  "lifeYears": 7,  "operatingHoursPerYear": 4000, "powerCostPerHr": 0.08, "maintenancePercentOfDep": 5 },
+      "carbonPlatePress":          { "capitalCost": 120000, "lifeYears": 10, "operatingHoursPerYear": 3500, "powerCostPerHr": 2.20, "maintenancePercentOfDep": 10 }
     }
   },
 
   "products": [
     {
-      "id": "velocity-nitro-4",
+      "id": "puma-velocity-nitro-4",
       "name": "PUMA Velocity NITRO 4",
+      "brand": "PUMA",
       "category": "Running Shoe",
       "retailPrice": 140.00,
       "supplierTier": "tier2",
@@ -62,8 +67,8 @@
         "current": 5000, "min": 500, "max": 50000, "step": 500, "unit": "pairs",
         "fixedCostPool": 46000,
         "fixedItems": [
-          { "name": "Injection moulds", "cost": 18000 },
-          { "name": "Compression moulds", "cost": 10000 },
+          { "name": "Injection moulds (outsole)", "cost": 18000 },
+          { "name": "Compression moulds (midsole)", "cost": 10000 },
           { "name": "Cutting dies", "cost": 3500 },
           { "name": "Last making", "cost": 4000 },
           { "name": "Development & sampling", "cost": 6000 },
@@ -75,179 +80,50 @@
         "name": "Factory Cost (FOB)",
         "children": [
           { "name": "Materials", "children": [
-            { "name": "Outsole Rubber", "children": [
-              { "name": "Rubber Compound", "children": [
-                { "name": "Raw Rubber", "type": "material", "inputs": { "quantity": 0.172, "unit": "kg", "priceKey": "rawRubber_perKg" } },
-                { "name": "Compounding", "children": [
-                  { "name": "Mixing Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 1.2 } },
-                  { "name": "Mixing Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 1.5, "machineKey": "injectionMouldingMachine" } }
-                ]},
-                { "name": "Sheet Forming", "children": [
-                  { "name": "Calender Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 0.8 } },
-                  { "name": "Calender Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 1.0, "machineKey": "injectionMouldingMachine" } }
-                ]},
-                { "name": "Mould Tooling Amortisation", "type": "fixed_amortised", "inputs": { "mouldCost": 6000, "lifecycleUnits": 24000 } }
-              ]},
-              { "name": "Moulding Process", "children": [
-                { "name": "Injection Moulding", "children": [
-                  { "name": "Machine Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 3.0, "machineKey": "injectionMouldingMachine" } },
-                  { "name": "Operator Attendance", "type": "time_labour", "inputs": { "minutesPerUnit": 1.5 } }
-                ]},
-                { "name": "Curing", "children": [
-                  { "name": "Curing Oven Time", "type": "time_machine", "inputs": { "minutesPerUnit": 4.0, "machineKey": "compressionMouldingPress" } },
-                  { "name": "Curing Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 1.0 } }
-                ]},
-                { "name": "Trimming & Finishing", "children": [
-                  { "name": "Trimming Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.0 } },
-                  { "name": "Finishing Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 0.8, "machineKey": "injectionMouldingMachine" } }
-                ]}
-              ]},
-              { "name": "Adhesive", "children": [
-                { "name": "PU Adhesive", "type": "material", "inputs": { "quantity": 0.034, "unit": "kg", "priceKey": "adhesive_perKg" } },
-                { "name": "Application Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.2 } }
-              ]}
+            { "name": "Outsole", "children": [
+              { "name": "Raw Rubber", "type": "material", "inputs": { "quantity": 0.172, "unit": "kg", "priceKey": "rawRubber_perKg" } },
+              { "name": "Moulding Cycle", "type": "time_machine", "inputs": { "minutesPerUnit": 3.0, "machineKey": "injectionMouldingMachine" } },
+              { "name": "Operator Time", "type": "time_labour", "inputs": { "minutesPerUnit": 2.0 } },
+              { "name": "Tooling Amortisation", "type": "fixed_amortised", "inputs": { "mouldCost": 6000, "lifecycleUnits": 24000 } }
             ]},
-            { "name": "Midsole Foam", "children": [
-              { "name": "EVA Foam", "children": [
-                { "name": "EVA Resin", "type": "material", "inputs": { "quantity": 0.552, "unit": "kg", "priceKey": "evaResin_perKg" } },
-                { "name": "Nitrogen Infusion", "type": "time_machine", "inputs": { "minutesPerUnit": 6.8, "machineKey": "injectionMouldingMachine" } },
-                { "name": "Foam Process Energy", "type": "time_machine", "inputs": { "minutesPerUnit": 5.4, "machineKey": "compressionMouldingPress" } }
-              ]},
-              { "name": "Compression Moulding", "children": [
-                { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 8.0, "machineKey": "compressionMouldingPress" } },
-                { "name": "Mould Tooling", "type": "fixed_amortised", "inputs": { "mouldCost": 4800, "lifecycleUnits": 24000 } },
-                { "name": "Press Energy", "type": "time_machine", "inputs": { "minutesPerUnit": 3.2, "machineKey": "compressionMouldingPress" } }
-              ]},
-              { "name": "Finishing / Assembly", "children": [
-                { "name": "Operator Time", "type": "time_labour", "inputs": { "minutesPerUnit": 5.4 } },
-                { "name": "Adhesive Material", "type": "material", "inputs": { "quantity": 0.045, "unit": "kg", "priceKey": "adhesive_perKg" } }
-              ]}
+            { "name": "Midsole (NITROFOAM)", "children": [
+              { "name": "EVA Resin", "type": "material", "inputs": { "quantity": 0.552, "unit": "kg", "priceKey": "evaResin_perKg" } },
+              { "name": "Nitrogen Infusion", "type": "time_machine", "inputs": { "minutesPerUnit": 6.8, "machineKey": "injectionMouldingMachine" } },
+              { "name": "Compression Moulding", "type": "time_machine", "inputs": { "minutesPerUnit": 8.0, "machineKey": "compressionMouldingPress" } },
+              { "name": "Finishing Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 5.4 } }
             ]},
-            { "name": "Upper Material", "children": [
-              { "name": "Polyester Mesh", "children": [
-                { "name": "Fibre Production", "children": [
-                  { "name": "rPET Pellets", "type": "material", "inputs": { "quantity": 0.075, "unit": "kg", "priceKey": "rPETPellet_perKg" } },
-                  { "name": "Melt Spinning", "type": "time_machine", "inputs": { "minutesPerUnit": 0.8, "machineKey": "knittingMachine" } }
-                ]},
-                { "name": "Yarn Formation", "children": [
-                  { "name": "Texturising", "type": "time_machine", "inputs": { "minutesPerUnit": 0.5, "machineKey": "knittingMachine" } },
-                  { "name": "Yarn Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 0.6 } }
-                ]},
-                { "name": "Knitting / Weaving", "children": [
-                  { "name": "Circular Knit Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 2.4, "machineKey": "knittingMachine" } },
-                  { "name": "Knitting Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 1.2 } }
-                ]},
-                { "name": "Dyeing / Finishing", "children": [
-                  { "name": "Dye Chemicals", "type": "material", "inputs": { "quantity": 0.01, "unit": "kg", "priceKey": "adhesive_perKg" } },
-                  { "name": "Dyeing Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 1.4, "machineKey": "knittingMachine" } }
-                ]},
-                { "name": "Fabric Finishing", "children": [
-                  { "name": "Heat Setting", "type": "time_machine", "inputs": { "minutesPerUnit": 0.6, "machineKey": "knittingMachine" } },
-                  { "name": "Calendering", "type": "time_machine", "inputs": { "minutesPerUnit": 0.4, "machineKey": "knittingMachine" } }
-                ]}
-              ]},
-              { "name": "PWRTAPE Reinforcement", "children": [
-                { "name": "TPU Film", "type": "material", "inputs": { "quantity": 0.059, "unit": "sqm", "priceKey": "tpuFilm_perSqm" } },
-                { "name": "Heat Press Time", "type": "time_machine", "inputs": { "minutesPerUnit": 2.8, "machineKey": "compressionMouldingPress" } }
-              ]},
-              { "name": "Lining", "children": [
-                { "name": "Lining Fabric", "type": "material", "inputs": { "quantity": 0.175, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
-                { "name": "Cutting Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 3.5 } }
-              ]},
-              { "name": "Cutting & Prep", "children": [
-                { "name": "Cutting Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 6.1 } },
-                { "name": "Cutting Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 2.6, "machineKey": "knittingMachine" } }
-              ]}
+            { "name": "Upper", "children": [
+              { "name": "Engineered Mesh", "type": "material", "inputs": { "quantity": 0.26, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
+              { "name": "PWRTAPE Reinforcement", "type": "material", "inputs": { "quantity": 0.059, "unit": "sqm", "priceKey": "tpuFilm_perSqm" } },
+              { "name": "Lining Fabric", "type": "material", "inputs": { "quantity": 0.175, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
+              { "name": "Cutting Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 6.1 } },
+              { "name": "Knitting Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 2.4, "machineKey": "knittingMachine" } }
             ]},
-            { "name": "Insole", "children": [
-              { "name": "EVA Sockliner", "children": [
-                { "name": "EVA Sheet", "type": "material", "inputs": { "quantity": 0.12, "unit": "kg", "priceKey": "evaResin_perKg" } },
-                { "name": "Moulding / Cutting", "type": "time_machine", "inputs": { "minutesPerUnit": 2.5, "machineKey": "compressionMouldingPress" } }
-              ]},
-              { "name": "Fabric Top Cover", "children": [
-                { "name": "Knitted Fabric", "type": "material", "inputs": { "quantity": 0.05, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
-                { "name": "Lamination", "type": "time_machine", "inputs": { "minutesPerUnit": 1.6, "machineKey": "compressionMouldingPress" } }
-              ]},
-              { "name": "Printing / Branding", "children": [
-                { "name": "Ink / Transfer", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
-                { "name": "Application Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.7 } }
-              ]}
-            ]},
-            { "name": "Laces & Trims", "children": [
-              { "name": "Laces", "children": [
-                { "name": "Polyester Yarn", "type": "material", "inputs": { "quantity": 0.022, "unit": "kg", "priceKey": "polyesterYarn_perKg" } },
-                { "name": "Braiding", "type": "time_machine", "inputs": { "minutesPerUnit": 1.3, "machineKey": "knittingMachine" } }
-              ]},
-              { "name": "Eyelets / Hardware", "children": [
-                { "name": "Metal Component", "type": "material", "inputs": { "quantity": 0.011, "unit": "kg", "priceKey": "evaResin_perKg" } },
-                { "name": "Insertion Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.4 } }
-              ]},
-              { "name": "Branding / Labels", "children": [
-                { "name": "Woven Labels", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
-                { "name": "Heat Transfers", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
-                { "name": "Application Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.4 } }
-              ]}
-            ]},
-            { "name": "Packaging", "children": [
-              { "name": "Shoebox", "children": [
-                { "name": "Cardboard", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
-                { "name": "Printing", "type": "time_machine", "inputs": { "minutesPerUnit": 0.9, "machineKey": "sewingMachine" } },
-                { "name": "Assembly", "type": "time_labour", "inputs": { "minutesPerUnit": 1.6 } }
-              ]},
-              { "name": "Polybag", "children": [
-                { "name": "LDPE Film", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } },
-                { "name": "Printing", "type": "time_machine", "inputs": { "minutesPerUnit": 0.4, "machineKey": "sewingMachine" } }
-              ]},
-              { "name": "Hangtag / Tissue", "children": [
-                { "name": "Paper / Card", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "hangtag_perUnit" } },
-                { "name": "Attachment Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 0.8 } }
-              ]}
+            { "name": "Trims & Packaging", "children": [
+              { "name": "Laces", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
+              { "name": "Labels", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
+              { "name": "Heat Transfers", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
+              { "name": "Shoebox", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
+              { "name": "Polybag", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } }
             ]}
           ]},
           { "name": "Labour (CMT)", "children": [
             { "name": "Cutting", "children": [
-              { "name": "Operator Time", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "children": [
-                  { "name": "Cutting Cycle", "type": "time_labour", "inputs": { "minutesPerUnit": 6.7 } }
-                ]}
-              ]},
-              { "name": "Machine Depreciation", "children": [
-                { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "knittingMachine" } },
-                { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 6.7, "machineKey": "knittingMachine" } }
-              ]}
+              { "name": "Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 6.7 } },
+              { "name": "Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 6.7, "machineKey": "knittingMachine" } }
             ]},
             { "name": "Stitching", "children": [
-              { "name": "Operator Time", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "children": [
-                  { "name": "Main Seams", "type": "time_labour", "inputs": { "minutesPerUnit": 14.0 } },
-                  { "name": "Collar / Cuff", "type": "time_labour", "inputs": { "minutesPerUnit": 7.6 } }
-                ]}
-              ]},
-              { "name": "Thread", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
-              { "name": "Machine Depreciation", "children": [
-                { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "sewingMachine" } },
-                { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 21.6, "machineKey": "sewingMachine" } }
-              ]}
+              { "name": "Main Seams", "type": "time_labour", "inputs": { "minutesPerUnit": 14.0 } },
+              { "name": "Collar / Cuff", "type": "time_labour", "inputs": { "minutesPerUnit": 7.6 } },
+              { "name": "Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 21.6, "machineKey": "sewingMachine" } }
             ]},
             { "name": "Assembly", "children": [
-              { "name": "Operator Time", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 26.4 } }
-              ]},
-              { "name": "Cementing Material", "type": "material", "inputs": { "quantity": 0.02, "unit": "kg", "priceKey": "adhesive_perKg" } },
-              { "name": "Press Machinery", "children": [
-                { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "compressionMouldingPress" } },
-                { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 8.0, "machineKey": "compressionMouldingPress" } }
-              ]}
+              { "name": "Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 26.4 } },
+              { "name": "Press Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 8.0, "machineKey": "compressionMouldingPress" } }
             ]},
             { "name": "Finishing", "children": [
-              { "name": "Operator Time", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 8.4 } }
-              ]},
-              { "name": "Packing Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 3.6 } }
+              { "name": "Trimming & Pressing", "type": "time_labour", "inputs": { "minutesPerUnit": 8.4 } },
+              { "name": "Packing", "type": "time_labour", "inputs": { "minutesPerUnit": 3.6 } }
             ]}
           ]},
           { "name": "Overheads", "children": [
@@ -261,268 +137,273 @@
               { "name": "Testing Equipment", "type": "time_machine", "inputs": { "minutesPerUnit": 1.8, "machineKey": "sewingMachine" } }
             ]},
             { "name": "Management", "children": [
-              { "name": "Supervisor Time", "type": "time_labour", "inputs": { "minutesPerUnit": 4.8 } },
-              { "name": "Admin / Compliance", "type": "time_labour", "inputs": { "minutesPerUnit": 2.4 } }
+              { "name": "Supervisor", "type": "time_labour", "inputs": { "minutesPerUnit": 4.8 } },
+              { "name": "Admin", "type": "time_labour", "inputs": { "minutesPerUnit": 2.4 } }
             ]}
           ]},
           { "name": "Factory Margin", "type": "percent_of_subtotal", "inputs": { "percent": 9 } }
         ]
       }
     },
+
     {
-      "id": "future-9-match",
-      "name": "PUMA Future 9 Match FG/AG",
-      "category": "Football Boot",
-      "retailPrice": 75.00,
-      "supplierTier": "tier2",
+      "id": "adidas-adizero-sl2",
+      "name": "Adidas Adizero SL2",
+      "brand": "Adidas",
+      "category": "Running Shoe",
+      "retailPrice": 130.00,
+      "supplierTier": "tier1",
       "moq": {
-        "current": 5000, "min": 500, "max": 40000, "step": 500, "unit": "pairs",
-        "fixedCostPool": 32000,
+        "current": 8000, "min": 500, "max": 80000, "step": 500, "unit": "pairs",
+        "fixedCostPool": 58000,
         "fixedItems": [
-          { "name": "Injection moulds (outsole plate, studs)", "cost": 14000 },
-          { "name": "Tooling for heel counter", "cost": 5000 },
-          { "name": "Cutting dies (mesh panels)", "cost": 2500 },
-          { "name": "Last making (football last)", "cost": 4000 },
-          { "name": "Development & sampling", "cost": 4500 },
-          { "name": "Testing (stud pull, abrasion)", "cost": 2000 }
+          { "name": "Lightstrike Pro moulds", "cost": 22000 },
+          { "name": "Outsole tooling", "cost": 14000 },
+          { "name": "Continental rubber tooling", "cost": 6500 },
+          { "name": "Last making", "cost": 5200 },
+          { "name": "Development & sampling", "cost": 6500 },
+          { "name": "Testing & certification", "cost": 2600 },
+          { "name": "Pattern / marker development", "cost": 1200 }
         ]
       },
       "costTree": {
         "name": "Factory Cost (FOB)",
         "children": [
           { "name": "Materials", "children": [
-            { "name": "Upper Material", "children": [
-              { "name": "Polyester Mesh", "children": [
-                { "name": "rPET Pellets", "type": "material", "inputs": { "quantity": 0.061, "unit": "kg", "priceKey": "rPETPellet_perKg" } },
-                { "name": "Melt Spinning", "type": "time_machine", "inputs": { "minutesPerUnit": 0.7, "machineKey": "knittingMachine" } },
-                { "name": "Knitting", "type": "time_machine", "inputs": { "minutesPerUnit": 2.1, "machineKey": "knittingMachine" } },
-                { "name": "Dyeing", "type": "time_machine", "inputs": { "minutesPerUnit": 1.1, "machineKey": "knittingMachine" } }
-              ]},
-              { "name": "3D Grip Printing", "children": [
-                { "name": "TPU Material", "type": "material", "inputs": { "quantity": 0.018, "unit": "kg", "priceKey": "evaResin_perKg" } },
-                { "name": "Print Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 3.2, "machineKey": "compressionMouldingPress" } }
-              ]},
-              { "name": "Heel Counter", "children": [
-                { "name": "TPU Component", "type": "material", "inputs": { "quantity": 0.031, "unit": "kg", "priceKey": "evaResin_perKg" } },
-                { "name": "Moulding Time", "type": "time_machine", "inputs": { "minutesPerUnit": 3.2, "machineKey": "injectionMouldingMachine" } }
-              ]},
-              { "name": "Lining", "children": [
-                { "name": "Textile Lining", "type": "material", "inputs": { "quantity": 0.16, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
-                { "name": "Stitching Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 6.0 } }
-              ]}
+            { "name": "Outsole", "children": [
+              { "name": "Continental Rubber", "type": "material", "inputs": { "quantity": 0.195, "unit": "kg", "priceKey": "rawRubber_perKg" } },
+              { "name": "Moulding Cycle", "type": "time_machine", "inputs": { "minutesPerUnit": 3.4, "machineKey": "injectionMouldingMachine" } },
+              { "name": "Trimming Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.2 } }
             ]},
-            { "name": "Midsole Foam", "children": [
-              { "name": "EVA Foam", "children": [
-                { "name": "EVA Resin", "type": "material", "inputs": { "quantity": 0.257, "unit": "kg", "priceKey": "evaResin_perKg" } },
-                { "name": "Moulding Time", "type": "time_machine", "inputs": { "minutesPerUnit": 5.4, "machineKey": "compressionMouldingPress" } }
-              ]},
-              { "name": "Cushioning Insert", "children": [
-                { "name": "EVA / PU Material", "type": "material", "inputs": { "quantity": 0.157, "unit": "kg", "priceKey": "evaResin_perKg" } },
-                { "name": "Assembly Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 4.2 } }
-              ]}
+            { "name": "Midsole (Lightstrike Pro)", "children": [
+              { "name": "Supercritical Foam Pellets", "type": "material", "inputs": { "quantity": 0.605, "unit": "kg", "priceKey": "superFoam_perKg" } },
+              { "name": "Moulding Cycle", "type": "time_machine", "inputs": { "minutesPerUnit": 9.2, "machineKey": "compressionMouldingPress" } },
+              { "name": "Precision Finishing", "type": "time_labour", "inputs": { "minutesPerUnit": 6.8 } },
+              { "name": "Tooling Amortisation", "type": "fixed_amortised", "inputs": { "mouldCost": 8000, "lifecycleUnits": 24000 } }
             ]},
-            { "name": "Outsole Rubber", "children": [
-              { "name": "Outsole Plate", "children": [
-                { "name": "Rubber Compound", "type": "material", "inputs": { "quantity": 0.219, "unit": "kg", "priceKey": "rawRubber_perKg" } },
-                { "name": "Stud Formation", "type": "time_machine", "inputs": { "minutesPerUnit": 4.8, "machineKey": "injectionMouldingMachine" } },
-                { "name": "Finishing", "type": "time_labour", "inputs": { "minutesPerUnit": 4.2 } }
-              ]},
-              { "name": "Studs", "children": [
-                { "name": "TPU / Nylon", "type": "material", "inputs": { "quantity": 0.026, "unit": "kg", "priceKey": "evaResin_perKg" } },
-                { "name": "Injection Moulding", "type": "time_machine", "inputs": { "minutesPerUnit": 5.2, "machineKey": "injectionMouldingMachine" } }
-              ]},
-              { "name": "Adhesive & Bonding", "children": [
-                { "name": "PU Adhesive", "type": "material", "inputs": { "quantity": 0.063, "unit": "kg", "priceKey": "adhesive_perKg" } },
-                { "name": "Bonding Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 3.6 } }
-              ]}
+            { "name": "Upper", "children": [
+              { "name": "Engineered Mesh", "type": "material", "inputs": { "quantity": 0.28, "unit": "sqm", "priceKey": "engineeredKnit_perSqm" } },
+              { "name": "Lining", "type": "material", "inputs": { "quantity": 0.17, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
+              { "name": "Cutting & Assembly", "type": "time_labour", "inputs": { "minutesPerUnit": 7.8 } },
+              { "name": "Knitting Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 3.2, "machineKey": "knittingMachine" } }
             ]},
-            { "name": "Insole", "children": [
-              { "name": "Sockliner Base", "children": [
-                { "name": "EVA Material", "type": "material", "inputs": { "quantity": 0.105, "unit": "kg", "priceKey": "evaResin_perKg" } },
-                { "name": "Die-Cutting", "type": "time_machine", "inputs": { "minutesPerUnit": 2.3, "machineKey": "sewingMachine" } }
-              ]},
-              { "name": "Top Cover", "children": [
-                { "name": "Grip Fabric", "type": "material", "inputs": { "quantity": 0.047, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
-                { "name": "Lamination", "type": "time_machine", "inputs": { "minutesPerUnit": 1.9, "machineKey": "compressionMouldingPress" } }
-              ]}
-            ]},
-            { "name": "Laces & Trims", "children": [
-              { "name": "Laces", "children": [
-                { "name": "Polyester Yarn", "type": "material", "inputs": { "quantity": 0.024, "unit": "kg", "priceKey": "polyesterYarn_perKg" } },
-                { "name": "Braiding Time", "type": "time_machine", "inputs": { "minutesPerUnit": 1.8, "machineKey": "knittingMachine" } }
-              ]},
-              { "name": "Branding", "children": [
-                { "name": "Heat Transfer", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
-                { "name": "Label Material", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
-                { "name": "Application Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.3 } }
-              ]}
-            ]},
-            { "name": "Packaging", "children": [
-              { "name": "Shoebox", "children": [
-                { "name": "Cardboard", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
-                { "name": "Assembly Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.4 } }
-              ]},
-              { "name": "Polybag", "children": [
-                { "name": "LDPE Film", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } }
-              ]}
+            { "name": "Trims & Packaging", "children": [
+              { "name": "Laces", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
+              { "name": "Labels", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
+              { "name": "Heat Transfers", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
+              { "name": "Shoebox", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
+              { "name": "Polybag", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } }
             ]}
           ]},
           { "name": "Labour (CMT)", "children": [
             { "name": "Cutting", "children": [
-              { "name": "Operator Time", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 6.0 } }
-              ]},
-              { "name": "Machine Depreciation", "children": [
-                { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "knittingMachine" } },
-                { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 6.0, "machineKey": "knittingMachine" } }
-              ]}
+              { "name": "Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 7.2 } },
+              { "name": "Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 7.2, "machineKey": "knittingMachine" } }
             ]},
             { "name": "Stitching", "children": [
-              { "name": "Operator Time", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 18.0 } }
-              ]},
-              { "name": "Thread", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
-              { "name": "Machine Depreciation", "children": [
-                { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "sewingMachine" } },
-                { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 18.0, "machineKey": "sewingMachine" } }
-              ]}
+              { "name": "Main Seams", "type": "time_labour", "inputs": { "minutesPerUnit": 15.8 } },
+              { "name": "Heel & Collar", "type": "time_labour", "inputs": { "minutesPerUnit": 8.6 } },
+              { "name": "Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 24.4, "machineKey": "sewingMachine" } }
             ]},
             { "name": "Assembly", "children": [
-              { "name": "Operator Time", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 23.5 } }
-              ]},
-              { "name": "Bonding Materials", "type": "material", "inputs": { "quantity": 0.03, "unit": "kg", "priceKey": "adhesive_perKg" } },
-              { "name": "Press Machinery", "children": [
-                { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "compressionMouldingPress" } },
-                { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 7.0, "machineKey": "compressionMouldingPress" } }
-              ]}
+              { "name": "Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 28.6 } },
+              { "name": "Press Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 9.4, "machineKey": "compressionMouldingPress" } }
             ]},
             { "name": "Finishing", "children": [
-              { "name": "Operator Time", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 6.8 } }
-              ]},
-              { "name": "Packing Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.9 } }
+              { "name": "Trimming & Pressing", "type": "time_labour", "inputs": { "minutesPerUnit": 9.2 } },
+              { "name": "Packing", "type": "time_labour", "inputs": { "minutesPerUnit": 4.0 } }
             ]}
           ]},
           { "name": "Overheads", "children": [
             { "name": "Factory Overhead", "children": [
-              { "name": "Rent & Utilities", "type": "overhead", "inputs": { "minutesPerUnit": 75 } },
-              { "name": "Depreciation", "type": "time_machine", "inputs": { "minutesPerUnit": 45, "machineKey": "knittingMachine" } },
-              { "name": "Indirect Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 25 } }
+              { "name": "Rent & Utilities", "type": "overhead", "inputs": { "minutesPerUnit": 82 } },
+              { "name": "Equipment Depreciation", "type": "time_machine", "inputs": { "minutesPerUnit": 55, "machineKey": "knittingMachine" } },
+              { "name": "Indirect Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 26 } }
             ]},
             { "name": "Quality Control", "children": [
-              { "name": "QC Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.8 } },
+              { "name": "QC Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 3.4 } },
+              { "name": "Testing Equipment", "type": "time_machine", "inputs": { "minutesPerUnit": 2.0, "machineKey": "sewingMachine" } }
+            ]},
+            { "name": "Management", "children": [
+              { "name": "Supervisor", "type": "time_labour", "inputs": { "minutesPerUnit": 4.2 } },
+              { "name": "Admin", "type": "time_labour", "inputs": { "minutesPerUnit": 2.2 } }
+            ]}
+          ]},
+          { "name": "Factory Margin", "type": "percent_of_subtotal", "inputs": { "percent": 12 } }
+        ]
+      }
+    },
+
+    {
+      "id": "nike-pegasus-41",
+      "name": "Nike Air Zoom Pegasus 41",
+      "brand": "Nike",
+      "category": "Running Shoe",
+      "retailPrice": 140.00,
+      "supplierTier": "tier1",
+      "moq": {
+        "current": 10000, "min": 500, "max": 100000, "step": 500, "unit": "pairs",
+        "fixedCostPool": 72000,
+        "fixedItems": [
+          { "name": "ReactX foam tooling", "cost": 24000 },
+          { "name": "Zoom Air unit tooling", "cost": 16000 },
+          { "name": "Outsole moulds", "cost": 15000 },
+          { "name": "Last making", "cost": 6000 },
+          { "name": "Development & sampling", "cost": 8000 },
+          { "name": "Testing & certification", "cost": 3000 }
+        ]
+      },
+      "costTree": {
+        "name": "Factory Cost (FOB)",
+        "children": [
+          { "name": "Materials", "children": [
+            { "name": "Outsole", "children": [
+              { "name": "Rubber Compound", "type": "material", "inputs": { "quantity": 0.210, "unit": "kg", "priceKey": "rawRubber_perKg" } },
+              { "name": "Moulding Cycle", "type": "time_machine", "inputs": { "minutesPerUnit": 3.6, "machineKey": "injectionMouldingMachine" } },
+              { "name": "Trimming Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.4 } }
+            ]},
+            { "name": "Midsole (ReactX + Zoom Air)", "children": [
+              { "name": "ReactX Foam", "type": "material", "inputs": { "quantity": 0.585, "unit": "kg", "priceKey": "reactFoam_perKg" } },
+              { "name": "Zoom Air Units (×2)", "type": "material", "inputs": { "quantity": 2, "unit": "unit", "priceKey": "zoomAirUnit_perUnit" } },
+              { "name": "Moulding Cycle", "type": "time_machine", "inputs": { "minutesPerUnit": 10.4, "machineKey": "compressionMouldingPress" } },
+              { "name": "Precision Assembly", "type": "time_labour", "inputs": { "minutesPerUnit": 7.8 } }
+            ]},
+            { "name": "Upper", "children": [
+              { "name": "Engineered Mesh", "type": "material", "inputs": { "quantity": 0.30, "unit": "sqm", "priceKey": "engineeredKnit_perSqm" } },
+              { "name": "Flywire Cables", "type": "material", "inputs": { "quantity": 0.012, "unit": "kg", "priceKey": "polyesterYarn_perKg" } },
+              { "name": "Lining", "type": "material", "inputs": { "quantity": 0.18, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
+              { "name": "Cutting & Assembly", "type": "time_labour", "inputs": { "minutesPerUnit": 8.6 } },
+              { "name": "Knitting Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 3.8, "machineKey": "knittingMachine" } }
+            ]},
+            { "name": "Trims & Packaging", "children": [
+              { "name": "Laces", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
+              { "name": "Labels", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
+              { "name": "Heat Transfers", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
+              { "name": "Shoebox", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
+              { "name": "Polybag", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } }
+            ]}
+          ]},
+          { "name": "Labour (CMT)", "children": [
+            { "name": "Cutting", "children": [
+              { "name": "Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 7.8 } },
+              { "name": "Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 7.8, "machineKey": "knittingMachine" } }
+            ]},
+            { "name": "Stitching", "children": [
+              { "name": "Main Seams", "type": "time_labour", "inputs": { "minutesPerUnit": 17.2 } },
+              { "name": "Flywire Integration", "type": "time_labour", "inputs": { "minutesPerUnit": 6.8 } },
+              { "name": "Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 26.8, "machineKey": "sewingMachine" } }
+            ]},
+            { "name": "Assembly", "children": [
+              { "name": "Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 31.4 } },
+              { "name": "Press Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 10.2, "machineKey": "compressionMouldingPress" } }
+            ]},
+            { "name": "Finishing", "children": [
+              { "name": "Trimming & Pressing", "type": "time_labour", "inputs": { "minutesPerUnit": 10.0 } },
+              { "name": "Packing", "type": "time_labour", "inputs": { "minutesPerUnit": 4.2 } }
+            ]}
+          ]},
+          { "name": "Overheads", "children": [
+            { "name": "Factory Overhead", "children": [
+              { "name": "Rent & Utilities", "type": "overhead", "inputs": { "minutesPerUnit": 88 } },
+              { "name": "Equipment Depreciation", "type": "time_machine", "inputs": { "minutesPerUnit": 58, "machineKey": "knittingMachine" } },
+              { "name": "Indirect Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 28 } }
+            ]},
+            { "name": "Quality Control", "children": [
+              { "name": "QC Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 3.6 } },
+              { "name": "Testing Equipment", "type": "time_machine", "inputs": { "minutesPerUnit": 2.2, "machineKey": "sewingMachine" } }
+            ]},
+            { "name": "Management", "children": [
+              { "name": "Supervisor", "type": "time_labour", "inputs": { "minutesPerUnit": 4.4 } },
+              { "name": "Admin", "type": "time_labour", "inputs": { "minutesPerUnit": 2.4 } }
+            ]}
+          ]},
+          { "name": "Factory Margin", "type": "percent_of_subtotal", "inputs": { "percent": 11 } }
+        ]
+      }
+    },
+
+    {
+      "id": "anta-c202-5",
+      "name": "Anta C202 5.0",
+      "brand": "Anta",
+      "category": "Racing Shoe",
+      "retailPrice": 110.00,
+      "supplierTier": "tier2",
+      "moq": {
+        "current": 8000, "min": 500, "max": 80000, "step": 500, "unit": "pairs",
+        "fixedCostPool": 42000,
+        "fixedItems": [
+          { "name": "Carbon plate tooling", "cost": 16000 },
+          { "name": "Midsole moulds", "cost": 8000 },
+          { "name": "Outsole tooling", "cost": 5500 },
+          { "name": "Last making", "cost": 3800 },
+          { "name": "Development & sampling", "cost": 5200 },
+          { "name": "Testing & certification", "cost": 2500 },
+          { "name": "Pattern development", "cost": 1000 }
+        ]
+      },
+      "costTree": {
+        "name": "Factory Cost (FOB)",
+        "children": [
+          { "name": "Materials", "children": [
+            { "name": "Outsole", "children": [
+              { "name": "Rubber Compound", "type": "material", "inputs": { "quantity": 0.155, "unit": "kg", "priceKey": "rawRubber_perKg" } },
+              { "name": "Moulding Cycle", "type": "time_machine", "inputs": { "minutesPerUnit": 2.8, "machineKey": "injectionMouldingMachine" } },
+              { "name": "Trimming Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.6 } }
+            ]},
+            { "name": "Midsole (Nitrofoam + Carbon)", "children": [
+              { "name": "Supercritical Foam Pellets", "type": "material", "inputs": { "quantity": 0.485, "unit": "kg", "priceKey": "superFoam_perKg" } },
+              { "name": "Carbon Fibre Plate", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "carbonPlate_perUnit" } },
+              { "name": "Plate Bonding Press", "type": "time_machine", "inputs": { "minutesPerUnit": 5.2, "machineKey": "carbonPlatePress" } },
+              { "name": "Moulding Cycle", "type": "time_machine", "inputs": { "minutesPerUnit": 7.8, "machineKey": "compressionMouldingPress" } },
+              { "name": "Finishing Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 5.2 } }
+            ]},
+            { "name": "Upper", "children": [
+              { "name": "Monofilament Mesh", "type": "material", "inputs": { "quantity": 0.22, "unit": "sqm", "priceKey": "meshFabric_perSqm" } },
+              { "name": "Lining", "type": "material", "inputs": { "quantity": 0.14, "unit": "sqm", "priceKey": "liningFabric_perSqm" } },
+              { "name": "Cutting Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 5.4 } },
+              { "name": "Knitting Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 2.2, "machineKey": "knittingMachine" } }
+            ]},
+            { "name": "Trims & Packaging", "children": [
+              { "name": "Laces", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
+              { "name": "Labels", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
+              { "name": "Heat Transfers", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } },
+              { "name": "Shoebox", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "cardboard_perUnit" } },
+              { "name": "Polybag", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } }
+            ]}
+          ]},
+          { "name": "Labour (CMT)", "children": [
+            { "name": "Cutting", "children": [
+              { "name": "Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 5.2 } },
+              { "name": "Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 5.2, "machineKey": "knittingMachine" } }
+            ]},
+            { "name": "Stitching", "children": [
+              { "name": "Main Seams", "type": "time_labour", "inputs": { "minutesPerUnit": 11.8 } },
+              { "name": "Collar Finishing", "type": "time_labour", "inputs": { "minutesPerUnit": 5.2 } },
+              { "name": "Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 17.0, "machineKey": "sewingMachine" } }
+            ]},
+            { "name": "Assembly", "children": [
+              { "name": "Operator", "type": "time_labour", "inputs": { "minutesPerUnit": 21.4 } },
+              { "name": "Press Machine", "type": "time_machine", "inputs": { "minutesPerUnit": 6.8, "machineKey": "compressionMouldingPress" } }
+            ]},
+            { "name": "Finishing", "children": [
+              { "name": "Trimming & Pressing", "type": "time_labour", "inputs": { "minutesPerUnit": 6.8 } },
+              { "name": "Packing", "type": "time_labour", "inputs": { "minutesPerUnit": 3.2 } }
+            ]}
+          ]},
+          { "name": "Overheads", "children": [
+            { "name": "Factory Overhead", "children": [
+              { "name": "Rent & Utilities", "type": "overhead", "inputs": { "minutesPerUnit": 72 } },
+              { "name": "Equipment Depreciation", "type": "time_machine", "inputs": { "minutesPerUnit": 48, "machineKey": "knittingMachine" } },
+              { "name": "Indirect Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 22 } }
+            ]},
+            { "name": "Quality Control", "children": [
+              { "name": "QC Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.6 } },
               { "name": "Testing Equipment", "type": "time_machine", "inputs": { "minutesPerUnit": 1.4, "machineKey": "sewingMachine" } }
             ]},
             { "name": "Management", "children": [
-              { "name": "Supervisor Time", "type": "time_labour", "inputs": { "minutesPerUnit": 3.8 } },
-              { "name": "Admin / Compliance", "type": "time_labour", "inputs": { "minutesPerUnit": 2.2 } }
-            ]}
-          ]},
-          { "name": "Factory Margin", "type": "percent_of_subtotal", "inputs": { "percent": 9 } }
-        ]
-      }
-    },
-    {
-      "id": "training-tee",
-      "name": "PUMA Training Tee",
-      "category": "Sports Shirt",
-      "retailPrice": 35.00,
-      "supplierTier": "tier2",
-      "moq": {
-        "current": 3000, "min": 500, "max": 20000, "step": 250, "unit": "units",
-        "fixedCostPool": 3900,
-        "fixedItems": [
-          { "name": "Knit programming (jacquard)", "cost": 1200 },
-          { "name": "Print screens / transfers", "cost": 800 },
-          { "name": "Cutting dies / marker dev", "cost": 600 },
-          { "name": "Development & sampling", "cost": 900 },
-          { "name": "Testing (colour, shrinkage)", "cost": 400 }
-        ]
-      },
-      "costTree": {
-        "name": "Factory Cost (FOB)",
-        "children": [
-          { "name": "Materials", "children": [
-            { "name": "Body Fabric", "children": [
-              { "name": "Recycled Polyester Yarn", "children": [
-                { "name": "rPET Pellets", "type": "material", "inputs": { "quantity": 0.144, "unit": "kg", "priceKey": "rPETPellet_perKg" } },
-                { "name": "Yarn Spinning", "type": "time_machine", "inputs": { "minutesPerUnit": 2.5, "machineKey": "knittingMachine" } }
-              ]},
-              { "name": "Knitting", "children": [
-                { "name": "Machine Time", "type": "time_machine", "inputs": { "minutesPerUnit": 4.8, "machineKey": "knittingMachine" } },
-                { "name": "Knitting Energy", "type": "time_machine", "inputs": { "minutesPerUnit": 2.4, "machineKey": "knittingMachine" } }
-              ]},
-              { "name": "Dyeing & Finishing", "children": [
-                { "name": "Dye Chemicals", "type": "material", "inputs": { "quantity": 0.02, "unit": "kg", "priceKey": "adhesive_perKg" } },
-                { "name": "Water & Energy", "type": "time_machine", "inputs": { "minutesPerUnit": 4.0, "machineKey": "knittingMachine" } }
-              ]}
-            ]},
-            { "name": "Sleeve Fabric", "children": [
-              { "name": "Polyester Yarn", "type": "material", "inputs": { "quantity": 0.067, "unit": "kg", "priceKey": "polyesterYarn_perKg" } },
-              { "name": "Cutting Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.8 } }
-            ]},
-            { "name": "Rib (Collar & Cuffs)", "children": [
-              { "name": "Elastane Blend", "type": "material", "inputs": { "quantity": 0.029, "unit": "kg", "priceKey": "polyesterYarn_perKg" } },
-              { "name": "Knitting Time", "type": "time_machine", "inputs": { "minutesPerUnit": 1.4, "machineKey": "knittingMachine" } },
-              { "name": "Dyeing", "type": "time_machine", "inputs": { "minutesPerUnit": 0.8, "machineKey": "knittingMachine" } },
-              { "name": "Attachment Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 2.3 } }
-            ]},
-            { "name": "Trims", "children": [
-              { "name": "Sewing Thread", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } },
-              { "name": "Labels & Tags", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "label_perUnit" } },
-              { "name": "Heat Transfers", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "heatTransfer_perUnit" } }
-            ]},
-            { "name": "Packaging", "children": [
-              { "name": "Polybag", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "ldpeFilm_perUnit" } },
-              { "name": "Hangtag", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "hangtag_perUnit" } },
-              { "name": "Attachment Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.3 } }
-            ]}
-          ]},
-          { "name": "Labour (CMT)", "children": [
-            { "name": "Cutting", "children": [
-              { "name": "Operator Time", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 3.0 } }
-              ]},
-              { "name": "Machine Time", "children": [
-                { "name": "Machine Rate", "type": "machine_rate", "inputs": { "machineKey": "knittingMachine" } },
-                { "name": "Cycle Time", "type": "time_machine", "inputs": { "minutesPerUnit": 1.6, "machineKey": "knittingMachine" } }
-              ]}
-            ]},
-            { "name": "Sewing", "children": [
-              { "name": "Main Seams", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 8.5 } }
-              ]},
-              { "name": "Collar / Cuffs", "children": [
-                { "name": "Rate / hr", "type": "labour_rate", "inputs": {} },
-                { "name": "Cycle Time", "type": "time_labour", "inputs": { "minutesPerUnit": 3.6 } }
-              ]},
-              { "name": "Thread & Consumables", "type": "material", "inputs": { "quantity": 1, "unit": "unit", "priceKey": "thread_perUnit" } }
-            ]},
-            { "name": "Finishing", "children": [
-              { "name": "Trimming & Pressing", "type": "time_labour", "inputs": { "minutesPerUnit": 2.6 } },
-              { "name": "Packing Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.8 } }
-            ]}
-          ]},
-          { "name": "Overheads", "children": [
-            { "name": "Factory Overhead", "children": [
-              { "name": "Rent & Utilities", "type": "overhead", "inputs": { "minutesPerUnit": 40 } },
-              { "name": "Depreciation", "type": "time_machine", "inputs": { "minutesPerUnit": 22, "machineKey": "knittingMachine" } },
-              { "name": "Indirect Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 18 } }
-            ]},
-            { "name": "Quality Control", "children": [
-              { "name": "QC Labour", "type": "time_labour", "inputs": { "minutesPerUnit": 1.8 } },
-              { "name": "Testing", "type": "time_machine", "inputs": { "minutesPerUnit": 0.9, "machineKey": "sewingMachine" } }
-            ]},
-            { "name": "Management", "children": [
-              { "name": "Supervisor", "type": "time_labour", "inputs": { "minutesPerUnit": 2.2 } },
-              { "name": "Admin", "type": "time_labour", "inputs": { "minutesPerUnit": 1.6 } }
+              { "name": "Supervisor", "type": "time_labour", "inputs": { "minutesPerUnit": 3.6 } },
+              { "name": "Admin", "type": "time_labour", "inputs": { "minutesPerUnit": 1.8 } }
             ]}
           ]},
           { "name": "Factory Margin", "type": "percent_of_subtotal", "inputs": { "percent": 8 } }
@@ -536,227 +417,114 @@
     "horizon": 18,
     "quarterLabels": ["Q4 2026", "Q1 2027", "Q2 2027", "Q3 2027", "Q4 2027", "Q1 2028"],
     "drivers": [
-      {
-        "id": "natural_rubber",
-        "name": "Natural Rubber",
-        "affects": { "type": "material", "key": "rawRubber_perKg" },
-        "source": "World Bank Commodity Markets Outlook, April 2026",
-        "citation": "Natural rubber prices projected to rise by more than 7% in 2026, with additional gains expected in 2027.",
-        "url": "https://blogs.worldbank.org/en/opendata/steady-gains-in-agricultural-raw-material-prices",
-        "quarterlyChange": [1.8, 1.8, 1.7, 1.7, 1.6, 1.6]
-      },
-      {
-        "id": "eva_resin",
-        "name": "EVA Resin",
-        "affects": { "type": "material", "key": "evaResin_perKg" },
-        "source": "MoneyDJ / Formosa Plastics, May 2026",
-        "citation": "China EVA self-sufficiency rising rapidly. More than 1 million tonnes of new capacity before 2027.",
-        "url": "https://www.moneydj.com",
-        "quarterlyChange": [-0.5, -0.5, -0.8, -0.8, -0.5, -0.5]
-      },
-      {
-        "id": "polyester_yarn",
-        "name": "Polyester Yarn (POY/FDY)",
-        "affects": { "type": "material", "key": "polyesterYarn_perKg" },
-        "source": "Expert Market Research, 2026",
-        "citation": "Polyester filament yarn market projected at negative CAGR of -1.8% to -3.6% over 2026-2031.",
-        "url": "https://www.expertmarketresearch.com",
-        "quarterlyChange": [-0.6, -0.6, -0.7, -0.7, -0.6, -0.6]
-      },
-      {
-        "id": "rpet_pellet",
-        "name": "Recycled PET (rPET)",
-        "affects": { "type": "material", "key": "rPETPellet_perKg" },
-        "source": "ICIS / Hertzman Global Intelligence, 2026",
-        "citation": "Competition for recycled bottles could create feedstock shortages and push rPET prices higher by 2027-2028.",
-        "url": "https://www.icis.com",
-        "quarterlyChange": [0.8, 1.0, 1.2, 1.4, 1.5, 1.5]
-      },
-      {
-        "id": "freight_global",
-        "name": "Container Freight (Global)",
-        "affects": { "type": "freight", "key": "all" },
-        "source": "Sea-Intelligence / World Ports Organization, September 2026",
-        "citation": "Container market heading toward cyclical overcapacity peaking in 2027. Spot rates to fall 8-10%.",
-        "url": "https://www.worldports.org",
-        "quarterlyChange": [-4.0, -3.0, -2.0, -1.0, 0.5, 1.0]
-      },
-      {
-        "id": "labour_bangladesh",
-        "name": "Bangladesh Labour Rate",
-        "affects": { "type": "labour", "key": "bangladesh" },
-        "source": "Bangladesh Ministry of Labour / Fibre2Fashion, September 2026",
-        "citation": "Garment workers demanding Tk 30,000 minimum wage. Wage review due December 2026.",
-        "url": "https://www.fibre2fashion.com",
-        "quarterlyChange": [2.0, 2.0, 5.0, 1.0, 1.0, 1.0]
-      },
-      {
-        "id": "labour_vietnam",
-        "name": "Vietnam Labour Rate",
-        "affects": { "type": "labour", "key": "vietnam" },
-        "source": "Vietnam National Wage Council, September 2026",
-        "citation": "National Wage Council unanimously recommended a 7.8% average minimum wage increase from 1 January 2027.",
-        "url": "https://www.vietnam.vn",
-        "quarterlyChange": [0.5, 0.5, 8.0, 0.5, 0.5, 0.5]
-      },
-      {
-        "id": "labour_china",
-        "name": "China Labour Rate",
-        "affects": { "type": "labour", "key": "china" },
-        "source": "China manufacturing wage analysis, 2026",
-        "citation": "China's manufacturing wages reached $6.50-7.00 per hour in coastal regions. Rising ~10% annually.",
-        "url": "https://www.linkedin.com",
-        "quarterlyChange": [1.2, 1.2, 1.2, 1.2, 1.2, 1.2]
-      }
+      { "id": "natural_rubber", "name": "Natural Rubber", "affects": { "type": "material", "key": "rawRubber_perKg" }, "source": "World Bank Commodity Markets Outlook, April 2026", "citation": "Natural rubber prices projected to rise by more than 7% in 2026, with additional gains expected in 2027.", "url": "https://blogs.worldbank.org/en/opendata/steady-gains-in-agricultural-raw-material-prices", "quarterlyChange": [1.8, 1.8, 1.7, 1.7, 1.6, 1.6] },
+      { "id": "eva_resin", "name": "EVA Resin", "affects": { "type": "material", "key": "evaResin_perKg" }, "source": "MoneyDJ / Formosa Plastics, May 2026", "citation": "China EVA self-sufficiency rising. More than 1 million tonnes of new capacity before 2027.", "url": "https://www.moneydj.com", "quarterlyChange": [-0.5, -0.5, -0.8, -0.8, -0.5, -0.5] },
+      { "id": "super_foam", "name": "Supercritical Foam", "affects": { "type": "material", "key": "superFoam_perKg" }, "source": "Industry benchmark 2026", "citation": "PEBA and supercritical foams facing downward pressure as Asian producers enter market.", "url": "", "quarterlyChange": [-0.8, -0.8, -1.0, -1.0, -0.8, -0.8] },
+      { "id": "react_foam", "name": "ReactX Foam", "affects": { "type": "material", "key": "reactFoam_perKg" }, "source": "Nike 2025 sustainability report", "citation": "ReactX production scaling up; cost expected to fall with volume.", "url": "", "quarterlyChange": [-0.6, -0.6, -0.8, -0.8, -0.6, -0.6] },
+      { "id": "freight_global", "name": "Container Freight", "affects": { "type": "freight", "key": "all" }, "source": "Sea-Intelligence, September 2026", "citation": "Overcapacity peak expected in 2027; rates to fall 8-10% over next six months.", "url": "https://www.worldports.org", "quarterlyChange": [-4.0, -3.0, -2.0, -1.0, 0.5, 1.0] },
+      { "id": "labour_vietnam", "name": "Vietnam Labour Rate", "affects": { "type": "labour", "key": "vietnam" }, "source": "Vietnam National Wage Council, September 2026", "citation": "7.8% minimum wage increase from 1 January 2027.", "url": "", "quarterlyChange": [0.5, 0.5, 8.0, 0.5, 0.5, 0.5] },
+      { "id": "labour_china", "name": "China Labour Rate", "affects": { "type": "labour", "key": "china" }, "source": "China manufacturing wage analysis, 2026", "citation": "Coastal China manufacturing wages rising ~10% annually.", "url": "", "quarterlyChange": [1.2, 1.2, 1.2, 1.2, 1.2, 1.2] }
     ]
   },
 
   "competitors": {
     "benchmarks": {
-      "puma": {
-        "name": "PUMA SE",
-        "fy2025": {
-          "netSalesM": 7296.2,
-          "grossMarginPct": 45.0,
-          "footwearGrossMarginPct": 44.3,
-          "operatingMarginPct": -4.9,
-          "footwearSharePct": 56,
-          "sourcingMixPct": { "China": 28, "Vietnam": 26, "Cambodia": 16, "Bangladesh": 11, "Indonesia": 6, "India": 4 }
-        }
-      },
-      "adidas": {
-        "name": "Adidas AG",
-        "fy2025": {
-          "netSalesM": 24811,
-          "grossMarginPct": 51.6,
-          "footwearGrossMarginPct": 50.2,
-          "operatingMarginPct": 8.3,
-          "footwearSharePct": 58,
-          "sourcingMixPct": { "Vietnam": 27, "Indonesia": 19, "China": 16 }
-        }
-      },
-      "nike": {
-        "name": "Nike Inc.",
-        "fy2025": {
-          "grossMarginPct": 42.7,
-          "operatingMarginPct": 9.4,
-          "footwearSharePct": 65,
-          "sourcingMixPct": { "Vietnam": 50, "Indonesia": 27, "China": 18 }
-        }
-      }
+      "puma":   { "name": "PUMA SE",     "fy2025": { "netSalesM": 7296.2,  "grossMarginPct": 45.0, "footwearGrossMarginPct": 44.3, "operatingMarginPct": -4.9, "footwearSharePct": 56, "sourcingMixPct": { "China": 28, "Vietnam": 26, "Cambodia": 16, "Bangladesh": 11, "Indonesia": 6, "India": 4 } } },
+      "adidas": { "name": "Adidas AG",   "fy2025": { "netSalesM": 24811,   "grossMarginPct": 51.6, "footwearGrossMarginPct": 50.2, "operatingMarginPct": 8.3,  "footwearSharePct": 58, "sourcingMixPct": { "Vietnam": 27, "Indonesia": 19, "China": 16 } } },
+      "nike":   { "name": "Nike Inc.",   "fy2025": { "netSalesM": 51362,   "grossMarginPct": 42.7, "footwearGrossMarginPct": 43.0, "operatingMarginPct": 9.4,  "footwearSharePct": 65, "sourcingMixPct": { "Vietnam": 50, "Indonesia": 27, "China": 18 } } },
+      "anta":   { "name": "Anta Sports", "fy2025": { "netSalesM": 8800,    "grossMarginPct": 62.2, "footwearGrossMarginPct": 55.0, "operatingMarginPct": 23.5, "footwearSharePct": 42, "sourcingMixPct": { "China": 70, "Vietnam": 18, "Indonesia": 8, "Others": 4 } } }
     },
     "productComparisons": [
       {
-        "id": "running",
-        "category": "Running Shoe",
+        "id": "puma_vs_adidas",
+        "category": "Running Shoe Comparison",
         "puma": { "name": "PUMA Velocity NITRO 4", "retailPrice": 140.00, "fob": 20.93, "materials": 12.81, "labour": 3.60, "overheads": 2.80, "margin": 1.73, "costPctOfRetail": 14.9 },
         "competitor": { "brand": "Adidas", "name": "Adizero SL2", "retailPrice": 130.00, "fob": 22.50, "materials": 13.20, "labour": 3.80, "overheads": 2.60, "margin": 2.90, "costPctOfRetail": 17.3 },
         "gapAnalysis": [
-          { "area": "Materials", "pumaCost": 12.81, "compCost": 13.20, "delta": -0.39, "status": "better", "note": "PUMA's simpler mesh construction uses less material." },
-          { "area": "Labour", "pumaCost": 3.60, "compCost": 3.80, "delta": -0.20, "status": "better", "note": "Comparable. Both concentrate in Vietnam." },
-          { "area": "Overheads", "pumaCost": 2.80, "compCost": 2.60, "delta": 0.20, "status": "worse", "note": "PUMA carries higher overhead per unit at smaller volumes." },
-          { "area": "Factory margin", "pumaCost": 1.73, "compCost": 2.90, "delta": -1.17, "status": "better", "note": "PUMA accepts lower margin; Adidas' suppliers earn more." },
-          { "area": "Total FOB", "pumaCost": 20.93, "compCost": 22.50, "delta": -1.57, "status": "better", "note": "PUMA achieves €1.57 lower FOB." },
-          { "area": "FOB as % of retail", "pumaCost": 14.9, "compCost": 17.3, "delta": -2.4, "status": "better", "note": "PUMA captures more value at brand level." }
+          { "area": "Materials", "pumaCost": 12.81, "compCost": 13.20, "delta": -0.39, "status": "better", "note": "PUMA's mesh simpler than Adidas' engineered knit." },
+          { "area": "Labour", "pumaCost": 3.60, "compCost": 3.80, "delta": -0.20, "status": "better", "note": "Comparable. Both in Vietnam." },
+          { "area": "Overheads", "pumaCost": 2.80, "compCost": 2.60, "delta": 0.20, "status": "worse", "note": "PUMA volume lower, less scale leverage." },
+          { "area": "Factory margin", "pumaCost": 1.73, "compCost": 2.90, "delta": -1.17, "status": "better", "note": "PUMA accepts lower factory margin; Adidas tier 1 command more." },
+          { "area": "Total FOB", "pumaCost": 20.93, "compCost": 22.50, "delta": -1.57, "status": "better", "note": "PUMA €1.57 lower FOB." }
         ]
       },
       {
-        "id": "football",
-        "category": "Football Boot",
-        "puma": { "name": "PUMA Future 9 Match FG/AG", "retailPrice": 75.00, "fob": 13.44, "materials": 8.10, "labour": 2.30, "overheads": 1.85, "margin": 1.21, "costPctOfRetail": 17.9 },
-        "competitor": { "brand": "Adidas", "name": "Predator League FG", "retailPrice": 85.00, "fob": 15.20, "materials": 8.90, "labour": 2.60, "overheads": 1.70, "margin": 2.00, "costPctOfRetail": 17.9 },
+        "id": "puma_vs_nike",
+        "category": "Running Shoe Comparison",
+        "puma": { "name": "PUMA Velocity NITRO 4", "retailPrice": 140.00, "fob": 20.93, "materials": 12.81, "labour": 3.60, "overheads": 2.80, "margin": 1.73, "costPctOfRetail": 14.9 },
+        "competitor": { "brand": "Nike", "name": "Air Zoom Pegasus 41", "retailPrice": 140.00, "fob": 24.00, "materials": 14.50, "labour": 4.20, "overheads": 2.90, "margin": 2.40, "costPctOfRetail": 17.1 },
         "gapAnalysis": [
-          { "area": "Materials", "pumaCost": 8.10, "compCost": 8.90, "delta": -0.80, "status": "better", "note": "Simpler mesh upper with fewer TPU elements." },
-          { "area": "Labour", "pumaCost": 2.30, "compCost": 2.60, "delta": -0.30, "status": "better", "note": "Lower stitching complexity." },
-          { "area": "Overheads", "pumaCost": 1.85, "compCost": 1.70, "delta": 0.15, "status": "worse", "note": "Smaller volume = higher overhead per unit." },
-          { "area": "Factory margin", "pumaCost": 1.21, "compCost": 2.00, "delta": -0.79, "status": "better", "note": "PUMA accepts lower margin." },
-          { "area": "Total FOB", "pumaCost": 13.44, "compCost": 15.20, "delta": -1.76, "status": "better", "note": "€1.76 lower FOB despite similar retail." },
-          { "area": "FOB as % of retail", "pumaCost": 17.9, "compCost": 17.9, "delta": 0.0, "status": "neutral", "note": "Same relative share of retail." }
+          { "area": "Materials", "pumaCost": 12.81, "compCost": 14.50, "delta": -1.69, "status": "better", "note": "Nike's ReactX foam + 2 Zoom Air units are materially more expensive." },
+          { "area": "Labour", "pumaCost": 3.60, "compCost": 4.20, "delta": -0.60, "status": "better", "note": "Flywire integration adds labour; PUMA's design simpler." },
+          { "area": "Overheads", "pumaCost": 2.80, "compCost": 2.90, "delta": -0.10, "status": "better", "note": "Comparable." },
+          { "area": "Total FOB", "pumaCost": 20.93, "compCost": 24.00, "delta": -3.07, "status": "better", "note": "PUMA €3.07 lower FOB — significant cost advantage." }
         ]
       },
       {
-        "id": "apparel",
-        "category": "Sports Shirt",
-        "puma": { "name": "PUMA Training Tee", "retailPrice": 35.00, "fob": 6.42, "materials": 4.00, "labour": 1.65, "overheads": 0.77, "margin": 0.52, "costPctOfRetail": 18.3 },
-        "competitor": { "brand": "Adidas", "name": "Own The Run Tee", "retailPrice": 40.00, "fob": 7.10, "materials": 4.30, "labour": 1.50, "overheads": 0.70, "margin": 0.60, "costPctOfRetail": 17.8 },
+        "id": "puma_vs_anta",
+        "category": "Running Shoe Comparison",
+        "puma": { "name": "PUMA Velocity NITRO 4", "retailPrice": 140.00, "fob": 20.93, "materials": 12.81, "labour": 3.60, "overheads": 2.80, "margin": 1.73, "costPctOfRetail": 14.9 },
+        "competitor": { "brand": "Anta", "name": "C202 5.0", "retailPrice": 110.00, "fob": 18.80, "materials": 11.80, "labour": 2.60, "overheads": 2.10, "margin": 1.30, "costPctOfRetail": 17.1 },
         "gapAnalysis": [
-          { "area": "Materials", "pumaCost": 4.00, "compCost": 4.30, "delta": -0.30, "status": "better", "note": "Simpler fabric construction." },
-          { "area": "Labour", "pumaCost": 1.65, "compCost": 1.50, "delta": 0.15, "status": "worse", "note": "Less automated sewing at Tier-2 supplier." },
-          { "area": "Overheads", "pumaCost": 0.77, "compCost": 0.70, "delta": 0.07, "status": "worse", "note": "Smaller apparel volumes." },
-          { "area": "Factory margin", "pumaCost": 0.52, "compCost": 0.60, "delta": -0.08, "status": "better", "note": "PUMA accepts lower margin." },
-          { "area": "Total FOB", "pumaCost": 6.42, "compCost": 7.10, "delta": -0.68, "status": "better", "note": "~10% cost advantage." },
-          { "area": "FOB as % of retail", "pumaCost": 18.3, "compCost": 17.8, "delta": 0.5, "status": "worse", "note": "PUMA's retail price is lower." }
+          { "area": "Materials", "pumaCost": 12.81, "compCost": 11.80, "delta": 1.01, "status": "worse", "note": "Anta's carbon plate adds cost, but they're vertically integrated on foam." },
+          { "area": "Labour", "pumaCost": 3.60, "compCost": 2.60, "delta": 1.00, "status": "worse", "note": "Anta's China production at lower cost than Vietnam for this SKU." },
+          { "area": "Overheads", "pumaCost": 2.80, "compCost": 2.10, "delta": 0.70, "status": "worse", "note": "Anta's scale and vertical integration reduce overhead." },
+          { "area": "Total FOB", "pumaCost": 20.93, "compCost": 18.80, "delta": 2.13, "status": "worse", "note": "Anta €2.13 lower FOB — driven by labour and overhead efficiency." },
+          { "area": "Retail price gap", "pumaCost": 140.00, "compCost": 110.00, "delta": 30.00, "status": "better", "note": "PUMA commands €30 higher retail — brand premium offsets higher cost." }
         ]
       }
     ],
     "improvementPriorities": [
-      { "rank": 1, "area": "Overheads per unit", "why": "PUMA carries higher overhead per unit across all three categories due to smaller volumes.", "action": "Consolidate to fewer, larger Tier-1 suppliers for core products.", "impact": "High", "effort": "Medium" },
-      { "rank": 2, "area": "Gross margin gap vs Adidas", "why": "PUMA's gross margin (45.0%) is 6.6pp below Adidas (51.6%).", "action": "Shift channel mix toward DTC and reduce promotional wholesale.", "impact": "High", "effort": "High" },
-      { "rank": 3, "area": "Sourcing concentration in China", "why": "28% of production in China vs 16% for Adidas. US Section 301 hits PUMA harder.", "action": "Accelerate shift to Vietnam, Indonesia, and Bangladesh.", "impact": "High", "effort": "High" },
-      { "rank": 4, "area": "Apparel labour efficiency", "why": "PUMA's apparel labour cost (€1.65) is higher than Adidas (€1.50).", "action": "Invest in automated sewing and cutting equipment.", "impact": "Medium", "effort": "Medium" },
-      { "rank": 5, "area": "Material cost on running shoes", "why": "PUMA's running materials (€12.81) are already lower than Adidas (€13.20).", "action": "Protect this advantage by keeping mesh construction simple.", "impact": "Medium", "effort": "Low" }
+      { "rank": 1, "area": "Scale on midsole production", "why": "PUMA's overhead per unit is higher than Adidas and Nike due to smaller volumes.", "action": "Consolidate midsole production to fewer Tier-1 partners.", "impact": "High", "effort": "Medium" },
+      { "rank": 2, "area": "Materials cost on premium SKUs", "why": "Nike's ReactX foam and Zoom Air units cost more, but they capture this in retail price.", "action": "Review which premium features justify their retail uplift.", "impact": "Medium", "effort": "Low" },
+      { "rank": 3, "area": "Sourcing diversity vs Anta", "why": "Anta's China concentration gives them lower labour and overhead, but exposes them to tariffs in US/EU.", "action": "Maintain diversified sourcing to manage geopolitical risk.", "impact": "Medium", "effort": "High" }
     ]
   },
 
   "endToEnd": {
-    "notes": "End-to-end landed cost from factory to consumer.",
+    "notes": "End-to-end landed cost from factory to consumer. Base FOB uses PUMA Velocity NITRO 4.",
     "sourceCountries": [
+      { "id": "vietnam",    "name": "Vietnam",    "shareOfProductionPct": 26, "laborRatePerHr": 2.30, "flag": "🇻🇳" },
+      { "id": "china",      "name": "China",      "shareOfProductionPct": 28, "laborRatePerHr": 4.50, "flag": "🇨🇳" },
+      { "id": "cambodia",   "name": "Cambodia",   "shareOfProductionPct": 16, "laborRatePerHr": 1.90, "flag": "🇰🇭" },
       { "id": "bangladesh", "name": "Bangladesh", "shareOfProductionPct": 11, "laborRatePerHr": 0.90, "flag": "🇧🇩" },
-      { "id": "vietnam", "name": "Vietnam", "shareOfProductionPct": 26, "laborRatePerHr": 2.30, "flag": "🇻🇳" },
-      { "id": "china", "name": "China", "shareOfProductionPct": 28, "laborRatePerHr": 4.50, "flag": "🇨🇳" },
-      { "id": "cambodia", "name": "Cambodia", "shareOfProductionPct": 16, "laborRatePerHr": 1.90, "flag": "🇰🇭" },
-      { "id": "indonesia", "name": "Indonesia", "shareOfProductionPct": 6, "laborRatePerHr": 2.10, "flag": "🇮🇩" },
-      { "id": "india", "name": "India", "shareOfProductionPct": 4, "laborRatePerHr": 1.80, "flag": "🇮🇳" }
+      { "id": "indonesia",  "name": "Indonesia",  "shareOfProductionPct": 6,  "laborRatePerHr": 2.10, "flag": "🇮🇩" },
+      { "id": "india",      "name": "India",      "shareOfProductionPct": 4,  "laborRatePerHr": 1.80, "flag": "🇮🇳" }
     ],
     "destinationMarkets": [
-      { "id": "us", "name": "United States", "estimatedRevenueM": 1930, "shareOfGlobalPct": 26.5, "vatRatePct": 8.5, "vatName": "Sales Tax (avg)", "flag": "🇺🇸" },
-      { "id": "germany", "name": "Germany", "estimatedRevenueM": 580, "shareOfGlobalPct": 8.0, "vatRatePct": 19, "vatName": "MwSt", "flag": "🇩🇪" },
-      { "id": "china_market", "name": "China", "estimatedRevenueM": 488, "shareOfGlobalPct": 6.7, "vatRatePct": 13, "vatName": "VAT", "flag": "🇨🇳" },
-      { "id": "france", "name": "France", "estimatedRevenueM": 420, "shareOfGlobalPct": 5.8, "vatRatePct": 20, "vatName": "TVA", "flag": "🇫🇷" },
-      { "id": "uk", "name": "United Kingdom", "estimatedRevenueM": 375, "shareOfGlobalPct": 5.1, "vatRatePct": 20, "vatName": "VAT", "flag": "🇬🇧" },
-      { "id": "italy", "name": "Italy", "estimatedRevenueM": 310, "shareOfGlobalPct": 4.2, "vatRatePct": 22, "vatName": "IVA", "flag": "🇮🇹" },
-      { "id": "japan", "name": "Japan", "estimatedRevenueM": 245, "shareOfGlobalPct": 3.4, "vatRatePct": 10, "vatName": "Consumption Tax", "flag": "🇯🇵" },
-      { "id": "brazil", "name": "Brazil", "estimatedRevenueM": 335, "shareOfGlobalPct": 4.6, "vatRatePct": 17, "vatName": "ICMS", "flag": "🇧🇷" },
-      { "id": "mexico", "name": "Mexico", "estimatedRevenueM": 285, "shareOfGlobalPct": 3.9, "vatRatePct": 16, "vatName": "IVA", "flag": "🇲🇽" },
-      { "id": "india_market", "name": "India", "estimatedRevenueM": 220, "shareOfGlobalPct": 3.0, "vatRatePct": 18, "vatName": "GST", "flag": "🇮🇳" }
+      { "id": "us",           "name": "United States", "estimatedRevenueM": 1930, "shareOfGlobalPct": 26.5, "vatRatePct": 8.5,  "vatName": "Sales Tax",     "flag": "🇺🇸" },
+      { "id": "germany",      "name": "Germany",       "estimatedRevenueM": 580,  "shareOfGlobalPct": 8.0,  "vatRatePct": 19,   "vatName": "MwSt",           "flag": "🇩🇪" },
+      { "id": "china_market", "name": "China",         "estimatedRevenueM": 488,  "shareOfGlobalPct": 6.7,  "vatRatePct": 13,   "vatName": "VAT",            "flag": "🇨🇳" },
+      { "id": "france",       "name": "France",        "estimatedRevenueM": 420,  "shareOfGlobalPct": 5.8,  "vatRatePct": 20,   "vatName": "TVA",            "flag": "🇫🇷" },
+      { "id": "uk",           "name": "United Kingdom","estimatedRevenueM": 375,  "shareOfGlobalPct": 5.1,  "vatRatePct": 20,   "vatName": "VAT",            "flag": "🇬🇧" },
+      { "id": "italy",        "name": "Italy",         "estimatedRevenueM": 310,  "shareOfGlobalPct": 4.2,  "vatRatePct": 22,   "vatName": "IVA",            "flag": "🇮🇹" },
+      { "id": "japan",        "name": "Japan",         "estimatedRevenueM": 245,  "shareOfGlobalPct": 3.4,  "vatRatePct": 10,   "vatName": "Consumption Tax","flag": "🇯🇵" },
+      { "id": "brazil",       "name": "Brazil",        "estimatedRevenueM": 335,  "shareOfGlobalPct": 4.6,  "vatRatePct": 17,   "vatName": "ICMS",           "flag": "🇧🇷" },
+      { "id": "mexico",       "name": "Mexico",        "estimatedRevenueM": 285,  "shareOfGlobalPct": 3.9,  "vatRatePct": 16,   "vatName": "IVA",            "flag": "🇲🇽" },
+      { "id": "india_market", "name": "India",         "estimatedRevenueM": 220,  "shareOfGlobalPct": 3.0,  "vatRatePct": 18,   "vatName": "GST",            "flag": "🇮🇳" }
     ],
     "matrix": [
-      { "source": "bangladesh", "destination": "us", "fob": 18.85, "freightPerUnit": 2.85, "insurancePerUnit": 0.11, "cif": 21.81, "tariffRatePct": 22.5, "tariffPerUnit": 4.91, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 28.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 56.54, "vatPerUnit": 4.81, "finalRetailPrice": 61.35 },
-      { "source": "bangladesh", "destination": "germany", "fob": 18.85, "freightPerUnit": 1.28, "insurancePerUnit": 0.10, "cif": 20.23, "tariffRatePct": 8, "tariffPerUnit": 1.62, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 23.00, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 46.00, "vatPerUnit": 8.74, "finalRetailPrice": 54.74 },
-      { "source": "bangladesh", "destination": "china_market", "fob": 18.85, "freightPerUnit": 0.31, "insurancePerUnit": 0.10, "cif": 19.26, "tariffRatePct": 10, "tariffPerUnit": 1.93, "customsPerUnit": 0.30, "inlandPerUnit": 0.75, "landedCost": 22.24, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 44.48, "vatPerUnit": 5.78, "finalRetailPrice": 50.26 },
-      { "source": "bangladesh", "destination": "france", "fob": 18.85, "freightPerUnit": 1.28, "insurancePerUnit": 0.10, "cif": 20.23, "tariffRatePct": 8, "tariffPerUnit": 1.62, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 23.00, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 46.00, "vatPerUnit": 9.20, "finalRetailPrice": 55.20 },
-      { "source": "bangladesh", "destination": "uk", "fob": 18.85, "freightPerUnit": 1.34, "insurancePerUnit": 0.10, "cif": 20.29, "tariffRatePct": 8, "tariffPerUnit": 1.62, "customsPerUnit": 0.30, "inlandPerUnit": 0.80, "landedCost": 23.01, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 46.02, "vatPerUnit": 9.20, "finalRetailPrice": 55.22 },
-      { "source": "bangladesh", "destination": "italy", "fob": 18.85, "freightPerUnit": 1.41, "insurancePerUnit": 0.10, "cif": 20.36, "tariffRatePct": 8, "tariffPerUnit": 1.63, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 23.14, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 46.28, "vatPerUnit": 10.18, "finalRetailPrice": 56.46 },
-      { "source": "bangladesh", "destination": "japan", "fob": 18.85, "freightPerUnit": 0.41, "insurancePerUnit": 0.10, "cif": 19.36, "tariffRatePct": 8, "tariffPerUnit": 1.55, "customsPerUnit": 0.30, "inlandPerUnit": 0.90, "landedCost": 22.11, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 44.22, "vatPerUnit": 4.42, "finalRetailPrice": 48.64 },
-      { "source": "bangladesh", "destination": "brazil", "fob": 18.85, "freightPerUnit": 1.46, "insurancePerUnit": 0.10, "cif": 20.41, "tariffRatePct": 35, "tariffPerUnit": 7.14, "customsPerUnit": 0.45, "inlandPerUnit": 1.50, "landedCost": 29.50, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 59.00, "vatPerUnit": 10.03, "finalRetailPrice": 69.03 },
-      { "source": "bangladesh", "destination": "mexico", "fob": 18.85, "freightPerUnit": 1.17, "insurancePerUnit": 0.10, "cif": 20.12, "tariffRatePct": 35, "tariffPerUnit": 7.04, "customsPerUnit": 0.45, "inlandPerUnit": 1.20, "landedCost": 28.81, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 57.62, "vatPerUnit": 9.22, "finalRetailPrice": 66.84 },
-      { "source": "bangladesh", "destination": "india_market", "fob": 18.85, "freightPerUnit": 0.52, "insurancePerUnit": 0.10, "cif": 19.47, "tariffRatePct": 20, "tariffPerUnit": 3.89, "customsPerUnit": 0.40, "inlandPerUnit": 1.00, "landedCost": 24.76, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 49.52, "vatPerUnit": 8.91, "finalRetailPrice": 58.43 },
-      { "source": "vietnam", "destination": "us", "fob": 21.55, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 24.52, "tariffRatePct": 22.5, "tariffPerUnit": 5.52, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 31.59, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 63.18, "vatPerUnit": 5.37, "finalRetailPrice": 68.55 },
-      { "source": "vietnam", "destination": "germany", "fob": 21.55, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.94, "tariffRatePct": 8, "tariffPerUnit": 1.84, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.93, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 51.86, "vatPerUnit": 9.85, "finalRetailPrice": 61.71 },
-      { "source": "vietnam", "destination": "china_market", "fob": 21.55, "freightPerUnit": 0.31, "insurancePerUnit": 0.11, "cif": 21.97, "tariffRatePct": 10, "tariffPerUnit": 2.20, "customsPerUnit": 0.30, "inlandPerUnit": 0.75, "landedCost": 25.22, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.44, "vatPerUnit": 6.56, "finalRetailPrice": 57.00 },
-      { "source": "vietnam", "destination": "france", "fob": 21.55, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.94, "tariffRatePct": 8, "tariffPerUnit": 1.84, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.93, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 51.86, "vatPerUnit": 10.37, "finalRetailPrice": 62.23 },
-      { "source": "vietnam", "destination": "uk", "fob": 21.55, "freightPerUnit": 1.34, "insurancePerUnit": 0.11, "cif": 23.00, "tariffRatePct": 8, "tariffPerUnit": 1.84, "customsPerUnit": 0.30, "inlandPerUnit": 0.80, "landedCost": 25.94, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 51.88, "vatPerUnit": 10.38, "finalRetailPrice": 62.26 },
-      { "source": "vietnam", "destination": "italy", "fob": 21.55, "freightPerUnit": 1.41, "insurancePerUnit": 0.11, "cif": 23.07, "tariffRatePct": 8, "tariffPerUnit": 1.85, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 26.07, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 52.14, "vatPerUnit": 11.47, "finalRetailPrice": 63.61 },
-      { "source": "vietnam", "destination": "japan", "fob": 21.55, "freightPerUnit": 0.41, "insurancePerUnit": 0.11, "cif": 22.07, "tariffRatePct": 8, "tariffPerUnit": 1.77, "customsPerUnit": 0.30, "inlandPerUnit": 0.90, "landedCost": 25.04, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.08, "vatPerUnit": 5.01, "finalRetailPrice": 55.09 },
-      { "source": "vietnam", "destination": "brazil", "fob": 21.55, "freightPerUnit": 1.46, "insurancePerUnit": 0.12, "cif": 23.13, "tariffRatePct": 35, "tariffPerUnit": 8.10, "customsPerUnit": 0.45, "inlandPerUnit": 1.50, "landedCost": 33.18, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 66.36, "vatPerUnit": 11.28, "finalRetailPrice": 77.64 },
-      { "source": "vietnam", "destination": "mexico", "fob": 21.55, "freightPerUnit": 1.17, "insurancePerUnit": 0.11, "cif": 22.83, "tariffRatePct": 35, "tariffPerUnit": 7.99, "customsPerUnit": 0.45, "inlandPerUnit": 1.20, "landedCost": 32.47, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 64.94, "vatPerUnit": 10.39, "finalRetailPrice": 75.33 },
-      { "source": "vietnam", "destination": "india_market", "fob": 21.55, "freightPerUnit": 0.52, "insurancePerUnit": 0.11, "cif": 22.18, "tariffRatePct": 20, "tariffPerUnit": 4.44, "customsPerUnit": 0.40, "inlandPerUnit": 1.00, "landedCost": 28.02, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 56.04, "vatPerUnit": 10.09, "finalRetailPrice": 66.13 },
-      { "source": "china", "destination": "us", "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 23.90, "tariffRatePct": 47.5, "tariffPerUnit": 11.35, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 36.80, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 73.60, "vatPerUnit": 6.26, "finalRetailPrice": 79.86 },
-      { "source": "china", "destination": "germany", "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8, "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
-      { "source": "china", "destination": "china_market", "fob": 20.93, "freightPerUnit": 0.31, "insurancePerUnit": 0.11, "cif": 21.35, "tariffRatePct": 10, "tariffPerUnit": 2.14, "customsPerUnit": 0.30, "inlandPerUnit": 0.75, "landedCost": 24.54, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 49.08, "vatPerUnit": 6.38, "finalRetailPrice": 55.46 },
-      { "source": "china", "destination": "france", "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8, "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 10.10, "finalRetailPrice": 60.62 },
-      { "source": "china", "destination": "uk", "fob": 20.93, "freightPerUnit": 1.34, "insurancePerUnit": 0.11, "cif": 22.38, "tariffRatePct": 8, "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.80, "landedCost": 25.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.54, "vatPerUnit": 10.11, "finalRetailPrice": 60.65 },
-      { "source": "china", "destination": "italy", "fob": 20.93, "freightPerUnit": 1.41, "insurancePerUnit": 0.11, "cif": 22.45, "tariffRatePct": 8, "tariffPerUnit": 1.80, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.40, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.80, "vatPerUnit": 11.18, "finalRetailPrice": 61.98 },
-      { "source": "china", "destination": "japan", "fob": 20.93, "freightPerUnit": 0.41, "insurancePerUnit": 0.11, "cif": 21.45, "tariffRatePct": 8, "tariffPerUnit": 1.72, "customsPerUnit": 0.30, "inlandPerUnit": 0.90, "landedCost": 24.37, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 48.74, "vatPerUnit": 4.87, "finalRetailPrice": 53.61 },
-      { "source": "china", "destination": "brazil", "fob": 20.93, "freightPerUnit": 1.46, "insurancePerUnit": 0.12, "cif": 22.51, "tariffRatePct": 35, "tariffPerUnit": 7.88, "customsPerUnit": 0.45, "inlandPerUnit": 1.50, "landedCost": 32.34, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 64.68, "vatPerUnit": 11.00, "finalRetailPrice": 75.68 },
-      { "source": "china", "destination": "mexico", "fob": 20.93, "freightPerUnit": 1.17, "insurancePerUnit": 0.11, "cif": 22.21, "tariffRatePct": 35, "tariffPerUnit": 7.77, "customsPerUnit": 0.45, "inlandPerUnit": 1.20, "landedCost": 31.63, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 63.26, "vatPerUnit": 10.12, "finalRetailPrice": 73.38 },
-      { "source": "china", "destination": "india_market", "fob": 20.93, "freightPerUnit": 0.52, "insurancePerUnit": 0.11, "cif": 21.56, "tariffRatePct": 20, "tariffPerUnit": 4.31, "customsPerUnit": 0.40, "inlandPerUnit": 1.00, "landedCost": 27.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 54.54, "vatPerUnit": 9.82, "finalRetailPrice": 64.36 },
-      { "source": "cambodia", "destination": "us", "fob": 19.85, "freightPerUnit": 2.85, "insurancePerUnit": 0.11, "cif": 22.81, "tariffRatePct": 22.5, "tariffPerUnit": 5.13, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 29.49, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 58.98, "vatPerUnit": 5.01, "finalRetailPrice": 63.99 },
-      { "source": "cambodia", "destination": "germany", "fob": 19.85, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 21.24, "tariffRatePct": 8, "tariffPerUnit": 1.70, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 24.09, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 48.18, "vatPerUnit": 9.15, "finalRetailPrice": 57.33 },
-      { "source": "indonesia", "destination": "us", "fob": 20.15, "freightPerUnit": 2.85, "insurancePerUnit": 0.11, "cif": 23.11, "tariffRatePct": 22.5, "tariffPerUnit": 5.20, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 29.86, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 59.72, "vatPerUnit": 5.08, "finalRetailPrice": 64.80 },
-      { "source": "indonesia", "destination": "germany", "fob": 20.15, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 21.54, "tariffRatePct": 8, "tariffPerUnit": 1.72, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 24.41, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 48.82, "vatPerUnit": 9.28, "finalRetailPrice": 58.10 },
-      { "source": "india", "destination": "us", "fob": 20.45, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 23.42, "tariffRatePct": 22.5, "tariffPerUnit": 5.27, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.24, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 60.48, "vatPerUnit": 5.14, "finalRetailPrice": 65.62 },
-      { "source": "india", "destination": "germany", "fob": 20.45, "freightPerUnit": 1.28, "insurancePerUnit": 0.12, "cif": 21.85, "tariffRatePct": 8, "tariffPerUnit": 1.75, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 24.75, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 49.50, "vatPerUnit": 9.41, "finalRetailPrice": 58.91 }
+      { "source": "vietnam",    "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 23.90, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.83, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.66, "vatPerUnit": 5.24, "finalRetailPrice": 66.90 },
+      { "source": "vietnam",    "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
+      { "source": "vietnam",    "destination": "china_market", "fob": 20.93, "freightPerUnit": 0.31, "insurancePerUnit": 0.11, "cif": 21.35, "tariffRatePct": 10,   "tariffPerUnit": 2.14, "customsPerUnit": 0.30, "inlandPerUnit": 0.75, "landedCost": 24.54, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 49.08, "vatPerUnit": 6.38, "finalRetailPrice": 55.46 },
+      { "source": "vietnam",    "destination": "france",       "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 10.10, "finalRetailPrice": 60.62 },
+      { "source": "vietnam",    "destination": "uk",           "fob": 20.93, "freightPerUnit": 1.34, "insurancePerUnit": 0.11, "cif": 22.38, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.80, "landedCost": 25.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.54, "vatPerUnit": 10.11, "finalRetailPrice": 60.65 },
+      { "source": "vietnam",    "destination": "italy",        "fob": 20.93, "freightPerUnit": 1.41, "insurancePerUnit": 0.11, "cif": 22.45, "tariffRatePct": 8,    "tariffPerUnit": 1.80, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.40, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.80, "vatPerUnit": 11.18, "finalRetailPrice": 61.98 },
+      { "source": "vietnam",    "destination": "japan",        "fob": 20.93, "freightPerUnit": 0.41, "insurancePerUnit": 0.11, "cif": 21.45, "tariffRatePct": 8,    "tariffPerUnit": 1.72, "customsPerUnit": 0.30, "inlandPerUnit": 0.90, "landedCost": 24.37, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 48.74, "vatPerUnit": 4.87, "finalRetailPrice": 53.61 },
+      { "source": "vietnam",    "destination": "brazil",       "fob": 20.93, "freightPerUnit": 1.46, "insurancePerUnit": 0.12, "cif": 22.51, "tariffRatePct": 35,   "tariffPerUnit": 7.88, "customsPerUnit": 0.45, "inlandPerUnit": 1.50, "landedCost": 32.34, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 64.68, "vatPerUnit": 11.00, "finalRetailPrice": 75.68 },
+      { "source": "vietnam",    "destination": "mexico",       "fob": 20.93, "freightPerUnit": 1.17, "insurancePerUnit": 0.11, "cif": 22.21, "tariffRatePct": 35,   "tariffPerUnit": 7.77, "customsPerUnit": 0.45, "inlandPerUnit": 1.20, "landedCost": 31.63, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 63.26, "vatPerUnit": 10.12, "finalRetailPrice": 73.38 },
+      { "source": "vietnam",    "destination": "india_market", "fob": 20.93, "freightPerUnit": 0.52, "insurancePerUnit": 0.11, "cif": 21.56, "tariffRatePct": 20,   "tariffPerUnit": 4.31, "customsPerUnit": 0.40, "inlandPerUnit": 1.00, "landedCost": 27.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 54.54, "vatPerUnit": 9.82, "finalRetailPrice": 64.36 },
+      { "source": "china",      "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 23.90, "tariffRatePct": 47.5, "tariffPerUnit": 11.35, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 36.80, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 73.60, "vatPerUnit": 6.26, "finalRetailPrice": 79.86 },
+      { "source": "china",      "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
+      { "source": "china",      "destination": "china_market", "fob": 20.93, "freightPerUnit": 0.31, "insurancePerUnit": 0.11, "cif": 21.35, "tariffRatePct": 10,   "tariffPerUnit": 2.14, "customsPerUnit": 0.30, "inlandPerUnit": 0.75, "landedCost": 24.54, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 49.08, "vatPerUnit": 6.38, "finalRetailPrice": 55.46 },
+      { "source": "cambodia",   "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.11, "cif": 23.89, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.82, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.64, "vatPerUnit": 5.24, "finalRetailPrice": 66.88 },
+      { "source": "cambodia",   "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
+      { "source": "bangladesh", "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.11, "cif": 23.89, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.82, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.64, "vatPerUnit": 5.24, "finalRetailPrice": 66.88 },
+      { "source": "bangladesh", "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.10, "cif": 22.31, "tariffRatePct": 8,    "tariffPerUnit": 1.78, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.24, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.48, "vatPerUnit": 9.59, "finalRetailPrice": 60.07 },
+      { "source": "indonesia",  "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.11, "cif": 23.89, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.82, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.64, "vatPerUnit": 5.24, "finalRetailPrice": 66.88 },
+      { "source": "indonesia",  "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
+      { "source": "india",      "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 23.90, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.83, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.66, "vatPerUnit": 5.24, "finalRetailPrice": 66.90 },
+      { "source": "india",      "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.12, "cif": 22.33, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.54, "vatPerUnit": 10.11, "finalRetailPrice": 60.65 }
     ]
   }
 }
