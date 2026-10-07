@@ -1,5 +1,5 @@
 {
-  "version": "8.0",
+  "version": "8.1",
   "last_updated": "2026-10-07",
   "currency": "EUR",
   "category": "footwear",
@@ -58,6 +58,7 @@
   "products": [
     {
       "id": "puma-velocity-nitro-4",
+      "imageUrl": "images/puma-velocity.png",
       "name": "PUMA Velocity NITRO 4",
       "brand": "PUMA",
       "category": "Running Shoe",
@@ -148,6 +149,7 @@
 
     {
       "id": "adidas-adizero-sl2",
+      "imageUrl": "images/adidas-sl2.png",
       "name": "Adidas Adizero SL2",
       "brand": "Adidas",
       "category": "Running Shoe",
@@ -236,6 +238,7 @@
 
     {
       "id": "nike-pegasus-41",
+      "imageUrl": "images/nike-pegasus.png",
       "name": "Nike Air Zoom Pegasus 41",
       "brand": "Nike",
       "category": "Running Shoe",
@@ -324,6 +327,7 @@
 
     {
       "id": "anta-c202-5",
+      "imageUrl": "images/anta-c202.png",
       "name": "Anta C202 5.0",
       "brand": "Anta",
       "category": "Racing Shoe",
@@ -525,6 +529,116 @@
       { "source": "indonesia",  "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.11, "cif": 22.32, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.26, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.52, "vatPerUnit": 9.60, "finalRetailPrice": 60.12 },
       { "source": "india",      "destination": "us",           "fob": 20.93, "freightPerUnit": 2.85, "insurancePerUnit": 0.12, "cif": 23.90, "tariffRatePct": 22.5, "tariffPerUnit": 5.38, "customsPerUnit": 0.35, "inlandPerUnit": 1.20, "landedCost": 30.83, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 61.66, "vatPerUnit": 5.24, "finalRetailPrice": 66.90 },
       { "source": "india",      "destination": "germany",      "fob": 20.93, "freightPerUnit": 1.28, "insurancePerUnit": 0.12, "cif": 22.33, "tariffRatePct": 8,    "tariffPerUnit": 1.79, "customsPerUnit": 0.30, "inlandPerUnit": 0.85, "landedCost": 25.27, "wholesaleMarkupPct": 50, "retailPriceBeforeTax": 50.54, "vatPerUnit": 10.11, "finalRetailPrice": 60.65 }
+    ]
+  },
+
+  "processFlow": {
+    "notes": "The end-to-end shoe manufacturing journey. Cost shares are typical percentages of FOB for a running shoe.",
+    "stages": [
+      {
+        "id": "raw-materials",
+        "order": 1,
+        "name": "Raw Materials",
+        "icon": "🌾",
+        "costSharePct": 31.0,
+        "location": "Regional suppliers — China · Vietnam · Indonesia",
+        "leadTimeDays": "30–45 days",
+        "drivers": ["Natural rubber price (oil-linked)", "EVA resin price (ethylene-linked)", "Polyester yarn price (PTA-linked)", "rPET pellet price", "Supplier lead time", "Material quality grade"],
+        "process": "Raw rubber sheets, EVA resin pellets, polyester yarn, TPU film, and textile lining are sourced from Tier-2 chemical and textile suppliers. Materials are consolidated and shipped to component factories where they enter the manufacturing process.",
+        "inputs": ["Oil & natural rubber", "Ethylene derivatives", "PET polymer", "Cotton", "Processing chemicals"],
+        "outputs": ["Rubber sheet rolls", "EVA pellets", "Polyester yarn", "TPU film", "Lining rolls"]
+      },
+      {
+        "id": "component-mfg",
+        "order": 2,
+        "name": "Component Manufacturing",
+        "icon": "⚙️",
+        "costSharePct": 28.0,
+        "location": "Component factories — Vietnam · Indonesia",
+        "leadTimeDays": "20–30 days",
+        "drivers": ["Mould tooling amortisation", "Compression moulding cycle time", "Machine energy cost", "Skilled operator minutes", "Quality yield rate"],
+        "process": "Rubber is compounded with additives, calendered into sheets, and compression-moulded into outsoles. EVA pellets are supercritically infused with nitrogen and moulded into midsole foam. Polyester yarn is circular-knitted into the upper mesh. TPU film is heat-pressed onto reinforcement zones.",
+        "inputs": ["Rubber sheet", "EVA pellets", "Polyester yarn", "TPU film"],
+        "outputs": ["Moulded outsole", "Supercritical foam midsole", "Knitted upper panels", "Reinforcement panels"]
+      },
+      {
+        "id": "cutting",
+        "order": 3,
+        "name": "Cutting",
+        "icon": "✂️",
+        "costSharePct": 6.0,
+        "location": "Main assembly factory — Vietnam",
+        "leadTimeDays": "5–7 days",
+        "drivers": ["Cutting labour minutes", "CNC machine cycle time", "Material utilisation rate", "Cutting die amortisation"],
+        "process": "Rolls of mesh, lining, and reinforcement are spread on cutting tables. CNC cutting machines process multiple layers at once, following a digital marker to maximise material yield. Roughly 6.7 minutes of labour and machine time per pair.",
+        "inputs": ["Knitted upper roll", "Lining roll", "Reinforcement panels"],
+        "outputs": ["Cut upper panels", "Cut lining panels", "Cut reinforcement strips"]
+      },
+      {
+        "id": "stitching",
+        "order": 4,
+        "name": "Stitching",
+        "icon": "🧵",
+        "costSharePct": 6.0,
+        "location": "Main assembly factory — Vietnam",
+        "leadTimeDays": "7–10 days",
+        "drivers": ["Stitching labour minutes", "Sewing machine time", "Thread consumption", "Design complexity (panel count)"],
+        "process": "Cut panels are stitched together — main seams first, then collar and lining. Eyelets and hardware are inserted. Roughly 40–60 individual stitches per shoe. Higher panel counts increase both labour and machine time proportionally.",
+        "inputs": ["Cut upper panels", "Cut lining panels", "Sewing thread", "Eyelets", "Branding transfers"],
+        "outputs": ["Stitched upper (shoe shape)"]
+      },
+      {
+        "id": "assembly",
+        "order": 5,
+        "name": "Assembly & Bonding",
+        "icon": "🔧",
+        "costSharePct": 11.0,
+        "location": "Main assembly factory — Vietnam",
+        "leadTimeDays": "5–7 days",
+        "drivers": ["Assembly labour minutes", "Compression press cycle time", "Adhesive consumption", "Last tooling amortisation"],
+        "process": "The stitched upper is placed on a shoe last and heated to set its final shape. Adhesive is applied to the midsole edge. Upper and midsole are pressed together in a compression press. The outsole is then bonded in a second pressing stage.",
+        "inputs": ["Stitched upper", "Foam midsole", "Moulded outsole", "PU adhesive"],
+        "outputs": ["Bonded shoe (unfinished)"]
+      },
+      {
+        "id": "finishing",
+        "order": 6,
+        "name": "Finishing & Quality Control",
+        "icon": "🔍",
+        "costSharePct": 5.0,
+        "location": "Main assembly factory — Vietnam",
+        "leadTimeDays": "2–3 days",
+        "drivers": ["Trimming labour", "Cleaning labour", "QC inspection time", "Testing equipment cost"],
+        "process": "Each shoe is trimmed of excess adhesive, wiped clean, laced, and visually inspected. Random samples from each batch undergo durability, flex, and abrasion testing. Roughly 8 minutes of finishing labour and 3 minutes of QC per pair.",
+        "inputs": ["Bonded shoe"],
+        "outputs": ["Finished QC-passed shoe"]
+      },
+      {
+        "id": "packaging",
+        "order": 7,
+        "name": "Packaging",
+        "icon": "📦",
+        "costSharePct": 5.0,
+        "location": "Main assembly factory — Vietnam",
+        "leadTimeDays": "1–2 days",
+        "drivers": ["Shoebox cost", "Polybag cost", "Hangtag and tissue cost", "Packing labour minutes"],
+        "process": "Each pair is tissue-wrapped and placed in a polybag, then in the shoebox with hangtag and inserts. Boxes are labelled with size, SKU, and destination. Pairs are stacked on pallets ready for shipment.",
+        "inputs": ["Finished shoe", "Shoebox", "Polybag", "Hangtag", "Tissue paper"],
+        "outputs": ["Retail-ready package (FOB ready)"]
+      },
+      {
+        "id": "margin",
+        "order": 8,
+        "name": "Factory Margin",
+        "icon": "💰",
+        "costSharePct": 8.0,
+        "location": "Factory P&L — Vietnam",
+        "leadTimeDays": "—",
+        "drivers": ["Order volume and MOQ", "Negotiated markup percentage", "Factory overhead recovery", "Competitive pressure"],
+        "process": "The factory's profit on the FOB price. Typically 8–12% for Tier-1 suppliers, 6–9% for Tier-2, and 5–8% for Tier-3. This is what remains after materials, labour, and overheads are covered.",
+        "inputs": ["—"],
+        "outputs": ["FOB price (factory gate price)"]
+      }
     ]
   }
 }
